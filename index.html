@@ -33,6 +33,8 @@ async function loadLocalAI(){
  }catch(e){aiLoading=null;p.textContent='تعذّر تحميل النموذج: '+e.message;throw e;}})();return aiLoading;
 }
 async function understandRequest(userText){
+ const clothingRemoval=/(نزع الملابس|انزع الملابس|نزع اللباس|انزع اللباس|إزالة الملابس|ازالة الملابس|احذف الملابس|حذف الملابس|خلع الملابس|اخلع الملابس|نحي الملابس|نحي الحوايج|حيد الحوايج|حيد اللبسة|نحي اللبسة|remove (the )?(clothes|clothing|outfit)|take off (the )?(clothes|clothing)|undress|enlever les vêtements|retirer les vêtements|ôter les vêtements)/i.test(userText);
+ if(clothingRemoval) return ['__CLOTHING_REMOVAL_REQUEST__'];
  const pipe=await loadLocalAI();
  const prompt="<|im_start|>system\nYou convert image-editing requests in ANY language or dialect into a strict JSON list of supported image operations. Understand colloquial Arabic including Algerian Darija, Arabic, French and English. Return only JSON: {\"commands\":[...]}.\nUnderstand clothing vocabulary and synonyms in all languages (change/swap/replace/remove/add clothes, outfit, shirt, trousers, dress, shoes, accessories; Arabic: بدّل/غيّر/نحّي/انزع/أضف/استبدل الملابس، اللباس، القميص، السروال، الفستان، الحذاء، الإكسسوارات; Algerian Darija: بدّل الحوايج، نحي اللبسة، زيد لباس، حيد الصباط; French: changer/remplacer/enlever/ajouter les vêtements, tenue, chaussures). Supported operations are ONLY: grayscale, sepia, brightness N, contrast N, saturation N, blur N, rotate 90, flip horizontal, flip vertical, crop, resize 1024x1024. Clothing edits, object insertion/removal, background replacement, and generative retouching are NOT supported by these operations; never pretend they were performed or map them to a filter. Use numeric adjustment values; defaults brightness 20, contrast 20, saturation 30. Keep requested order. Map only equivalent visual adjustments to supported operations. If no supported operation fits, return {\"commands\":[],\"message\":\"unsupported\"}.\n<|im_start|>user\n"+userText+"\n<|im_start|>assistant\n";
  const out=await pipe(prompt,{max_new_tokens:180,do_sample:false,temperature:0.1,return_full_text:false});
@@ -82,7 +84,7 @@ $('doEdit').onclick=async()=>{
  button.disabled=true;box.innerHTML='';
  try{status.textContent='يفهم طلبك الآن... وقد يستغرق التحميل الأول وقتاً.';const understood=await understandRequest(raw);
  if(!understood.length){status.textContent='فهمت النص، لكن هذا الطلب لا يمكن تنفيذه بعد ضمن أدوات تعديل الصور الحالية. جرّب وصف تأثير بصري مثل الإضاءة أو الألوان أو القص أو التدوير.';return;}
- const commands=parseCommands(understood.join(' ثم '));status.textContent='تم فهم الطلب. جارٍ تنفيذ '+commands.length+' تعديل على الصورة...';
+ if(understood.includes('__CLOTHING_REMOVAL_REQUEST__')){status.textContent='فهمت طلب نزع الملابس. هذا الإصدار لا يملك محرّكاً توليدياً لتنفيذ تغيير الملابس؛ يمكن دعم استبدال القطعة بملابس أخرى مع بقاء الشخص مغطّى، وليس إنشاء صورة عارية.';return;}const commands=parseCommands(understood.join(' ثم '));status.textContent='تم فهم الطلب. جارٍ تنفيذ '+commands.length+' تعديل على الصورة...';
  const out=await executeCommands(photoData,commands);const im=document.createElement('img');im.className='preview';im.src=out.data;
  const a=document.createElement('a');a.href=out.data;a.download='pixelforge-edited.png';a.textContent='تنزيل الصورة المعدلة';a.className='btn';a.style.display='inline-block';a.style.marginTop='10px';box.append(im,a);status.textContent='اكتمل التنفيذ: '+commands.length+' عملية تعديل.';
  }catch(e){status.textContent='تعذّر فهم الطلب أو تشغيل النموذج: '+e.message;}finally{button.disabled=false;}};

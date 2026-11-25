@@ -48,6 +48,10 @@ footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
 </section>
 <footer>PIXELFORGE STUDIO</footer>
 </main>
+<script>
+// Keep image picking and preview independent from the remote AI library.
+(()=>{const input=document.getElementById("photo"),preview=document.getElementById("sourcePreview"),status=document.getElementById("editStatus");let currentUrl="";input.addEventListener("change",()=>{const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith("image/")){status.textContent="الملف المختار ليس صورة.";return;}if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=URL.createObjectURL(file);preview.src=currentUrl;preview.classList.remove("hidden");document.getElementById("editResult").innerHTML="";status.textContent="تم اختيار الصورة بنجاح. اكتب التعديل المطلوب.";});})();
+</script>
 <script type="module">
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/dist/index.min.js";
 const $=id=>document.getElementById(id);
@@ -62,10 +66,7 @@ function handlePhotoSelection(e){
  $('editResult').innerHTML='';$('editStatus').textContent='تم اختيار الصورة بنجاح. اكتب التعديل المطلوب.';
 }
 $('photo').addEventListener('change',handlePhotoSelection);
-$('photo').addEventListener('input',handlePhotoSelection);
-$('photo').addEventListener('cancel',()=>{$('editStatus').textContent='لم يتم اختيار صورة.';});
-$('photo').addEventListener('click',()=>{$('editStatus').textContent='اختر صورة من المعرض.';});
-$('photo').parentElement;
+
 function getOutputUrl(item){
  if(typeof item==='string'){
   if(/^https?:\\/\\//i.test(item))return item;

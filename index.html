@@ -25,7 +25,7 @@ footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
 <section class="card">
 <b>1 · اختر الصورة</b>
 <label class="label file" for="photo">＋ اختيار صورة من معرض الهاتف</label>
-<input id="photo" type="file" accept="image/*" hidden>
+<input id="photo" type="file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" aria-label="اختيار صورة">
 <img id="sourcePreview" class="preview hidden" alt="الصورة الأصلية">
 <label class="label" for="editPrompt">2 · اكتب التعديل المطلوب</label>
 <textarea id="editPrompt" placeholder="مثال: بدّل لون القميص إلى الأزرق، احذف الشخص الموجود في الخلفية، غيّر الخلفية إلى شاطئ وقت الغروب، حسّن الإضاءة..."></textarea>
@@ -52,13 +52,20 @@ footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/dist/index.min.js";
 const $=id=>document.getElementById(id);
 let selectedFile=null,sourceUrl="";
-$('photo').addEventListener('change',e=>{
+function handlePhotoSelection(e){
  const f=e.target.files&&e.target.files[0];if(!f)return;
  if(!f.type.startsWith('image/')){$('editStatus').textContent='الملف المختار ليس صورة.';return;}
- selectedFile=f;if(sourceUrl)URL.revokeObjectURL(sourceUrl);sourceUrl=URL.createObjectURL(f);
- $('sourcePreview').src=sourceUrl;$('sourcePreview').classList.remove('hidden');
- $('editResult').innerHTML='';$('editStatus').textContent='تم تحميل الصورة. اكتب التعديل المطلوب.';
-});
+ selectedFile=f;
+ if(sourceUrl)URL.revokeObjectURL(sourceUrl);
+ sourceUrl=URL.createObjectURL(f);
+ const preview=$('sourcePreview');preview.src=sourceUrl;preview.classList.remove('hidden');
+ $('editResult').innerHTML='';$('editStatus').textContent='تم اختيار الصورة بنجاح. اكتب التعديل المطلوب.';
+}
+$('photo').addEventListener('change',handlePhotoSelection);
+$('photo').addEventListener('input',handlePhotoSelection);
+$('photo').addEventListener('cancel',()=>{$('editStatus').textContent='لم يتم اختيار صورة.';});
+$('photo').addEventListener('click',()=>{$('editStatus').textContent='اختر صورة من المعرض.';});
+$('photo').parentElement;
 function getOutputUrl(item){
  if(typeof item==='string'){
   if(/^https?:\\/\\//i.test(item))return item;

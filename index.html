@@ -29,6 +29,13 @@ footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
 <img id="sourcePreview" class="preview hidden" alt="الصورة الأصلية">
 <label class="label" for="editPrompt">2 · اكتب التعديل المطلوب</label>
 <textarea id="editPrompt" placeholder="مثال: بدّل لون القميص إلى الأزرق، احذف الشخص الموجود في الخلفية، غيّر الخلفية إلى شاطئ وقت الغروب، حسّن الإضاءة..."></textarea>
+<label class="label" for="referencePhoto">صورة مرجعية إضافية (اختياري: ملابس، إضاءة، أسلوب أو مشهد)</label>
+<input id="referencePhoto" type="file" accept="image/*" class="btn" style="width:100%">
+<label class="label" for="styleMode">نمط اختياري</label>
+<select id="styleMode" class="btn" style="width:100%">
+<option value="">تحرير طبيعي (بدون نمط إضافي)</option>
+<option>Multiple-Angles</option><option>Fal-Multiple-Angles</option><option>Photo-to-Anime</option><option>Anime-V2</option><option>Light-Migration</option><option>Any-light</option><option>Studio-DeLight</option><option>Cinematic-FlatLog</option><option>Upscaler</option><option>Unblur-Anything</option><option>Style-Transfer</option><option>Manga-Tone</option><option>Anything2Real</option><option>Polaroid-Photo</option><option>Midnight-Noir-Eyes-Spotlight</option><option>Hyper-Realistic-Portrait</option><option>Ultra-Realistic-Portrait</option><option>Pixar-Inspired-3D</option><option>Noir-Comic-Book</option>
+</select>
 <p class="muted">يفهم الأوامر المكتوبة بالعربية والدارجة الجزائرية والفرنسية والإنجليزية. يمكنك وصف أكثر من تعديل في طلب واحد.</p>
 <button class="btn primary" id="doEdit" style="width:100%;margin-top:8px">✨ نفّذ التعديل على الصورة</button>
 <div id="editStatus" class="status" aria-live="polite">ارفع صورة واكتب التغييرات التي تريدها.</div>
@@ -53,13 +60,16 @@ $('photo').addEventListener('change',e=>{
  $('editResult').innerHTML='';$('editStatus').textContent='تم تحميل الصورة. اكتب التعديل المطلوب.';
 });
 function getOutputUrl(item){
- if(typeof item==='string')return item;
- if(item&&typeof item.url==='string')return item.url;
+ if(typeof item==='string'){
+  if(/^https?:\\/\\//i.test(item))return item;
+  return 'https://kulkas2pintu-qwen-edit-image.hf.space/gradio_api/file='+encodeURIComponent(item);
+ }
+ if(item&&typeof item.url==='string'&&item.url)return item.url;
  if(item&&typeof item.path==='string'){
-  if(/^https?:\\/\\//i.test(item.path))return item.path;
+  if(item.path.startsWith('http'))return item.path;
   return 'https://kulkas2pintu-qwen-edit-image.hf.space/gradio_api/file='+encodeURIComponent(item.path);
  }
- throw new Error('لم يرجع محرك الصور رابطاً صالحاً للنتيجة.');
+ throw new Error('لم يرجع المحرك ملف صورة صالحاً.');
 }
 $('doEdit').addEventListener('click',async()=>{
  const prompt=$('editPrompt').value.trim(),btn=$('doEdit'),status=$('editStatus'),box=$('editResult');
@@ -71,11 +81,12 @@ $('doEdit').addEventListener('click',async()=>{
   const app=await Client.connect('kulkas2pintu/QWEN_EDIT_IMAGE');
   status.textContent='تم الاتصال. جارٍ إرسال الصورة والتعليمات إلى المحرك التوليدي...';
   const instruction='Follow the user’s image-editing instruction as written. Preserve the identity and all details that are not requested to change. User instruction: '+prompt;
+  const reference=$('referencePhoto').files[0]||null;
   const response=await app.predict('/edit',{
    image:selectedFile,
    prompt:instruction,
-   lora_adapter:'',
-   image2:null,
+   lora_adapter:$('styleMode').value,
+   image2:reference,
    seed:0,
    randomize_seed:true,
    guidance_scale:1.0,
@@ -83,7 +94,8 @@ $('doEdit').addEventListener('click',async()=>{
    preserve_identity:true,
    identity_strength:65,
    output_size:1024,
-   fix_hands:false
+   fix_hands:false,
+   lock_face_hair:false
   });
   if(!response||!Array.isArray(response.data)||!response.data.length)throw new Error('لم يُرجع المحرك صورة معدّلة.');
   const outputUrl=getOutputUrl(response.data[0]);

@@ -49,24 +49,12 @@ footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
 <footer>PIXELFORGE STUDIO</footer>
 </main>
 <script>
-// Keep image picking and preview independent from the remote AI library.
-(()=>{const input=document.getElementById("photo"),preview=document.getElementById("sourcePreview"),status=document.getElementById("editStatus");let currentUrl="";input.addEventListener("change",()=>{const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith("image/")){status.textContent="الملف المختار ليس صورة.";return;}if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=URL.createObjectURL(file);preview.src=currentUrl;preview.classList.remove("hidden");document.getElementById("editResult").innerHTML="";status.textContent="تم اختيار الصورة بنجاح. اكتب التعديل المطلوب.";});})();
+// Store the selected file globally so the editor always receives the same file as the preview.
+(()=>{const input=document.getElementById("photo"),preview=document.getElementById("sourcePreview"),status=document.getElementById("editStatus");let currentUrl="";input.addEventListener("change",()=>{const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith("image/")){status.textContent="الملف المختار ليس صورة.";return;}window.__pixelForgeSelectedPhoto=file;if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=URL.createObjectURL(file);preview.src=currentUrl;preview.classList.remove("hidden");document.getElementById("editResult").innerHTML="";status.textContent="تم اختيار الصورة بنجاح. اكتب التعديل ثم اضغط زر تنفيذ التعديل.";});})();
 </script>
 <script type="module">
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/dist/index.min.js";
 const $=id=>document.getElementById(id);
-let selectedFile=null,sourceUrl="";
-function handlePhotoSelection(e){
- const f=e.target.files&&e.target.files[0];if(!f)return;
- if(!f.type.startsWith('image/')){$('editStatus').textContent='الملف المختار ليس صورة.';return;}
- selectedFile=f;
- if(sourceUrl)URL.revokeObjectURL(sourceUrl);
- sourceUrl=URL.createObjectURL(f);
- const preview=$('sourcePreview');preview.src=sourceUrl;preview.classList.remove('hidden');
- $('editResult').innerHTML='';$('editStatus').textContent='تم اختيار الصورة بنجاح. اكتب التعديل المطلوب.';
-}
-$('photo').addEventListener('change',handlePhotoSelection);
-
 function getOutputUrl(item){
  if(typeof item==='string'){
   if(/^https?:\\/\\//i.test(item))return item;
@@ -80,9 +68,10 @@ function getOutputUrl(item){
  throw new Error('لم يرجع المحرك ملف صورة صالحاً.');
 }
 $('doEdit').addEventListener('click',async()=>{
- const prompt=$('editPrompt').value.trim(),btn=$('doEdit'),status=$('editStatus'),box=$('editResult');
- if(!selectedFile){status.textContent='اختر صورة أولاً.';return;}
- if(!prompt){status.textContent='اكتب وصف التعديل المطلوب.';return;}
+ const prompt=String($('editPrompt').value||'').trim(),btn=$('doEdit'),status=$('editStatus'),box=$('editResult');
+ const selectedFile=window.__pixelForgeSelectedPhoto||($('photo').files&&$('photo').files[0]);
+ if(!selectedFile){status.textContent='لم تصل الصورة إلى المحرر. اخترها مرة أخرى من زر اختيار الصورة.';return;}
+ if(!prompt){status.textContent='اكتب التعديل داخل مربع النص الكبير، ثم اضغط زر تنفيذ التعديل.';$('editPrompt').focus();return;}
  btn.disabled=true;box.innerHTML='';
  try{
   status.textContent='جارٍ الاتصال بمحرك تحرير الصور...';

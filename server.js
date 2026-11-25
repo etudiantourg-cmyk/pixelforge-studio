@@ -2,6 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { gunzipSync } from "node:zlib";
 
 const ROOT=path.dirname(fileURLToPath(import.meta.url));
 function loadEnv(){
@@ -71,6 +72,12 @@ const server=http.createServer(async(req,res)=>{
       const upstream=await fetch(remote);if(!upstream.ok)return send(res,upstream.status,"تعذر جلب الملف الناتج.","text/plain; charset=utf-8");
       const type=upstream.headers.get("content-type")||"application/octet-stream";if(!type.startsWith("image/")&&!type.startsWith("video/"))return send(res,415,"نوع ملف غير مدعوم.","text/plain; charset=utf-8");
       const bytes=Buffer.from(await upstream.arrayBuffer());res.writeHead(200,{"Content-Type":type,"Content-Length":bytes.length,"Content-Disposition":`attachment; filename="pixelforge-result.${type.startsWith("video/")?"mp4":"png"}"`});return res.end(bytes);
+    }
+    if((req.method==="GET"||req.method==="HEAD")&&(url.pathname==="/"||url.pathname==="/index.html")){
+      const packed=[1,2,3,4,5,6].map(n=>fs.readFileSync(path.join(ROOT,`index.part${n}.b64`),"utf8").trim()).join("");
+      const html=gunzipSync(Buffer.from(packed,"base64"));
+      res.writeHead(200,{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache"});
+      if(req.method==="HEAD")return res.end();return res.end(html);
     }
     if(req.method==="GET"||req.method==="HEAD"){
       let pathname=decodeURIComponent(url.pathname);if(pathname==="/")pathname="/index.html";

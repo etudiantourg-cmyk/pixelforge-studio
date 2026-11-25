@@ -61,7 +61,7 @@ const $=id=>document.getElementById(id);
 $('editPrompt').addEventListener('input',()=>{const text=$('editPrompt').value.trim();if(text){$('editStatus').textContent='تم إدخال التعديل ('+text.length+' حرفاً). اضغط الآن زر «نفّذ التعديل على الصورة».';}else if(window.__pixelForgeSelectedPhoto){$('editStatus').textContent='الصورة جاهزة. اكتب التعديل في مربع النص الكبير.';}});
 function getOutputUrl(item){
  if(typeof item==='string'){
-  if(/^https?:\\/\\//i.test(item))return item;
+  if(/^https?:\/\//i.test(item))return item;
   return 'https://kulkas2pintu-qwen-edit-image.hf.space/gradio_api/file='+encodeURIComponent(item);
  }
  if(item&&typeof item.url==='string'&&item.url)return item.url;

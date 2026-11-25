@@ -52,8 +52,8 @@ footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
 // Store the selected file globally so the editor always receives the same file as the preview.
 (()=>{const input=document.getElementById("photo"),preview=document.getElementById("sourcePreview"),status=document.getElementById("editStatus");let currentUrl="";input.addEventListener("change",()=>{const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith("image/")){status.textContent="الملف المختار ليس صورة.";return;}window.__pixelForgeSelectedPhoto=file;if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=URL.createObjectURL(file);preview.src=currentUrl;preview.classList.remove("hidden");document.getElementById("editResult").innerHTML="";status.textContent="تم اختيار الصورة بنجاح. اكتب التعديل ثم اضغط زر تنفيذ التعديل.";});const prompt=document.getElementById("editPrompt");prompt.addEventListener("input",()=>{const value=prompt.value.trim();if(value){status.textContent="تم استلام الأمر ("+value.length+" حرفاً). اضغط زر «نفّذ التعديل على الصورة»."; }else if(window.__pixelForgeSelectedPhoto){status.textContent="الصورة جاهزة. اكتب التعديل في مربع النص الكبير.";}});})();
 </script>
-<script type="module">
-import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/dist/index.min.js";
+<script>
+let Client;
 const $=id=>document.getElementById(id);
 $('editPrompt').addEventListener('input',()=>{const text=$('editPrompt').value.trim();if(text){$('editStatus').textContent='تم إدخال التعديل ('+text.length+' حرفاً). اضغط الآن زر «نفّذ التعديل على الصورة».';}else if(window.__pixelForgeSelectedPhoto){$('editStatus').textContent='الصورة جاهزة. اكتب التعديل في مربع النص الكبير.';}});
 function getOutputUrl(item){
@@ -75,7 +75,9 @@ $('doEdit').addEventListener('click',async()=>{
  if(!prompt){status.textContent='اكتب التعديل داخل مربع النص الكبير، ثم اضغط زر تنفيذ التعديل.';$('editPrompt').focus();return;}
  btn.disabled=true;box.innerHTML='';
  try{
-  status.textContent='جارٍ الاتصال بمحرك تحرير الصور...';
+  status.textContent='تم الضغط على الزر. جارٍ تحميل مكتبة الاتصال بمحرك الصور...';
+  if(!Client){const gradio=await import('https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/dist/index.min.js');Client=gradio.Client;}
+  status.textContent='تم تحميل المكتبة. جارٍ الاتصال بمحرك تحرير الصور...';
   const app=await Client.connect('kulkas2pintu/QWEN_EDIT_IMAGE');
   status.textContent='تم الاتصال. جارٍ إرسال الصورة والتعليمات إلى Qwen-Image-Edit-2511...';
   const instruction='Follow the user’s image-editing instruction as written. Preserve the identity and all details that are not requested to change. User instruction: '+prompt;

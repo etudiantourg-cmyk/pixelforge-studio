@@ -55,6 +55,7 @@ footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
 <script type="module">
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/dist/index.min.js";
 const $=id=>document.getElementById(id);
+$('editPrompt').addEventListener('input',()=>{const text=$('editPrompt').value.trim();if(text){$('editStatus').textContent='تم إدخال التعديل ('+text.length+' حرفاً). اضغط الآن زر «نفّذ التعديل على الصورة».';}else if(window.__pixelForgeSelectedPhoto){$('editStatus').textContent='الصورة جاهزة. اكتب التعديل في مربع النص الكبير.';}});
 function getOutputUrl(item){
  if(typeof item==='string'){
   if(/^https?:\\/\\//i.test(item))return item;

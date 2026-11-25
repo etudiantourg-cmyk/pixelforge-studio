@@ -115,6 +115,6 @@ $('doEdit').addEventListener('click',async()=>{
  }finally{btn.disabled=false;}
 });
 </script>
-<button id="floatingEdit" class="btn primary" type="button">✨ نفّذ التعديل على الصورة</button>
-<script>document.getElementById("floatingEdit").addEventListener("click",()=>{const b=document.getElementById("doEdit");if(b){b.scrollIntoView({behavior:"smooth",block:"center"});b.click();}});</script>
+<button id="floatingEdit" class="btn primary" type="button" onclick="(function(){var st=document.getElementById('editStatus');var b=document.getElementById('doEdit');if(st)st.textContent='وصل الضغط إلى زر التنفيذ. أتحقق من تشغيل المحرّك...';if(b){b.scrollIntoView({behavior:'smooth',block:'center'});b.click();}else if(st){st.textContent='تعذّر العثور على وظيفة التنفيذ داخل الصفحة.';}})()">✨ نفّذ التعديل على الصورة</button>
+<script>window.addEventListener("error",function(e){var st=document.getElementById("editStatus");if(st)st.textContent="خطأ في تشغيل المحرر: "+(e.message||"تعذر تشغيل JavaScript");});window.addEventListener("unhandledrejection",function(e){var st=document.getElementById("editStatus");if(st)st.textContent="فشل اتصال المحرر: "+(e.reason&&e.reason.message||e.reason||"خطأ غير معروف");});</script>
 </body></html>

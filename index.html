@@ -43,7 +43,7 @@ footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
 </section>
 <section class="card">
 <b>حول المحرك</b>
-<p class="muted">يعتمد PIXELFORGE STUDIO على نموذج توليدي لتحرير الصور بالتعليمات النصية، وليس على فلاتر شكلية فقط. تُرسل الصورة إلى خدمة استدلال عامة لمعالجتها ثم تُعاد النتيجة إلى المتصفح. لا يحتاج التطبيق إلى مفتاح API من المستخدم.</p>
+<p class="muted">يعتمد PIXELFORGE STUDIO على نموذج توليدي لتحرير الصور بالتعليمات النصية، وليس على فلاتر شكلية فقط. تُرسل الصورة إلى خدمة استدلال عامة لمعالجتها ثم تُعاد النتيجة إلى المتصفح. لا يحتاج التطبيق إلى مفتاح API من المستخدم. يعتمد التحرير على Qwen-Image-Edit-2511-LoRAs-Fast.</p>
 <p class="muted">قد تختلف سرعة التنفيذ والتوافر حسب ضغط الخدمة المجانية وحدود الاستخدام اليومية. لا تحفظ الخدمة الصور داخل حساب PIXELFORGE.</p>
 </section>
 <footer>PIXELFORGE STUDIO</footer>
@@ -79,7 +79,7 @@ $('doEdit').addEventListener('click',async()=>{
  try{
   status.textContent='جارٍ الاتصال بمحرك تحرير الصور...';
   const app=await Client.connect('kulkas2pintu/QWEN_EDIT_IMAGE');
-  status.textContent='تم الاتصال. جارٍ إرسال الصورة والتعليمات إلى المحرك التوليدي...';
+  status.textContent='تم الاتصال. جارٍ إرسال الصورة والتعليمات إلى Qwen-Image-Edit-2511...';
   const instruction='Follow the user’s image-editing instruction as written. Preserve the identity and all details that are not requested to change. User instruction: '+prompt;
   const reference=$('referencePhoto').files[0]||null;
   const response=await app.predict('/edit',{
@@ -89,15 +89,14 @@ $('doEdit').addEventListener('click',async()=>{
    image2:reference,
    seed:0,
    randomize_seed:true,
-   guidance_scale:1.0,
-   steps:4,
+   guidance_scale:2.5,
+   steps:6,
    preserve_identity:true,
-   identity_strength:65,
-   output_size:1024,
-   fix_hands:false,
-   lock_face_hair:false
+   identity_strength:80,
+   output_size:1536,
+   fix_hands:true
   });
-  if(!response||!Array.isArray(response.data)||!response.data.length)throw new Error('لم يُرجع المحرك صورة معدّلة.');
+  if(!response||!Array.isArray(response.data)||!response.data[0])throw new Error('لم يُرجع المحرك صورة معدّلة.');
   const outputUrl=getOutputUrl(response.data[0]);
   status.textContent='اكتمل التوليد. جارٍ تجهيز الصورة للعرض والتنزيل...';
   const img=document.createElement('img');img.className='preview';img.alt='الصورة بعد التعديل';img.src=outputUrl;

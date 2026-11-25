@@ -17,6 +17,9 @@ textarea{width:100%;min-height:112px;resize:vertical;border:1px solid var(--line
 .row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1}.hidden{display:none!important}
 .result-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.result-actions a{display:inline-block;text-decoration:none;text-align:center}
 footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
+
+#floatingEdit{position:fixed;z-index:99999;left:14px;right:14px;bottom:14px;width:calc(100% - 28px);max-width:680px;margin:auto;box-shadow:0 5px 24px #0009;font-size:17px;padding:16px;border:2px solid #a9baff}
+body{padding-bottom:90px}
 </style>
 </head>
 <body>
@@ -112,4 +115,6 @@ $('doEdit').addEventListener('click',async()=>{
  }finally{btn.disabled=false;}
 });
 </script>
+<button id="floatingEdit" class="btn primary" type="button">✨ نفّذ التعديل على الصورة</button>
+<script>document.getElementById("floatingEdit").addEventListener("click",()=>{const b=document.getElementById("doEdit");if(b){b.scrollIntoView({behavior:"smooth",block:"center"});b.click();}});</script>
 </body></html>

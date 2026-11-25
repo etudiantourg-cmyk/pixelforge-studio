@@ -55,7 +55,10 @@ $('photo').addEventListener('change',e=>{
 function getOutputUrl(item){
  if(typeof item==='string')return item;
  if(item&&typeof item.url==='string')return item.url;
- if(item&&typeof item.path==='string')return item.path;
+ if(item&&typeof item.path==='string'){
+  if(/^https?:\\/\\//i.test(item.path))return item.path;
+  return 'https://kulkas2pintu-qwen-edit-image.hf.space/gradio_api/file='+encodeURIComponent(item.path);
+ }
  throw new Error('لم يرجع محرك الصور رابطاً صالحاً للنتيجة.');
 }
 $('doEdit').addEventListener('click',async()=>{
@@ -68,20 +71,20 @@ $('doEdit').addEventListener('click',async()=>{
   const app=await Client.connect('kulkas2pintu/QWEN_EDIT_IMAGE');
   status.textContent='تم الاتصال. جارٍ إرسال الصورة والتعليمات إلى المحرك التوليدي...';
   const instruction='Follow the user’s image-editing instruction as written. Preserve the identity and all details that are not requested to change. User instruction: '+prompt;
-  const response=await app.predict('/edit',[
-   selectedFile,
-   instruction,
-   '',
-   null,
-   0,
-   true,
-   2.5,
-   6,
-   true,
-   80,
-   1024,
-   true
-  ]);
+  const response=await app.predict('/edit',{
+   image:selectedFile,
+   prompt:instruction,
+   lora_adapter:'',
+   image2:null,
+   seed:0,
+   randomize_seed:true,
+   guidance_scale:1.0,
+   steps:4,
+   preserve_identity:true,
+   identity_strength:65,
+   output_size:1024,
+   fix_hands:false
+  });
   if(!response||!Array.isArray(response.data)||!response.data.length)throw new Error('لم يُرجع المحرك صورة معدّلة.');
   const outputUrl=getOutputUrl(response.data[0]);
   status.textContent='اكتمل التوليد. جارٍ تجهيز الصورة للعرض والتنزيل...';

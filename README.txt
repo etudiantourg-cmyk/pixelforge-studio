@@ -15,7 +15,7 @@ Requirements: Node.js 20+
 Run:
   npm run validate
 
-This performs static source checks and executable regression tests for the background flood-fill algorithm. The GitHub Actions workflow installs the pinned VTracer package, runs a direct WASM conversion test, starts the Node API on a temporary local port, tests the `/api/vectorize` HTTP path, and verifies rejection of an untrusted Origin. A passing source-level test is not a substitute for a live browser end-to-end test.
+This performs static source checks and executable regression tests for the background flood-fill algorithm. The GitHub Actions workflow installs the pinned VTracer package, runs a direct WASM conversion test, starts the Node API on a temporary local port, tests the `/api/vectorize` HTTP path, and verifies rejection of an untrusted Origin. A passing source-level test is not a substitute for a live browser end-to-end test. A separate `npm run critic` gate rejects the entire release unless every requirement in `ACCEPTANCE_MATRIX.json` is marked EXCELLENT / VERIFIED with implementation, test and evidence paths. The gate is intentionally expected to fail while any requirement remains incomplete.
 
 LOGO CONVERSION ENGINE
 - Raster source upload and preview.

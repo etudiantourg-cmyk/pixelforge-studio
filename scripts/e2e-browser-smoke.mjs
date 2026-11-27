@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import { deflateSync } from 'node:zlib';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import JSZip from 'jszip';
@@ -22,7 +25,23 @@ const items = Array.from({length:21}, (_,i)=>({
   group:groups[i%groups.length]
 }));
 const mockupStub = `(()=>{const items=${JSON.stringify(items)};const png=Uint8Array.from(atob('${tinyPng.toString('base64')}'),c=>c.charCodeAt(0));window.PIXELFORGE_MOCKUPS={available:true,items,environmentStatus:'E2E-STUB',render:async(svg,onProgress)=>items.map((item,i)=>{if(onProgress)onProgress(item,i+1,items.length);return {...item,blob:new Blob([png],{type:'image/png'})}})};})();`;
-const testSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" width="600" height="300"><path fill="#14283f" d="M40 40H560V260H40Z"/><path fill="#d4ad6b" d="M120 90H480V210H120Z"/></svg>';
+function crc32(buffer){
+  let crc=0xffffffff;
+  for(const byte of buffer){crc^=byte;for(let bit=0;bit<8;bit++)crc=(crc>>>1)^(crc&1?0xedb88320:0);}
+  return (crc^0xffffffff)>>>0;
+}
+function pngChunk(type,data){
+  const name=Buffer.from(type),out=Buffer.alloc(12+data.length);
+  out.writeUInt32BE(data.length,0);name.copy(out,4);data.copy(out,8);
+  out.writeUInt32BE(crc32(Buffer.concat([name,data])),8+data.length);
+  return out;
+}
+function makePng(width,height){
+  const ihdr=Buffer.alloc(13);ihdr.writeUInt32BE(width,0);ihdr.writeUInt32BE(height,4);ihdr[8]=8;ihdr[9]=6;
+  const rows=Buffer.alloc(height*(1+width*4));
+  for(let y=0;y<height;y++){const row=y*(1+width*4);rows[row]=0;for(let x=0;x<width;x++){const p=row+1+x*4,inside=x>=12&&x<=width-13&&y>=12&&y<=height-13;rows[p]=inside?20:255;rows[p+1]=inside?35:255;rows[p+2]=inside?55:255;rows[p+3]=255;}}
+  return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),pngChunk('IHDR',ihdr),pngChunk('IDAT',deflateSync(rows)),pngChunk('IEND',Buffer.alloc(0))]);
+}
 
 const server = http.createServer((req,res)=>{
   if(req.url==='/mockup-engine.js'){res.writeHead(200,{'content-type':'text/javascript; charset=utf-8'});return res.end(mockupStub);}
@@ -31,7 +50,8 @@ const server = http.createServer((req,res)=>{
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const address=server.address();
-let browser;
+const origin='http://127.0.0.1:'+address.port;
+let browser,backend,backendPort;
 const failures=[];
 try{
   browser=await chromium.launch({headless:true,args:['--no-sandbox']});
@@ -45,14 +65,28 @@ try{
   await page.route('https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:'window.ImageTracer={};'}));
   await page.route('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:''}));
   await page.route('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:''}));
-  await page.route('https://pixelforge-studio-zajl.onrender.com/api/vectorize',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,engine:'E2E fixture',svg:testSvg})}));
+  backend=spawn(process.execPath,['server.js'],{cwd:root,env:{...process.env,PORT:'0',ALLOWED_ORIGIN:origin},stdio:['ignore','pipe','pipe']});
+  let backendError='';
+  backend.stderr.on('data',chunk=>{backendError+=chunk.toString();});
+  backendPort=await new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(new Error('Local VTracer API startup timed out. '+backendError)),15000);
+    backend.once('error',error=>{clearTimeout(timer);reject(error);});
+    backend.once('exit',code=>{clearTimeout(timer);reject(new Error('Local VTracer API exited early ('+code+'). '+backendError));});
+    backend.stdout.on('data',chunk=>{const match=chunk.toString().match(/listening on (\d+)/);if(match){clearTimeout(timer);resolve(Number(match[1]));}});
+  });
+  await page.route('https://pixelforge-studio-zajl.onrender.com/api/vectorize',async route=>{
+    const request=route.request();
+    const response=await fetch('http://127.0.0.1:'+backendPort+'/api/vectorize',{method:request.method(),headers:{'Content-Type':'application/json',Origin:origin},body:request.postData()});
+    await route.fulfill({status:response.status,contentType:'application/json',body:await response.text()});
+  });
   await page.goto('http://127.0.0.1:'+address.port+'/',{waitUntil:'load',timeout:60000});
   await page.waitForFunction(()=>window.JSZip&&window.jspdf?.jsPDF&&typeof new window.jspdf.jsPDF().svg==='function');
-  const inputPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/mioAAAAASUVORK5CYII=','base64');
+  const inputPng=makePng(64,64);
   await page.locator('#sourceFile').setInputFiles({name:'brand-test.png',mimeType:'image/png',buffer:inputPng});
   await page.waitForFunction(()=>document.querySelector('#convert')?.disabled===false);
   await page.locator('#convert').click();
-  await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع'));
+  await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM'));
+  assert.ok((await page.locator('#diagnostics').textContent()).includes('عدد المسارات:'),'real VTracer output must populate vector diagnostics');
   await page.waitForFunction(()=>document.querySelectorAll('.mockupCard').length===21);
   assert.equal(await page.locator('#downloadSvg').isDisabled(),false,'SVG export should be enabled');
   assert.equal(await page.locator('#downloadPdf').isDisabled(),false,'PDF export should be enabled');
@@ -104,8 +138,9 @@ try{
   assert.equal(await page.locator('#convert').isVisible(),true,'mobile conversion control must remain visible');
   assert.deepEqual(failures,[],'browser must not report uncaught JavaScript or console errors');
   fs.writeFileSync(path.join(artifactDir,'e2e-summary.json'),JSON.stringify({source:'brand-test.png',svgBytes:svgText.length,pngBytes:png.length,pdfBytes:pdf.length,zipBytes:zipBytes.length,zipFiles:names.length,mockupAssets:names.filter(n=>n.startsWith('05-presentation-mockups/')).length,mobileViewport:'PASS',vectorPdf:'PASS',svg:'PASS',png:'PASS',zip:'PASS'},null,2));
-  console.log('PIXELFORGE BROWSER E2E: PASS — upload, mocked vectorization, SVG/PNG/PDF downloads, and complete ZIP package verified.');
+  console.log('PIXELFORGE BROWSER E2E: PASS — upload, real VTracer vectorization, SVG/PNG/PDF downloads, and complete ZIP package verified.');
 }finally{
   if(browser)await browser.close();
+  if(backend){backend.kill('SIGTERM');await Promise.race([once(backend,'exit'),new Promise(resolve=>setTimeout(resolve,3000))]);}
   await new Promise(resolve=>server.close(resolve));
 }

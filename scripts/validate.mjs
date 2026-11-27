@@ -23,7 +23,11 @@ for (const [name, condition] of [
   ['Source image preview', html.includes("sourceImage').src=previewUrl")],
   ['Structural vector diagnostics', html.includes('فحص بنية الملف المتجهي')],
   ['Multiple PNG sizes', html.includes('[16,32,48,64,128,256,512,1024,2048]')],
-  ['Quality disclosure', html.includes('NOT HUMAN APPROVED')]
+  ['Quality disclosure', html.includes('NOT HUMAN APPROVED')],
+  ['Strict image MIME validation', html.includes("['image/png','image/jpeg','image/webp']")],
+  ['20 MiB upload limit', html.includes('20*1024*1024')],
+  ['40 MP image limit', html.includes('w*h>40000000')],
+  ['Stale outputs cleared on new upload', html.includes("svgMarkup='';variants={}") ]
 ]) if (!condition) errors.push('Feature marker missing: ' + name); else checks.push(name);
 if (errors.length) {
   console.error('PIXELFORGE validation FAILED\n' + errors.map(e => '- ' + e).join('\n'));

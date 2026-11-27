@@ -97,10 +97,16 @@
     curvedLogo(parent,logo,.505,.68,.62,-.1,0);
   }
   function cap(parent,logo){
-    const dome=new T.Mesh(new T.SphereGeometry(.9,48,32,0,Math.PI*2,0,Math.PI/2),mat('#283b53','fabric',.96));dome.scale.set(1.12,.92,1);dome.position.y=-.05;parent.add(dome);
-    const brimShape=new T.Shape();brimShape.moveTo(-.82,-.12);brimShape.quadraticCurveTo(0,-1.05,.82,-.12);brimShape.quadraticCurveTo(0,.15,-.82,-.12);
-    const brim=new T.Mesh(new T.ExtrudeGeometry(brimShape,{depth:.09,bevelEnabled:true,bevelSize:.025,bevelThickness:.02,bevelSegments:2}),mat('#1c2c40','fabric',.94));brim.position.set(0,-.42,.28);parent.add(brim);
-    planeLogo(parent,logo,.52,.45,0,.12,.82);
+    const crownMat=mat('#283b53','fabric',.96),brimMat=mat('#1c2c40','fabric',.94),stitch=mat('#8390a0','fabric',.9);
+    const dome=new T.Mesh(new T.SphereGeometry(.9,64,40,0,Math.PI*2,0,Math.PI/2),crownMat);dome.scale.set(1.12,.92,1);dome.position.y=-.05;parent.add(dome);
+    // A continuous curved visor joined to the crown instead of a detached flat wedge.
+    const visor=new T.Shape();visor.moveTo(-.79,-.01);visor.bezierCurveTo(-.9,-.2,-.72,-.78,0,-.96);visor.bezierCurveTo(.72,-.78,.9,-.2,.79,-.01);visor.bezierCurveTo(.48,.13,-.48,.13,-.79,-.01);visor.closePath();
+    const vg=new T.ExtrudeGeometry(visor,{depth:.075,bevelEnabled:true,bevelSegments:4,bevelSize:.035,bevelThickness:.025,curveSegments:24});vg.computeVertexNormals();
+    const brim=new T.Mesh(vg,brimMat);brim.rotation.x=-Math.PI/2;brim.position.set(0,-.045,.02);parent.add(brim);
+    // Crown panel seams and top button give the cap readable construction.
+    for(let a=0;a<6;a++){const ang=a*Math.PI/3;const pts=[];for(let i=0;i<=12;i++){const t=i/12*Math.PI/2;pts.push([Math.sin(t)*.9*Math.cos(ang),-.05+Math.cos(t)*.84,Math.sin(t)*.9*Math.sin(ang)]);}tube(parent,pts,.008,stitch);}
+    const button=new T.Mesh(new T.SphereGeometry(.075,20,12),brimMat);button.position.set(0,.79,0);parent.add(button);
+    planeLogo(parent,logo,.48,.38,0,.18,.79);
   }
   function sign(parent,logo){
     const wall=mat('#d0cdc5','paper',.96);box(parent,3.5,2.5,.2,wall,0,-.05,-.35);
@@ -204,24 +210,29 @@
     planeLogo(parent,logo,1.05,.68,-.25,.12,.64);
   }
   const builders={tshirt:shirt,tote,shopping,giftbox,shipping,mug,bottle,cap,sign,cards,letterhead,envelope,laptop,hoodie,polo,backpack,mailer,tube:tubeProduct,phone,billboard,van};
+  function studioBackdrop(){
+    const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;const x=canvas.getContext('2d');
+    const g=x.createRadialGradient(250,190,35,256,256,390);g.addColorStop(0,'#f4f1eb');g.addColorStop(.58,'#d8d4cc');g.addColorStop(1,'#aaa59d');x.fillStyle=g;x.fillRect(0,0,512,512);
+    const tex=new T.CanvasTexture(canvas);tex.encoding=T.sRGBEncoding;return tex;
+  }
   async function render(svg,onProgress){
     if(!window.WebGLRenderingContext)throw Error('المتصفح لا يدعم WebGL اللازم لعرض النماذج ثلاثية الأبعاد.');
     const logoUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
     try{
       const logoTexture=await new Promise((resolve,reject)=>new T.TextureLoader().load(logoUrl,t=>{t.encoding=T.sRGBEncoding;t.anisotropy=8;resolve(t);},undefined,reject));
       const renderer=new T.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'low-power'});
-      renderer.setPixelRatio(1);renderer.setSize(1200,900,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.82;
-      const out=[];
+      renderer.setPixelRatio(1);renderer.setSize(1200,900,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.62;
+      const out=[];\n      const backdrop=studioBackdrop();
       try{
         for(const item of items){
-          const scene=new T.Scene();scene.background=new T.Color('#d9d5ce');
+          const scene=new T.Scene();scene.background=backdrop;
           const camera=new T.PerspectiveCamera(34,4/3,.1,100);
-          scene.add(new T.HemisphereLight(0xffffff,0x665f56,.68));
-          const key=new T.DirectionalLight(0xfff0dc,1.75);key.position.set(-3.5,6,5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;key.shadow.bias=-.0002;scene.add(key);
-          const fill=new T.DirectionalLight(0xd5e2ff,.38);fill.position.set(4,2,3);scene.add(fill);
-          const rim=new T.DirectionalLight(0xffffff,.68);rim.position.set(0,4,-4);scene.add(rim);
+          scene.add(new T.HemisphereLight(0xffffff,0x665f56,.48));
+          const key=new T.DirectionalLight(0xfff0dc,1.25);key.position.set(-3.5,6,5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;key.shadow.bias=-.0002;scene.add(key);
+          const fill=new T.DirectionalLight(0xd5e2ff,.24);fill.position.set(4,2,3);scene.add(fill);
+          const rim=new T.DirectionalLight(0xffffff,.42);rim.position.set(0,4,-4);scene.add(rim);
           const floorY=-1.65;
-          const floor=new T.Mesh(new T.PlaneGeometry(200,200),new T.MeshStandardMaterial({color:'#a9a39a',roughness:.92}));floor.rotation.x=-Math.PI/2;floor.position.y=floorY-.012;floor.receiveShadow=true;scene.add(floor);
+          const floor=new T.Mesh(new T.PlaneGeometry(200,200),new T.MeshStandardMaterial({color:'#8e8981',roughness:.92}));floor.rotation.x=-Math.PI/2;floor.position.y=floorY-.012;floor.receiveShadow=true;scene.add(floor);
           const group=new T.Group();scene.add(group);builders[item.id](group,logoTexture);
           group.updateMatrixWorld(true);
           const bounds=new T.Box3().setFromObject(group),dimensions=bounds.getSize(new T.Vector3());

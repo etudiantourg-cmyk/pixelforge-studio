@@ -132,3 +132,11 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - The Chromium/WebGL smoke test is configured as a GitHub Actions job, but no actual workflow run result has yet been retrieved. Do not describe the browser render as tested or the mockup images as approved.
 - The presentation images are procedural 3D studio renders, not photographs. They must not be represented as photographic product photography or manufacturing proofs. High-fidelity photographic mockup sets and broader collateral remain outstanding.
 - The latest mockup changes are in GitHub; the Render live deployment and browser runtime still need independent verification.
+
+
+## Expanded presentation bundle — 2026-11-27
+- Expanded the renderer from ten to thirteen scenes by adding letterhead, envelopes, and laptop branding to the original apparel, bags, packaging, product containers, signage, and business-card set.
+- The main ZIP now requires all thirteen rendered PNGs; it refuses to silently deliver a partial presentation set. Individual PNG downloads and a separate mockup ZIP are also available.
+- Added per-scene progress feedback while rendering. The source harness was rerun after the expansion; all 49 static/source assertions pass. This remains source-level evidence only, not a successful real-browser render.
+- Latest main-branch implementation commit at this review point: `ce41020d23bf478a9e564dd37fc5654658210019`. The temporary CI-trigger pull request was closed because no workflow-run evidence was returned by the available GitHub Actions query. No CI pass is claimed.
+- Render deployment must be checked for this exact commit before the feature is described as live. Final release decision remains **REJECTED**.

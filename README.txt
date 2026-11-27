@@ -2,7 +2,7 @@ PIXELFORGE STUDIO — Logo Conversion Foundation
 ================================================
 
 CURRENT STATUS
-The active Render frontend is a static site. Logo conversion now sends a downscaled PNG (maximum 1800×1800) to the project's separate Render Node backend at /api/vectorize. The backend runs VTracer WASM on CPU; no GPU or Cloudflare token is required for vector tracing. If the service is unavailable, the browser falls back to ImageTracerJS. The FLUX image-editing API remains a separate function.
+The active Render frontend is a static site. Logo conversion now sends a downscaled PNG (maximum 1800×1800) to the project's separate Render Node backend at /api/vectorize. The backend runs VTracer WASM on CPU. No GPU, API key, paid AI provider, or external inference service is required. If the service is unavailable, the browser falls back to ImageTracerJS.
 
 Frontend URL:
 https://pixelforge-studio-app.onrender.com

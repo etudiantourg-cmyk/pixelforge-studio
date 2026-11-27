@@ -115,3 +115,11 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - Added `scripts/critic.mjs` and `npm run critic`. It rejects any requirement not marked exactly `EXCELLENT / VERIFIED`, any verdict other than `ACCEPT`, and any missing implementation, test, or evidence path. It never awards partial credit.
 - Added a separate GitHub Actions `strict-critic` job after engineering validation. It is intentionally expected to fail until every mandatory group has reproducible evidence.
 - Important independence disclosure: this is a deterministic acceptance gate, not a separate autonomous AI critic. It enforces the non-negotiable acceptance policy but cannot replace an independent expert inspecting the actual visual outputs.
+
+
+## Product presentation mockup kit — 2026-11-27
+- Added `mockup-engine.js`, a browser-local Three.js renderer with ten product scenes: T-shirt/apparel, fabric tote, paper shopping bag, rigid gift box, shipping carton, ceramic mug, bottle/container, cap, storefront sign, and business cards.
+- Logo aspect ratio is preserved on the product surfaces. Scenes are rendered at 1200×900 and exported as PNG. The UI provides product-family filtering, per-image download, a separate mockup ZIP, and inclusion in the main delivery ZIP.
+- The renderer performs no network upload of the client's logo. Three.js is loaded from a pinned public CDN; the rendering itself runs in the browser using WebGL. If WebGL or the CDN is unavailable, the mockup feature reports a failure and the main ZIP refuses to silently omit the required ten-scene set.
+- Added `scripts/mockup-browser-smoke.mjs`, a real Chromium/WebGL test that renders all ten scenes, decodes each PNG, checks dimensions and non-empty output, and rejects uncaught browser errors. GitHub Actions now installs Playwright/Chromium and runs this test automatically.
+- Honesty boundary: these are procedural 3D studio renders with modeled geometry, materials, studio lighting and shadows—not photographs, not vendor-approved product proofs, and not evidence of physical production. The quality gate remains REJECT until the browser job passes and the scenes receive visual inspection. Photographic mockup sets and complete collateral remain outstanding.

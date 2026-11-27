@@ -85,7 +85,7 @@ const features = [
   ['Mockup engine renders real WebGL scenes at 1200×900 and exports PNG', mockupEngine.includes('new T.WebGLRenderer') && mockupEngine.includes('renderer.setSize(1200,900,false)') && mockupEngine.includes("'image/png'")],
   ['Logo aspect ratio is preserved on mockup surfaces', mockupEngine.includes('texture.image.width/texture.image.height')],
   ['Mockup generation is local and does not upload source logos', !mockupEngine.includes('fetch(') && !mockupEngine.includes('XMLHttpRequest')],
-  ['Chromium smoke test verifies all ten rendered PNGs and their dimensions', mockupSmoke.includes('assert.equal(results.length, 10') && mockupSmoke.includes('createImageBitmap(item.blob)') && mockupSmoke.includes('assert.equal(item.width, 1200') && mockupSmoke.includes('assert.equal(item.height, 900'))],
+  ['Chromium smoke test verifies all ten rendered PNGs and their dimensions', mockupSmoke.includes('assert.equal(results.length, 10') && mockupSmoke.includes('createImageBitmap(item.blob)') && mockupSmoke.includes('assert.equal(item.width, 1200') && mockupSmoke.includes('assert.equal(item.height, 900')],
   ['GitHub Actions runs the 3D mockup browser test', workflow.includes('mockup-browser:') && workflow.includes('npm run test:mockups')],
   ['Project exposes the 3D mockup browser test command', packageJson.scripts?.['test:mockups'] === 'node scripts/mockup-browser-smoke.mjs'],
   ['Mockup cards and individual downloads are integrated into the app', html.includes('id="mockupGrid"') && html.includes('id="downloadMockups"') && html.includes('renderMockupGallery')],

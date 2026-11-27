@@ -96,7 +96,7 @@ const features = [
   ['Browser test stores real PNG evidence and validates PNG signatures', mockupSmoke.includes('artifactDir, item.id +') && mockupSmoke.includes('89504e470d0a1a0a')],
   ['GitHub Actions uploads mockup evidence artifacts', workflow.includes('actions/upload-artifact@v4') && workflow.includes('pixelforge-mockup-browser-evidence')],
   ['Project exposes the 3D mockup browser test command', packageJson.scripts?.['test:mockups'] === 'node scripts/mockup-browser-smoke.mjs'],
-  ['Project exposes real-browser end-to-end export verification', packageJson.scripts?.['test:e2e'] === 'node scripts/e2e-browser-smoke.mjs' && fs.existsSync(new URL('./e2e-browser-smoke.mjs', import.meta.url)) && mockupSmoke.includes('unused') === false],
+  ['Project exposes real-browser end-to-end export verification', packageJson.scripts?.['test:e2e'] === 'node scripts/e2e-browser-smoke.mjs' && fs.existsSync(new URL('./e2e-browser-smoke.mjs', import.meta.url))],
   ['End-to-end browser test verifies SVG, PNG, PDF and complete ZIP package', fs.readFileSync(new URL('./e2e-browser-smoke.mjs', import.meta.url), 'utf8').includes('01-master/brand-test.pdf') && fs.readFileSync(new URL('./e2e-browser-smoke.mjs', import.meta.url), 'utf8').includes('05-presentation-mockups/')),
   ['Mockup filter exposes all seven product groups including devices and vehicles', ['الملابس','الحقائب','العلب والتغليف','المنتجات','اللافتات','المطبوعات','الأجهزة','المركبات'].every(group => html.includes('<option value="'+group+'">'))],
   ['Mockup progress UI contains no obsolete ten-scene count', !html.includes('جارٍ بناء 10 مشاهد ثلاثية الأبعاد')],

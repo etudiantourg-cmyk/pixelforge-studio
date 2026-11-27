@@ -179,3 +179,9 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - The follow-up visual review confirms the hoodie drawstrings and polo buttons no longer cross the logo; backpack zipper placement is reduced; the delivery van now has four correctly oriented wheels and front glazing.
 - `MOCK-02` is now recorded as PARTIAL based on this reproducible browser evidence, not EXCELLENT. `MOCK-01` remains PARTIAL because the procedural 3D scenes are not photorealistic product photography or verified vendor proofs.
 - The strict critic still returns REJECT because typography reconstruction, EPS, genuine CMYK/ICC, geometry specification, full collateral, complete security/privacy, independent expert critic, and other required acceptance groups remain incomplete or unverified.
+
+
+## Render deployment confirmation — 2026-11-27
+- Frontend deployment `dep-dc4qio95efls73ac227g` completed with status `LIVE` on commit `a6a643e6b4bd3d2952ed9344031e191ae144aed6` at 16:02:14 UTC. The deployed frontend includes the 21-scene suite and the latest model/lighting refinements.
+- The 21-scene Chromium job and static validation passed in run 140; the strict critic job remained REJECTED as required by the incomplete acceptance matrix.
+- Free hosting remains in place. Render free services can sleep or be resource-limited; this deployment does not imply guaranteed always-on service.

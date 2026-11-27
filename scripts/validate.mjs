@@ -3,6 +3,7 @@ import vm from 'node:vm';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const server = fs.readFileSync(new URL('../server.js', import.meta.url), 'utf8');
+const envExample = fs.readFileSync(new URL('../.env.example', import.meta.url), 'utf8');
 const errors = [];
 const checks = [];
 
@@ -55,7 +56,9 @@ const features = [
   ['Backend prompt length cap', server.includes('prompt.length>4000')],
   ['Backend image payload cap', server.includes('18*1024*1024')],
   ['Backend concurrent request cap', server.includes('MAX_CONCURRENT_AI=2')],
-  ['Backend releases concurrency slot on all exits', server.includes('activeAI++;') && server.includes('finally{activeAI--;}')]
+  ['Backend releases concurrency slot on all exits', server.includes('activeAI++;') && server.includes('finally{activeAI--;}')],
+  ['Environment template matches Cloudflare backend', envExample.includes('CLOUDFLARE_ACCOUNT_ID=') && envExample.includes('CLOUDFLARE_API_TOKEN=') && !envExample.includes('FAL_KEY=')],
+  ['No unused admin password claim', !server.includes('adminConfigured') && !server.includes('ADMIN_PASSWORD')]
 ];
 for (const [name, condition] of features) {
   if (condition) checks.push(name);

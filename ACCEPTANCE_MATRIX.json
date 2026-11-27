@@ -115,20 +115,20 @@
     {
       "id": "COL-01",
       "requirement": "Complete professional stationery, packaging, signage, merchandise and campaign collateral",
-      "implementation": "",
-      "test": "",
+      "implementation": "mockup-engine.js",
+      "test": "scripts/mockup-browser-smoke.mjs",
       "evidence": "QUALITY_GATE.md",
-      "status": "NOT_IMPLEMENTED",
+      "status": "PARTIAL",
       "criticVerdict": "REJECT",
       "ownerDecision": "NOT_APPROVED"
     },
     {
       "id": "MOCK-01",
       "requirement": "Professional realistic mockups, never misrepresented template previews",
-      "implementation": "index.html",
-      "test": "scripts/validate.mjs",
+      "implementation": "mockup-engine.js",
+      "test": "scripts/mockup-browser-smoke.mjs",
       "evidence": "QUALITY_GATE.md",
-      "status": "NOT_IMPLEMENTED",
+      "status": "PARTIAL",
       "criticVerdict": "REJECT",
       "ownerDecision": "NOT_APPROVED"
     },
@@ -189,6 +189,16 @@
       "test": "scripts/critic.mjs",
       "evidence": "QUALITY_GATE.md",
       "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "MOCK-02",
+      "requirement": "Complete brand presentation mockup set: apparel, fabric and shopping bags, rigid and shipping boxes, product containers, cups, caps, storefront signage and business stationery",
+      "implementation": "mockup-engine.js",
+      "test": "scripts/mockup-browser-smoke.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_TESTED",
       "criticVerdict": "REJECT",
       "ownerDecision": "NOT_APPROVED"
     }

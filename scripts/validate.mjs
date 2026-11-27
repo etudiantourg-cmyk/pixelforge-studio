@@ -81,15 +81,15 @@ const features = [
   ['Strict critic rejects any status other than EXCELLENT / VERIFIED', critic.includes("item.status !== 'EXCELLENT / VERIFIED'") && critic.includes("item.criticVerdict !== 'ACCEPT'")],
   ['Acceptance matrix covers all mandatory groups', acceptanceMatrix.requirements.length >= 18 && new Set(acceptanceMatrix.requirements.map(item => item.id)).size === acceptanceMatrix.requirements.length],
   ['GitHub Actions runs strict critic after engineering validation', workflow.includes('strict-critic:') && workflow.includes('run: npm run critic')],
-  ['Ten distinct presentation mockup products are implemented', ['tshirt','tote','shopping','giftbox','shipping','mug','bottle','cap','sign','cards'].every(id => mockupEngine.includes("id:'" + id + "'"))],
+  ['Ten distinct presentation mockup products are implemented', ['tshirt','tote','shopping','giftbox','shipping','mug','bottle','cap','sign','cards','letterhead','envelope','laptop'].every(id => mockupEngine.includes("id:'" + id + "'"))],
   ['Mockup engine renders real WebGL scenes at 1200×900 and exports PNG', mockupEngine.includes('new T.WebGLRenderer') && mockupEngine.includes('renderer.setSize(1200,900,false)') && mockupEngine.includes("'image/png'")],
   ['Logo aspect ratio is preserved on mockup surfaces', mockupEngine.includes('texture.image.width/texture.image.height')],
   ['Mockup generation is local and does not upload source logos', !mockupEngine.includes('fetch(') && !mockupEngine.includes('XMLHttpRequest')],
-  ['Chromium smoke test verifies all ten rendered PNGs and their dimensions', mockupSmoke.includes('assert.equal(results.length, 10') && mockupSmoke.includes('createImageBitmap(item.blob)') && mockupSmoke.includes('assert.equal(item.width, 1200') && mockupSmoke.includes('assert.equal(item.height, 900')],
+  ['Chromium smoke test verifies all ten rendered PNGs and their dimensions', mockupSmoke.includes('assert.equal(results.length, 13') && mockupSmoke.includes('createImageBitmap(item.blob)') && mockupSmoke.includes('assert.equal(item.width, 1200') && mockupSmoke.includes('assert.equal(item.height, 900')],
   ['GitHub Actions runs the 3D mockup browser test', workflow.includes('mockup-browser:') && workflow.includes('npm run test:mockups')],
   ['Project exposes the 3D mockup browser test command', packageJson.scripts?.['test:mockups'] === 'node scripts/mockup-browser-smoke.mjs'],
   ['Mockup cards and individual downloads are integrated into the app', html.includes('id="mockupGrid"') && html.includes('id="downloadMockups"') && html.includes('renderMockupGallery')],
-  ['Complete mockup set is mandatory in ZIP export', html.includes("mockupAssets.length!==10") && html.includes("05-presentation-mockups/" )],
+  ['Complete mockup set is mandatory in ZIP export', html.includes("mockupAssets.length!==13") && html.includes("05-presentation-mockups/" )],
   ['No unused admin password claim', !server.includes('adminConfigured') && !server.includes('ADMIN_PASSWORD')]
 ];
 function solidImage(width, height, rgb) {

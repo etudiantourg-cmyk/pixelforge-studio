@@ -46,6 +46,7 @@ const features = [
   ['VTracer WASM backend route', server.includes("url.pathname==='/api/vectorize'") && server.includes("getVTracer().convertBuffer(input.buffer,options)")],
   ['Pinned VTracer WASM dependency', packageJson.dependencies?.['@visioncortex/vtracer'] === '1.0.0-alpha.4'],
   ['Frontend calls VTracer and retains explicit local fallback', html.includes('/api/vectorize') && html.includes("conversionEngine='ImageTracer fallback'")],
+  ['Transparent background pixels are written to the PNG sent to VTracer', html.includes('removeEdgeConnectedBackground(pixels,mode);ctx.putImageData(pixels,0,0);const pngData=c.toDataURL(\'image/png\')')],
   ['VTracer backend validates PNG dimensions', server.includes("input.buffer.toString('ascii',12,16)!=='IHDR'") && server.includes('width>1800||height>1800||width*height>3240000')],
   ['VTracer smoke test covers actual WASM conversion', vtracerSmoke.includes('vtracer.convertPixels') && vtracerSmoke.includes('mode: \'spline\'')],
   ['VTracer HTTP endpoint integration and Origin rejection tests', vtracerSmoke.includes('/api/vectorize') && vtracerSmoke.includes('Vector API Origin rejection failed') && vtracerSmoke.includes('spawn(process.execPath')],

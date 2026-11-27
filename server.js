@@ -8,14 +8,14 @@ const require=createRequire(import.meta.url);let vtracerInstance=null;function g
 const PORT=Number(process.env.PORT||8787);
 const ALLOWED_ORIGIN=process.env.ALLOWED_ORIGIN||'https://pixelforge-studio-app.onrender.com';
 const rateBuckets=new Map();let activeVector=0;const MAX_CONCURRENT_VECTOR=1;
+function originAllowed(req){const origin=req.headers.origin;if(origin)return origin===ALLOWED_ORIGIN;const referer=req.headers.referer;if(!referer)return false;try{return new URL(referer).origin===ALLOWED_ORIGIN;}catch{return false;}}
 function consumeRateLimit(req){const now=Date.now(),ip=String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'unknown').split(',')[0].trim();let b=rateBuckets.get(ip);if(!b||now-b.started>=60_000)b={started:now,count:0};if(b.count>=5)return false;b.count++;rateBuckets.set(ip,b);if(rateBuckets.size>5000){for(const [key,value] of rateBuckets)if(now-value.started>120_000)rateBuckets.delete(key);}return true;}
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.txt':'text/plain; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon'};
 function send(res,status,data,type='application/json; charset=utf-8'){res.writeHead(status,{'Content-Type':type,'Cache-Control':'no-store','Access-Control-Allow-Origin':ALLOWED_ORIGIN,'Vary':'Origin'});res.end(type.startsWith('application/json')?JSON.stringify(data):data);}
 async function readBody(req,max=25*1024*1024){let n=0,a=[];for await(const c of req){n+=c.length;if(n>max)throw Object.assign(new Error('حجم الصورة كبير جداً.'),{status:413});a.push(c);}return Buffer.concat(a).toString('utf8');}
 function imageBuffer(data){const m=String(data||'').match(/^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/);if(!m)throw Object.assign(new Error('الصورة المرسلة غير صالحة.'),{status:400});const buffer=Buffer.from(m[2],'base64');if(!buffer.length||buffer.length>18*1024*1024||buffer.toString('base64').replace(/=+$/,'')!==m[2].replace(/=+$/,''))throw Object.assign(new Error('حجم الصورة أو ترميزها غير صالح.'),{status:413});return {buffer,type:`image/${m[1]}`};}
 const server=http.createServer(async(req,res)=>{try{res.setHeader('Access-Control-Allow-Origin',ALLOWED_ORIGIN);res.setHeader('Access-Control-Allow-Headers','Content-Type');res.setHeader('Access-Control-Allow-Methods','GET,POST,OPTIONS');res.setHeader('Vary','Origin');if(req.method==='OPTIONS'){res.writeHead(204);return res.end();}const url=new URL(req.url,'http://localhost');if(req.method==='GET'&&url.pathname==='/api/health')return send(res,200,{ok:true,engine:'VTracer 1.0 WASM',mode:'CPU',requiresApiKey:false});if(req.method==='POST'&&url.pathname==='/api/vectorize'){
-const origin=req.headers.origin;
-if(origin!==ALLOWED_ORIGIN)return send(res,403,{error:'مصدر الطلب غير مسموح.'});
+if(!originAllowed(req))return send(res,403,{error:'مصدر الطلب غير مسموح.'});
 if(!consumeRateLimit(req))return send(res,429,{error:'تم تجاوز حد الطلبات المؤقت. حاول بعد دقيقة.'});
 if(activeVector>=MAX_CONCURRENT_VECTOR)return send(res,503,{error:'محرك التحويل المتجهي مشغول حالياً. حاول بعد قليل.'});
 activeVector++;

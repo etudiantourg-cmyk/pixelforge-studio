@@ -15,7 +15,7 @@ for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
 const svg = vtracer.convertPixels(rgba, width, height, {
   mode: 'spline', hierarchical: 'stacked', maxColors: 4, simplify: 1.5, optimize: 2
 });
-if (typeof svg !== 'string' || !svg.includes('<svg') || !/<path\\b/.test(svg)) {
+if (typeof svg !== 'string' || !svg.includes('<svg') || !/<path\b/.test(svg)) {
   throw new Error('VTracer direct WASM conversion did not produce SVG paths.');
 }
 console.log('VTracer direct WASM smoke test PASS (' + svg.length + ' SVG characters)');
@@ -63,7 +63,7 @@ try {
     child.once('error', error => { clearTimeout(timer); reject(error); });
     child.once('exit', code => { clearTimeout(timer); reject(new Error('Vector API exited early (' + code + '). ' + stderr)); });
     child.stdout.on('data', chunk => {
-      const match = chunk.toString().match(/listening on (\\d+)/);
+      const match = chunk.toString().match(/listening on (\d+)/);
       if (match) { clearTimeout(timer); resolve(Number(match[1])); }
     });
   });
@@ -75,7 +75,7 @@ try {
   });
   const payload = await response.json();
   if (!response.ok || !payload.ok || payload.engine !== 'VTracer 1.0 WASM' ||
-      typeof payload.svg !== 'string' || !payload.svg.includes('<svg') || !/<path\\b/.test(payload.svg)) {
+      typeof payload.svg !== 'string' || !payload.svg.includes('<svg') || !/<path\b/.test(payload.svg)) {
     throw new Error('VTracer HTTP endpoint integration failed: ' + JSON.stringify(payload).slice(0, 500));
   }
   const denied = await fetch('http://127.0.0.1:' + port + '/api/vectorize', {

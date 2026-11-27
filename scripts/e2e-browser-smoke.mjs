@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import JSZip from 'jszip';
@@ -69,7 +68,7 @@ try{
   };
   const svgPath=await saveDownload('#downloadSvg','brand-test.svg');
   const svgText=fs.readFileSync(svgPath,'utf8');
-  assert.match(svgText,/<svg[\\s>]/i,'downloaded SVG must contain an SVG root');
+  assert.ok(svgText.trimStart().startsWith('<svg'),'downloaded SVG must contain an SVG root');
 
   const pngPath=await saveDownload('#downloadPng','brand-test-2048.png');
   const png=fs.readFileSync(pngPath);
@@ -98,8 +97,13 @@ try{
   assert.equal(embeddedPdf.subarray(0,5).toString('ascii'),'%PDF-','embedded PDF must be valid');
   const manifest=JSON.parse(await zip.file('03-documentation/brand-manifest.json').async('string'));
   assert.equal(manifest.approval,'NOT HUMAN APPROVED','package must not misrepresent automated tracing as human approved');
+  await page.setViewportSize({width:390,height:844});
+  const mobileLayout=await page.evaluate(()=>({viewport:window.innerWidth,document:document.documentElement.scrollWidth}));
+  assert.ok(mobileLayout.document<=mobileLayout.viewport+2,'mobile viewport must not introduce horizontal page overflow');
+  assert.equal(await page.locator('label[for="sourceFile"]').isVisible(),true,'mobile upload control must remain visible');
+  assert.equal(await page.locator('#convert').isVisible(),true,'mobile conversion control must remain visible');
   assert.deepEqual(failures,[],'browser must not report uncaught JavaScript or console errors');
-  fs.writeFileSync(path.join(artifactDir,'e2e-summary.json'),JSON.stringify({source:'brand-test.png',svgBytes:svgText.length,pngBytes:png.length,pdfBytes:pdf.length,zipBytes:zipBytes.length,zipFiles:names.length,mockupAssets:names.filter(n=>n.startsWith('05-presentation-mockups/')).length,vectorPdf:'PASS',svg:'PASS',png:'PASS',zip:'PASS'},null,2));
+  fs.writeFileSync(path.join(artifactDir,'e2e-summary.json'),JSON.stringify({source:'brand-test.png',svgBytes:svgText.length,pngBytes:png.length,pdfBytes:pdf.length,zipBytes:zipBytes.length,zipFiles:names.length,mockupAssets:names.filter(n=>n.startsWith('05-presentation-mockups/')).length,mobileViewport:'PASS',vectorPdf:'PASS',svg:'PASS',png:'PASS',zip:'PASS'},null,2));
   console.log('PIXELFORGE BROWSER E2E: PASS — upload, mocked vectorization, SVG/PNG/PDF downloads, and complete ZIP package verified.');
 }finally{
   if(browser)await browser.close();

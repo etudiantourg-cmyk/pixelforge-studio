@@ -11,20 +11,15 @@ import { chromium } from 'playwright';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const html = fs.readFileSync(path.join(root, 'index.html'));
+const mockupEngine = fs.readFileSync(path.join(root, 'mockup-engine.js'));
+const three = fs.readFileSync(path.join(root, 'node_modules/three/build/three.min.js'));
+const rgbeLoader = fs.readFileSync(path.join(root, 'node_modules/three/examples/js/loaders/RGBELoader.js'));
 const jszip = fs.readFileSync(path.join(root, 'node_modules/jszip/dist/jszip.min.js'));
 const jspdf = fs.readFileSync(path.join(root, 'node_modules/jspdf/dist/jspdf.umd.min.js'));
 const svg2pdf = fs.readFileSync(path.join(root, 'node_modules/svg2pdf.js/dist/svg2pdf.umd.min.js'));
 const artifactDir = path.join(root, 'artifacts', 'e2e-browser');
 fs.mkdirSync(artifactDir, { recursive: true });
 
-const tinyPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/mioAAAAASUVORK5CYII=', 'base64');
-const groups = ['الملابس','الحقائب','العلب والتغليف','المنتجات','اللافتات','المطبوعات','الأجهزة','المركبات'];
-const items = Array.from({length:21}, (_,i)=>({
-  id:'e2e-'+String(i+1).padStart(2,'0'),
-  name:'اختبار عرض '+(i+1),
-  group:groups[i%groups.length]
-}));
-const mockupStub = `(()=>{const items=${JSON.stringify(items)};const png=Uint8Array.from(atob('${tinyPng.toString('base64')}'),c=>c.charCodeAt(0));window.PIXELFORGE_MOCKUPS={available:true,items,environmentStatus:'E2E-STUB',render:async(svg,onProgress)=>items.map((item,i)=>{if(onProgress)onProgress(item,i+1,items.length);return {...item,blob:new Blob([png],{type:'image/png'})}})};})();`;
 function crc32(buffer){
   let crc=0xffffffff;
   for(const byte of buffer){crc^=byte;for(let bit=0;bit<8;bit++)crc=(crc>>>1)^(crc&1?0xedb88320:0);}
@@ -44,7 +39,7 @@ function makePng(width,height){
 }
 
 const server = http.createServer((req,res)=>{
-  if(req.url==='/mockup-engine.js'){res.writeHead(200,{'content-type':'text/javascript; charset=utf-8'});return res.end(mockupStub);}
+  if(req.url==='/mockup-engine.js'){res.writeHead(200,{'content-type':'text/javascript; charset=utf-8'});return res.end(mockupEngine);}
   if(req.url==='/'||req.url==='/index.html'){res.writeHead(200,{'content-type':'text/html; charset=utf-8'});return res.end(html);}
   res.writeHead(404);res.end('Not found');
 });
@@ -54,17 +49,17 @@ const origin='http://127.0.0.1:'+address.port;
 let browser,backend,backendPort;
 const failures=[];
 try{
-  browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+  browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-webgl','--ignore-gpu-blocklist','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   const page=await browser.newPage({acceptDownloads:true});
-  page.setDefaultTimeout(45000);
+  page.setDefaultTimeout(180000);
   page.on('pageerror',e=>failures.push(e.message));
   page.on('console',m=>{if(m.type()==='error')failures.push('console: '+m.text());});
   await page.route('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:jszip}));
   await page.route('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:jspdf}));
   await page.route('https://cdn.jsdelivr.net/npm/svg2pdf.js@2.9.0/dist/svg2pdf.umd.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:svg2pdf}));
   await page.route('https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:'window.ImageTracer={};'}));
-  await page.route('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:''}));
-  await page.route('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:''}));
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:three}));
+  await page.route('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:rgbeLoader}));
   backend=spawn(process.execPath,['server.js'],{cwd:root,env:{...process.env,PORT:'0',ALLOWED_ORIGIN:origin},stdio:['ignore','pipe','pipe']});
   let backendError='';
   backend.stderr.on('data',chunk=>{backendError+=chunk.toString();});
@@ -87,7 +82,8 @@ try{
   await page.locator('#convert').click();
   await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM'));
   assert.ok((await page.locator('#diagnostics').textContent()).includes('عدد المسارات:'),'real VTracer output must populate vector diagnostics');
-  await page.waitForFunction(()=>document.querySelectorAll('.mockupCard').length===21);
+  await page.waitForFunction(()=>document.querySelectorAll('.mockupCard').length===21,{timeout:180000});
+  assert.equal(await page.evaluate(()=>window.PIXELFORGE_MOCKUPS?.environmentStatus),'loaded','real mockup engine must load the Poly Haven HDRI');
   assert.equal(await page.locator('#downloadSvg').isDisabled(),false,'SVG export should be enabled');
   assert.equal(await page.locator('#downloadPdf').isDisabled(),false,'PDF export should be enabled');
   assert.equal(await page.locator('#downloadPack').isDisabled(),false,'ZIP export should be enabled');
@@ -137,8 +133,8 @@ try{
   assert.equal(await page.locator('label[for="sourceFile"]').isVisible(),true,'mobile upload control must remain visible');
   assert.equal(await page.locator('#convert').isVisible(),true,'mobile conversion control must remain visible');
   assert.deepEqual(failures,[],'browser must not report uncaught JavaScript or console errors');
-  fs.writeFileSync(path.join(artifactDir,'e2e-summary.json'),JSON.stringify({source:'brand-test.png',svgBytes:svgText.length,pngBytes:png.length,pdfBytes:pdf.length,zipBytes:zipBytes.length,zipFiles:names.length,mockupAssets:names.filter(n=>n.startsWith('05-presentation-mockups/')).length,mobileViewport:'PASS',vectorPdf:'PASS',svg:'PASS',png:'PASS',zip:'PASS'},null,2));
-  console.log('PIXELFORGE BROWSER E2E: PASS — upload, real VTracer vectorization, SVG/PNG/PDF downloads, and complete ZIP package verified.');
+  fs.writeFileSync(path.join(artifactDir,'e2e-summary.json'),JSON.stringify({source:'brand-test.png',svgBytes:svgText.length,pngBytes:png.length,pdfBytes:pdf.length,zipBytes:zipBytes.length,zipFiles:names.length,mockupAssets:names.filter(n=>n.startsWith('05-presentation-mockups/')).length,mockupRenderer:'REAL_WEBGL_21_SCENES',mobileViewport:'PASS',vectorPdf:'PASS',svg:'PASS',png:'PASS',zip:'PASS'},null,2));
+  console.log('PIXELFORGE BROWSER E2E: PASS — upload, real VTracer vectorization, real 21-scene WebGL mockups, SVG/PNG/PDF downloads, and complete ZIP package verified.');
 }finally{
   if(browser)await browser.close();
   if(backend){backend.kill('SIGTERM');await Promise.race([once(backend,'exit'),new Promise(resolve=>setTimeout(resolve,3000))]);}

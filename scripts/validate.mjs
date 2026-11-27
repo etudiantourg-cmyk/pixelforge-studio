@@ -72,10 +72,10 @@ function solidImage(width, height, rgb) {
 }
 try {
   const start = html.indexOf('function removeEdgeConnectedBackground(');
-  const end = html.indexOf('\\nfunction cleanBackground', start);
+  const end = html.indexOf('\nfunction cleanBackground', start);
   if (start < 0 || end < 0) throw new Error('Background-removal function not found');
   const sandbox = { Int32Array };
-  vm.runInNewContext(html.slice(start, end) + '\\nthis.removeEdgeConnectedBackground = removeEdgeConnectedBackground;', sandbox);
+  vm.runInNewContext(html.slice(start, end) + '\nthis.removeEdgeConnectedBackground = removeEdgeConnectedBackground;', sandbox);
   const removeBackground = sandbox.removeEdgeConnectedBackground;
   const white = solidImage(5, 5, [255, 255, 255]);
   for (let y = 1; y <= 3; y++) for (let x = 1; x <= 3; x++) {

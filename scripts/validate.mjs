@@ -54,7 +54,8 @@ const features = [
   ['Backend origin validation', server.includes("origin!=='https://pixelforge-studio-app.onrender.com'")],
   ['Backend prompt length cap', server.includes('prompt.length>4000')],
   ['Backend image payload cap', server.includes('18*1024*1024')],
-  ['Backend concurrent request cap', server.includes('MAX_CONCURRENT_AI=2')]
+  ['Backend concurrent request cap', server.includes('MAX_CONCURRENT_AI=2')],
+  ['Backend releases concurrency slot on all exits', server.includes('activeAI++;') && server.includes('finally{activeAI--;}')]
 ];
 for (const [name, condition] of features) {
   if (condition) checks.push(name);

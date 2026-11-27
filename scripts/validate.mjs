@@ -61,7 +61,7 @@ const features = [
   ['Quality disclosure', html.includes('NOT HUMAN APPROVED')],
   ['Edge-connected background preserves enclosed details', html.includes('removeEdgeConnectedBackground(pixels,mode)') && html.includes('removedBackgroundPixels')],
   ['Background pixel count is scoped to the conversion workflow', html.includes('let removedBackgroundPixels=0;let result=await') && html.includes('removedBackgroundPixels=removeEdgeConnectedBackground(pixels,mode)') && !html.includes('const removedBackgroundPixels=removeEdgeConnectedBackground(pixels,mode)')],
-  ['SVG XML and geometry validation', html.includes('function validateSvg(svg)') && html.includes('parsererror') && html.includes('foreignObject') && html.includes('viewBox')],
+  ['SVG XML and geometry validation', html.includes('function validateSvg(svg)') && html.includes('parsererror') && html.includes('foreignObject') && html.includes('viewBox') && html.includes("'style'") && html.includes("'use'")],
   ['All exported color variants are validated', html.includes('Object.values(variants)') && html.includes('validateSvg(candidate)')],
   ['Strict image MIME validation', html.includes("['image/png','image/jpeg','image/webp']")],
   ['20 MiB upload limit', html.includes('20*1024*1024')],

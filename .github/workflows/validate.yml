@@ -54,3 +54,11 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Render and inspect all 3D mockup PNGs in Chromium
         run: npm run test:mockups
+      - name: Upload rendered mockup evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixelforge-mockup-browser-evidence
+          path: artifacts/mockup-browser/
+          if-no-files-found: warn
+          retention-days: 7

@@ -175,10 +175,10 @@
     {
       "id": "E2E-01",
       "requirement": "Independent real-browser end-to-end tests on desktop and mobile",
-      "implementation": "",
-      "test": "",
+      "implementation": "index.html",
+      "test": "scripts/e2e-browser-smoke.mjs",
       "evidence": "QUALITY_GATE.md",
-      "status": "NOT_TESTED",
+      "status": "PARTIAL",
       "criticVerdict": "REJECT",
       "ownerDecision": "NOT_APPROVED"
     },

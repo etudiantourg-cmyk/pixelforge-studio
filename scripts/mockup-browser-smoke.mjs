@@ -40,7 +40,7 @@ try {
     }
     return details;
   });
-  assert.equal(results.length, 10, 'exactly ten mockup scenes must render');
+  assert.equal(results.length, 13, 'exactly thirteen mockup scenes must render');
   for (const item of results) {
     assert.equal(item.type, 'image/png', item.id + ' must export PNG');
     assert.equal(item.width, 1200, item.id + ' width');

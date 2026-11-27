@@ -52,6 +52,7 @@ try{
   const page=await browser.newPage({acceptDownloads:true});
   page.setDefaultTimeout(180000);
   page.on('pageerror',e=>failures.push(e.message));
+  page.on('requestfailed',request=>failures.push('request failed: '+request.url()+' · '+request.failure()?.errorText));
   page.on('console',m=>{if(m.type()==='error')failures.push('console: '+m.text());});
   await page.route('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:jszip}));
   await page.route('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:jspdf}));
@@ -62,6 +63,10 @@ try{
   backend=spawn(process.execPath,['server.js'],{cwd:root,env:{...process.env,PORT:String(port),ALLOWED_ORIGIN:origin},stdio:['ignore','pipe','pipe']});
   let backendError='',backendStdout='';
   backend.stderr.on('data',chunk=>{backendError+=chunk.toString();});
+  const healthResponse=await fetch(origin+'/api/health');
+  const healthPayload=await healthResponse.json();
+  assert.equal(healthResponse.status,200,'local VTracer health endpoint must respond');
+  assert.equal(healthPayload.engine,'VTracer 1.0 WASM','local API must expose the actual VTracer engine');
   await new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>reject(new Error('Local VTracer API startup timed out. '+backendError)),15000);
     backend.once('error',error=>{clearTimeout(timer);reject(error);});
@@ -71,6 +76,8 @@ try{
   await page.route(origin+'/',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:localHtml}));
   await page.route(origin+'/index.html',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:localHtml}));
   await page.goto(origin+'/',{waitUntil:'load',timeout:60000});
+  const servedHtml=await page.content();
+  assert.ok(servedHtml.includes('/api/vectorize')&&!servedHtml.includes('pixelforge-studio-zajl.onrender.com/api/vectorize'),'E2E page must use the local same-origin VTracer endpoint');
   await page.waitForFunction(()=>window.JSZip&&window.jspdf?.jsPDF&&typeof new window.jspdf.jsPDF().svg==='function');
   const inputPng=makePng(64,64);
   await page.locator('#sourceFile').setInputFiles({name:'brand-test.png',mimeType:'image/png',buffer:inputPng});

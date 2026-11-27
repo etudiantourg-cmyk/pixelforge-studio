@@ -226,3 +226,10 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - Origin policy hardening: the API continues to require the exact configured Origin when one is sent. For same-origin clients that omit Origin, it now accepts only a Referer whose parsed origin exactly matches the configured frontend origin; requests with neither a valid Origin nor a matching Referer remain rejected. CI smoke tests cover both accepted forms and the foreign-Origin rejection.
 
 - VTracer integration finding: the real VTracer 1.0.0-alpha.4 output contained width/height but omitted `viewBox`, while the frontend's SVG safety validator correctly requires a finite positive viewBox. The backend now derives `viewBox="0 0 width height"` from the already-validated PNG IHDR dimensions before returning the SVG. The direct WASM smoke test checks raw path geometry; the HTTP integration smoke test requires the normalized viewBox. This prevents a valid trace from being rejected by the frontend for missing coordinate metadata.
+
+
+## Full real-backend + WebGL browser E2E — 2026-11-27
+
+- GitHub Actions run `46055215027`: `static-validation` PASS, `mockup-browser` PASS, `e2e-browser` PASS. The strict critic remains REJECT, as expected while required capabilities remain partial or unimplemented.
+- Artifact `15226721797` contains the real VTracer-generated SVG (with normalized `viewBox`), 2048×2048 PNG, vector PDF (`%PDF-1.3`), and ZIP. The ZIP contains 60 files including all 21 actual WebGL mockup renders. The E2E test also passed a 390×844 responsive viewport check.
+- This is a meaningful technical milestone, not final acceptance: the E2E mobile check is viewport emulation rather than a native Android/iOS browser; the 21 product scenes are still procedural 3D renders and do not meet the requested photorealistic commercial mockup standard; EPS, CMYK/ICC print workflow, complete collateral, and other matrix requirements remain incomplete.

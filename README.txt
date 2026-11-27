@@ -2,7 +2,7 @@ PIXELFORGE STUDIO — Logo Conversion Foundation
 ================================================
 
 CURRENT STATUS
-The active Render frontend is a static site. Its logo-conversion workflow runs in the browser and does not require the Node image-editing server.
+The active Render frontend is a static site. Logo conversion now sends a downscaled PNG (maximum 1800×1800) to the project's separate Render Node backend at /api/vectorize. The backend runs VTracer WASM on CPU; no GPU or Cloudflare token is required for vector tracing. If the service is unavailable, the browser falls back to ImageTracerJS. The FLUX image-editing API remains a separate function.
 
 Frontend URL:
 https://pixelforge-studio-app.onrender.com
@@ -15,12 +15,13 @@ Requirements: Node.js 20+
 Run:
   npm run validate
 
-This performs static source checks, validates the inline application JavaScript syntax, checks required DOM references, and verifies key feature markers. It is not an end-to-end browser test.
+This performs static source checks and executable regression tests for the background flood-fill algorithm. The GitHub Actions workflow installs the pinned VTracer package and runs a WASM conversion smoke test. A passing source-level test is not a substitute for a live browser end-to-end test.
 
 LOGO CONVERSION ENGINE
 - Raster source upload and preview.
-- ImageTracerJS-based raster-to-SVG tracing.
-- Optional near-white / near-black pixel transparency preprocessing.
+- Primary vector engine: VTracer 1.0 WASM on the project's Node backend, using spline fitting, curve simplification, color clustering, and SVG optimization.
+- Local ImageTracerJS fallback if the VTracer service is unavailable; the interface identifies which engine produced the current output.
+- Edge-connected white/black background removal: only matching pixels connected to the image border are removed, preserving enclosed details.
 - Color, black and white SVG variants.
 - PNG exports at multiple pixel sizes.
 - Preliminary ZIP package, palette manifest, and initial brand notes.
@@ -36,7 +37,7 @@ This is an automated tracing foundation, not a finished professional identity-de
 Never use generated files for commercial print without visual and prepress review.
 
 SEPARATE IMAGE-EDITING BACKEND
-The repository also contains server.js, a separate Node service that calls Cloudflare Workers AI FLUX.2 Klein 4B. It is not the vector tracing engine.
+The repository contains server.js, a Node service hosting both the VTracer WASM vectorization endpoint and a separate Cloudflare Workers AI FLUX.2 Klein 4B image-editing API. VTracer vectorization does not use Cloudflare or a GPU.
 Required environment variables for that service:
   CLOUDFLARE_ACCOUNT_ID
   CLOUDFLARE_API_TOKEN

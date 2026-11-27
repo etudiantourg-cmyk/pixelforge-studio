@@ -6,6 +6,9 @@ const server = fs.readFileSync(new URL('../server.js', import.meta.url), 'utf8')
 const envExample = fs.readFileSync(new URL('../.env.example', import.meta.url), 'utf8');
 const packageJson = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const vtracerSmoke = fs.readFileSync(new URL('./vtracer-smoke.mjs', import.meta.url), 'utf8');
+const acceptanceMatrix = JSON.parse(fs.readFileSync(new URL('../ACCEPTANCE_MATRIX.json', import.meta.url), 'utf8'));
+const critic = fs.readFileSync(new URL('./critic.mjs', import.meta.url), 'utf8');
+const workflow = fs.readFileSync(new URL('../.github/workflows/validate.yml', import.meta.url), 'utf8');
 const errors = [];
 const checks = [];
 
@@ -73,6 +76,9 @@ const features = [
   ['No paid AI provider or API credentials are required', !server.includes('CLOUDFLARE') && !server.includes('FLUX') && !server.includes('runAI') && !envExample.includes('API_TOKEN') && !envExample.includes('API_KEY')],
   ['Health endpoint identifies local CPU vector engine', server.includes("engine:'VTracer 1.0 WASM'") && server.includes('requiresApiKey:false')],
   ['No image generation/editing API routes remain', !server.includes("url.pathname==='/api/edit'") && !server.includes("url.pathname==='/api/generate'")],
+  ['Strict critic rejects any status other than EXCELLENT / VERIFIED', critic.includes("item.status !== 'EXCELLENT / VERIFIED'") && critic.includes("item.criticVerdict !== 'ACCEPT'")],
+  ['Acceptance matrix covers all mandatory groups', acceptanceMatrix.requirements.length >= 18 && new Set(acceptanceMatrix.requirements.map(item => item.id)).size === acceptanceMatrix.requirements.length],
+  ['GitHub Actions runs strict critic after engineering validation', workflow.includes('strict-critic:') && workflow.includes('run: npm run critic')],
   ['No unused admin password claim', !server.includes('adminConfigured') && !server.includes('ADMIN_PASSWORD')]
 ];
 function solidImage(width, height, rgb) {

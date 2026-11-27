@@ -16,7 +16,10 @@
     {id:'bottle',name:'زجاجة ومنتج',group:'المنتجات'},
     {id:'cap',name:'قبعة',group:'الملابس'},
     {id:'sign',name:'لافتة واجهة',group:'اللافتات'},
-    {id:'cards',name:'بطاقات أعمال',group:'المطبوعات'}
+    {id:'cards',name:'بطاقات أعمال',group:'المطبوعات'},
+    {id:'letterhead',name:'ورق رسمي',group:'المطبوعات'},
+    {id:'envelope',name:'ظرف مراسلات',group:'المطبوعات'},
+    {id:'laptop',name:'حاسوب محمول',group:'الأجهزة'}
   ];
   function noiseTexture(base,kind){
     const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
@@ -89,7 +92,28 @@
     const b=box(parent,2.3,1.35,.045,light,.24,-.18,.12);b.rotation.y=.12;b.rotation.z=.06;
     planeLogo(parent,logo,.78,.55,.24,-.18,.151,.06);
   }
-  const builders={tshirt:shirt,tote,shopping,giftbox,shipping,mug,bottle,cap,sign,cards};
+  function letterhead(parent,logo){
+    box(parent,2.25,3.0,.045,mat('#f7f4ed','paper',.92),0,0,0);
+    planeLogo(parent,logo,.9,.52,-.48,1.05,.035);
+    const ink=mat('#aeb4bc','paper',.9);for(let i=0;i<8;i++)box(parent,1.55-i%3*.12,.012,.008,ink,.15,.55-i*.22,.032);
+    const gold=mat('#c2a16b','paper',.55,.35);box(parent,1.75,.018,.01,gold,0,-1.23,.033);
+  }
+  function envelope(parent,logo){
+    box(parent,2.5,1.48,.065,mat('#e9e3d7','paper',.9),0,0,0);
+    const flap=new T.Shape();flap.moveTo(-1.22,.7);flap.lineTo(0,-.12);flap.lineTo(1.22,.7);flap.lineTo(-1.22,.7);
+    const fm=new T.Mesh(new T.ShapeGeometry(flap),mat('#d9d1c3','paper',.94));fm.position.z=.039;parent.add(fm);
+    tube(parent,[[-1.18,-.68,.04],[0,.12,.04],[1.18,-.68,.04]],.009,mat('#b7ad9e','paper',.92));
+    planeLogo(parent,logo,.62,.42,-.62,-.18,.052);
+  }
+  function laptop(parent,logo){
+    const screen=mat('#252a31','paper',.3,.72);box(parent,2.45,1.62,.12,screen,0,.35,-.45);
+    box(parent,2.32,1.48,.018,mat('#111923','paper',.22,.1),0,.35,-.375);
+    planeLogo(parent,logo,1.0,.72,0,.35,-.36);
+    const base=mat('#aeb5bd','paper',.38,.72);box(parent,2.7,.13,1.72,base,0,-.56,.24);
+    const keys=mat('#333941','paper',.5,.2);for(let row=0;row<4;row++)for(let col=0;col<12;col++)box(parent,.13,.018,.12,keys,-.92+col*.167,-.485,.02+row*.19);
+    box(parent,.55,.018,.34,mat('#8c949e','paper',.42,.6),0,-.485,.79);
+  }
+  const builders={tshirt:shirt,tote,shopping,giftbox,shipping,mug,bottle,cap,sign,cards,letterhead,envelope,laptop};
   async function render(svg){
     if(!window.WebGLRenderingContext)throw Error('المتصفح لا يدعم WebGL اللازم لعرض النماذج ثلاثية الأبعاد.');
     const logoUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));

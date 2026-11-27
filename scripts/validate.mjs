@@ -42,7 +42,7 @@ for (const id of ['sourceFile','sourceInfo','sourceThumb','sourceImage','convert
 const features = [
   ['Raster-to-vector engine', html.includes('ImageTracer.imagedataToSVG')],
   ['ZIP packaging', html.includes('zip.generateAsync')],
-  ['Edge-connected transparent background preprocessing', html.includes('function removeEdgeConnectedBackground(imageData,mode)') && html.includes('data[i*4+3]=0') && html.includes('const queue=new Int32Array(total)')],
+  ['Edge-connected transparent background preprocessing', html.includes('function removeEdgeConnectedBackground(imageData,mode)') && html.includes('data[i*4+3]=0') && html.includes('queue=new Int32Array(total)')],
   ['Source image preview', html.includes("sourceImage').src=sourcePreviewUrl")],
   ['Structural vector diagnostics', html.includes('فحص بنية الملف المتجهي')],
   ['Multiple PNG sizes', html.includes('[16,32,48,64,128,256,512,1024,2048]')],

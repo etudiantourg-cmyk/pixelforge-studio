@@ -194,7 +194,7 @@
     },
     {
       "id": "MOCK-02",
-      "requirement": "Complete brand presentation mockup set: apparel, fabric and shopping bags, rigid and shipping boxes, product containers, cups, caps, storefront signage and business stationery",
+      "requirement": "Complete brand presentation mockup set: apparel, fabric and shopping bags, rigid and shipping boxes, product containers, cups, caps, storefront signage, business stationery, and branded devices",
       "implementation": "mockup-engine.js",
       "test": "scripts/mockup-browser-smoke.mjs",
       "evidence": "QUALITY_GATE.md",

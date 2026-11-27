@@ -43,10 +43,10 @@ Required capability groups to be individually specified and verified:
 ## Current build status — 2026-11-27
 - The existing repository and Render services were inspected.
 - The existing product was a generic image editor, not a complete logo conversion system.
-- A first browser-side conversion foundation was committed: image upload, raster-to-SVG tracing using ImageTracerJS, monochrome variants, PNG size exports, basic PDF print flow, and an initial ZIP package.
+- A browser-side conversion foundation was committed: image upload, raster-to-SVG tracing using ImageTracerJS, pixel-level white/black background transparency preprocessing, monochrome variants, PNG size exports, SVG-based browser print-to-PDF flow, and a ZIP package with palette manifest, preliminary HTML brand notes, and multiple monochrome PNG sizes. The embedded JavaScript syntax was checked with a parser and passed.
 - This is **not an accepted release**. Automated tracing is not equivalent to professional manual/vector reconstruction. The current build does not yet prove all required export formats, CMYK production, typography reconstruction, full collateral generation, realistic mockups, or independent quality approval.
 - The current user interface explicitly discloses that the generated package is preliminary and not human-approved.
-- No claim of "excellent", complete, or production-ready is permitted until all requirement groups above are implemented and independently tested.
+- The updated source commits have not yet been confirmed live on Render; the Render static-site deployment history still reports the older 2026-11-26 deployment, despite the newer GitHub commits. Live deployment of these latest changes is therefore unverified.\n- No claim of "excellent", complete, or production-ready is permitted until all requirement groups above are implemented and independently tested.
 
 ## Release decision
 Current status: **REJECTED — FOUNDATION BUILD ONLY**.

@@ -19,11 +19,11 @@ if (typeof svg !== 'string' || !svg.includes('<svg') || !/<path\b/.test(svg)) {
   throw new Error('VTracer direct WASM conversion did not produce SVG paths.');
 }
 function assertVectorSvg(value,label){
-  const root=value.match(/<svg\\b[^>]*>/i)?.[0]||'';
-  const viewBox=root.match(/\\bviewBox\\s*=\\s*["']([^"']+)["']/i)?.[1]||'';
+  const root=value.match(/<svg\b[^>]*>/i)?.[0]||'';
+  const viewBox=root.match(/\bviewBox\s*=\s*["']([^"']+)["']/i)?.[1]||'';
   const dimensions=viewBox.trim().split(/[ ,]+/).map(Number);
-  const paths=[...value.matchAll(/<path\\b[^>]*\\bd\\s*=\\s*["']([^"']+)["']/gi)];
-  if(!root||dimensions.length!==4||!dimensions.every(Number.isFinite)||dimensions[2]<=0||dimensions[3]<=0||!paths.length||paths.some(path=>!^[Mm]/.test(path[1].trim()))){
+  const paths=[...value.matchAll(/<path\b[^>]*\bd\s*=\s*["']([^"']+)["']/gi)];
+  if(!root||dimensions.length!==4||!dimensions.every(Number.isFinite)||dimensions[2]<=0||dimensions[3]<=0||!paths.length||paths.some(path=>!/^[Mm]/.test(path[1].trim()))){
     throw new Error(label+' did not produce an SVG with valid viewBox and path geometry.');
   }
 }

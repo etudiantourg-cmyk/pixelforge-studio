@@ -172,7 +172,7 @@ function svgToEps(svg){
   const fmt=n=>Number(n.toFixed(5)).toString(),lines=['%!PS-Adobe-3.0 EPSF-3.0','%%BoundingBox: 0 0 '+Math.ceil(vb[2])+' '+Math.ceil(vb[3]),'%%HiResBoundingBox: 0 0 '+fmt(vb[2])+' '+fmt(vb[3]),'%%LanguageLevel: 2','%%DocumentData: Clean7Bit','%%Pages: 1','%%EndComments','gsave','0 '+fmt(vb[3])+' translate','1 -1 scale',fmt(-vb[0])+' '+fmt(-vb[1])+' translate'];
   for(const path of paths){
     const d=path.getAttribute('d')||'',style=path.getAttribute('style')||'',styleFill=(style.match(/(?:^|;)\s*fill\s*:\s*([^;]+)/i)||[])[1],fill=path.getAttribute('fill')||styleFill||'#000000';
-    const opacity=Number(path.getAttribute('opacity')||path.getAttribute('fill-opacity')||1);if(opacity!==1)throw Error('شفافية المسارات تحتاج تسطيحاً غير مدعوم في EPS.');
+    const opacity=Number(path.getAttribute('opacity')??path.getAttribute('fill-opacity')??'1');if(opacity!==1)throw Error('شفافية المسارات تحتاج تسطيحاً غير مدعوم في EPS.');
     const cmyk=svgColorToCmyk(fill);if(!cmyk)continue;
     lines.push('newpath',cmyk.map(fmt).join(' ')+' setcmykcolor',svgPathToPostScript(d),String(path.getAttribute('fill-rule')||'').toLowerCase()==='evenodd'?'eofill':'fill');
   }

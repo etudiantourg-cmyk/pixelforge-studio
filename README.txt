@@ -50,7 +50,7 @@ See QUALITY_GATE.md. No release is accepted unless every requirement is independ
 
 
 3D PRESENTATION MOCKUPS
-- The browser now renders thirteen local 3D product scenes and maps the uploaded logo onto each surface: T-shirt/apparel, fabric tote, paper shopping bag, rigid gift box, shipping carton, ceramic mug, bottle/product container, cap, storefront sign, business cards, letterhead, envelopes, and laptop branding.
+- The browser now renders twenty-one local 3D product scenes and maps the uploaded logo onto each surface: T-shirt/apparel, fabric tote, paper shopping bag, rigid gift box, shipping carton, ceramic mug, bottle/product container, cap, storefront sign, business cards, letterhead, envelopes, and laptop branding.
 - Each scene is rendered at 1200×900 and exported as PNG. Individual images can be downloaded, filtered by product family, and included in the main ZIP or a separate mockup ZIP.
 - Rendering is local in the browser using the free Three.js library; the logo artwork is not uploaded to a mockup service. A Chromium/WebGL browser smoke test is included in GitHub Actions.
 - These are procedural 3D studio renders with modeled geometry, materials, lighting and shadows. They are not photographs or verified production proofs; photographic mockup assets and print/vendor proofing remain separate acceptance requirements.
@@ -64,3 +64,8 @@ MOCKUP QUALITY AND VERIFICATION UPDATE
 
 - The latest lighting pass reduces exposure and key/fill/rim light intensity to preserve textile, ceramic, kraft-paper, and metallic surface contrast. Gift-box ribbon placement no longer crosses the center of the logo; the shipping carton has a cross-tape layout.
 - Chromium evidence is retained as a 7-day GitHub Actions artifact. The sampled color-diversity threshold was calibrated against the first real render measurements (11–98 sampled color buckets across the thirteen scenes); it is a basic render-integrity check, not a subjective quality score.
+
+
+EXPANDED PRESENTATION SET
+- The presentation library now contains 21 scenes: T-shirt, hoodie, polo shirt, fabric tote, paper shopping bag, backpack, rigid gift box, shipping carton, mailer box, mug, bottle, cylindrical product tube, cap, storefront sign, billboard, business cards, letterhead, envelope, laptop, smartphone, and delivery van.
+- Each scene uses a product-specific 3D model and logo placement. The full set is required in the main delivery ZIP; incomplete sets are rejected.

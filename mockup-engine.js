@@ -19,7 +19,15 @@
     {id:'cards',name:'بطاقات أعمال',group:'المطبوعات'},
     {id:'letterhead',name:'ورق رسمي',group:'المطبوعات'},
     {id:'envelope',name:'ظرف مراسلات',group:'المطبوعات'},
-    {id:'laptop',name:'حاسوب محمول',group:'الأجهزة'}
+    {id:'laptop',name:'حاسوب محمول',group:'الأجهزة'},
+    {id:'hoodie',name:'سترة بغطاء رأس',group:'الملابس'},
+    {id:'polo',name:'قميص بولو',group:'الملابس'},
+    {id:'backpack',name:'حقيبة ظهر',group:'الحقائب'},
+    {id:'mailer',name:'علبة شحن فاخرة',group:'العلب والتغليف'},
+    {id:'tube',name:'عبوة أسطوانية',group:'المنتجات'},
+    {id:'phone',name:'هاتف ذكي',group:'الأجهزة'},
+    {id:'billboard',name:'لوحة إعلانية خارجية',group:'اللافتات'},
+    {id:'van',name:'مركبة توصيل',group:'المركبات'}
   ];
   function noiseTexture(base,kind){
     const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
@@ -128,7 +136,74 @@
     const keys=mat('#333941','paper',.5,.2);for(let row=0;row<4;row++)for(let col=0;col<12;col++)box(parent,.13,.018,.12,keys,-.92+col*.167,-.485,.02+row*.19);
     box(parent,.55,.018,.34,mat('#8c949e','paper',.42,.6),0,-.485,.79);
   }
-  const builders={tshirt:shirt,tote,shopping,giftbox,shipping,mug,bottle,cap,sign,cards,letterhead,envelope,laptop};
+  function hoodie(parent,logo){
+    const s=new T.Shape();s.moveTo(-.7,1.0);s.lineTo(-1.12,.9);s.lineTo(-1.7,.45);s.lineTo(-1.38,-.1);s.lineTo(-1.02,.1);s.lineTo(-1.02,-1.3);s.quadraticCurveTo(0,-1.48,1.02,-1.3);s.lineTo(1.02,.1);s.lineTo(1.38,-.1);s.lineTo(1.7,.45);s.lineTo(1.12,.9);s.lineTo(.7,1.0);s.quadraticCurveTo(0,.7,-.7,1.0);
+    const g=new T.ExtrudeGeometry(s,{depth:.16,bevelEnabled:true,bevelSegments:4,bevelSize:.045,bevelThickness:.03,curveSegments:20});const body=new T.Mesh(g,mat('#657080','fabric',.97));parent.add(body);
+    const hood=new T.Mesh(new T.SphereGeometry(.57,40,24,0,Math.PI*2,0,Math.PI/2),mat('#4b5667','fabric',.98));hood.scale.set(1,.8,.38);hood.position.set(0,1.0,-.08);parent.add(hood);
+    box(parent,1.0,.42,.055,mat('#4b5667','fabric',.98),0,-.68,.19);
+    tube(parent,[[-.16,.9,.2],[-.18,.45,.2],[-.17,.1,.2]],.018,mat('#d0c8b8','fabric',.9));
+    tube(parent,[[.16,.9,.2],[.18,.45,.2],[.17,.1,.2]],.018,mat('#d0c8b8','fabric',.9));
+    planeLogo(parent,logo,.58,.58,0,.22,.205);
+  }
+  function polo(parent,logo){
+    shirt(parent,logo);
+    const collar=mat('#26384e','fabric',.92);
+    const left=new T.Shape();left.moveTo(-.48,1.1);left.lineTo(0,.78);left.lineTo(-.12,.58);left.lineTo(-.58,.94);left.closePath();
+    const right=new T.Shape();right.moveTo(.48,1.1);right.lineTo(0,.78);right.lineTo(.12,.58);right.lineTo(.58,.94);right.closePath();
+    const a=new T.Mesh(new T.ShapeGeometry(left),collar);a.position.z=.2;parent.add(a);
+    const b=new T.Mesh(new T.ShapeGeometry(right),collar);b.position.z=.2;parent.add(b);
+    box(parent,.07,.38,.035,collar,0,.52,.205);
+    const button=mat('#d7d2c7','paper',.4,.1);for(let y of [.62,.48,.34]){const m=new T.Mesh(new T.SphereGeometry(.025,12,8),button);m.position.set(.01,y,.235);parent.add(m);}
+  }
+  function backpack(parent,logo){
+    const fabric=mat('#4b5968','fabric',.98),edge=mat('#273748','fabric',.92),zip=mat('#c4a36b','paper',.45,.55);
+    box(parent,1.78,2.15,.72,fabric,0,-.02,0);
+    box(parent,1.52,1.02,.18,edge,0,-.52,.43);
+    box(parent,1.58,.08,.2,zip,0,.02,.46);
+    box(parent,.13,1.45,.12,edge,-.72,-.08,-.34);box(parent,.13,1.45,.12,edge,.72,-.08,-.34);
+    tube(parent,[[-.48,1.0,-.05],[-.48,1.55,-.1],[0,1.68,-.1],[.48,1.55,-.1],[.48,1.0,-.05]],.075,edge);
+    const side=mat('#344253','fabric',.98);box(parent,.22,.75,.58,side,-.91,-.35,0);box(parent,.22,.75,.58,side,.91,-.35,0);
+    planeLogo(parent,logo,.7,.55,0,-.48,.535);
+  }
+  function mailer(parent,logo){
+    const kraft=mat('#b49a77','paper',.96),lid=mat('#c5ad8b','paper',.94),tape=mat('#d8c6a4','paper',.86);
+    box(parent,2.2,.62,1.55,kraft,0,-.08,0);box(parent,2.22,.09,1.57,lid,0,.28,0);
+    box(parent,2.0,.035,.22,tape,0,.34,0);box(parent,.22,.035,1.5,tape,0,.34,0);
+    planeLogo(parent,logo,1.0,.48,0,-.08,.79);
+    tube(parent,[[-1.05,-.39,.78],[0,-.39,.79],[1.05,-.39,.78]],.012,mat('#8b765c','paper',.9));
+  }
+  function tubeProduct(parent,logo){
+    const body=new T.Mesh(new T.CylinderGeometry(.52,.52,1.8,64,1,true),mat('#b9a58b','paper',.82));parent.add(body);
+    const top=new T.Mesh(new T.CylinderGeometry(.54,.54,.18,64),mat('#26384b','paper',.38,.28));top.position.y=.95;parent.add(top);
+    const base=new T.Mesh(new T.CylinderGeometry(.52,.52,.08,64),mat('#8c765a','paper',.55,.18));base.position.y=-.92;parent.add(base);
+    curvedLogo(parent,logo,.525,.78,.62,-.02,0);
+  }
+  function phone(parent,logo){
+    const frame=mat('#6e7781','paper',.32,.82),glass=new T.MeshStandardMaterial({color:'#101820',roughness:.14,metalness:.22});
+    const body=new T.Mesh(new T.BoxGeometry(1.08,2.2,.13),frame);parent.add(body);
+    box(parent,1.0,2.1,.018,glass,0,0,.075);
+    const camera=mat('#090e15','paper',.12,.25);for(const x of [-.36,-.22]){const lens=new T.Mesh(new T.CylinderGeometry(.055,.055,.02,24),camera);lens.rotation.x=Math.PI/2;lens.position.set(x,.91,.09);parent.add(lens);}
+    planeLogo(parent,logo,.48,.42,0,-.08,.095);
+    box(parent,.24,.025,.012,mat('#88929e','paper',.3,.7),0,-.98,.09);
+  }
+  function billboard(parent,logo){
+    const post=mat('#444b53','paper',.48,.65),panel=mat('#202d40','paper',.42,.16),trim=mat('#c5a36b','paper',.34,.62);
+    box(parent,.12,2.45,.14,post,-1.15,-.55,-.1);box(parent,.12,2.45,.14,post,1.15,-.55,-.1);
+    box(parent,3.45,1.8,.22,panel,0,.45,0);
+    box(parent,3.52,.055,.25,trim,0,1.38,0);box(parent,3.52,.055,.25,trim,0,-.48,0);
+    box(parent,.55,.06,.48,post,-1.15,-1.72,0);box(parent,.55,.06,.48,post,1.15,-1.72,0);
+    planeLogo(parent,logo,2.35,1.15,0,.45,.125);
+  }
+  function van(parent,logo){
+    const body=mat('#d7d6d0','paper',.68,.12),glass=mat('#273849','paper',.24,.35),rubber=mat('#171a1f','paper',.92);
+    box(parent,3.25,1.25,1.25,body,0,.05,0);
+    box(parent,1.05,1.05,1.22,body,1.05,.15,0);
+    box(parent,.92,.55,.035,glass,1.05,.48,.635);
+    box(parent,1.02,.48,.025,glass,-.95,.42,.64);
+    for(const x of [-1.0,1.0]){const wheel=new T.Mesh(new T.CylinderGeometry(.34,.34,.18,40),rubber);wheel.rotation.z=Math.PI/2;wheel.position.set(x,-.65,.42);parent.add(wheel);const hub=new T.Mesh(new T.CylinderGeometry(.14,.14,.19,32),mat('#9ca3aa','paper',.36,.72));hub.rotation.z=Math.PI/2;hub.position.set(x,-.65,.42);parent.add(hub);}
+    planeLogo(parent,logo,1.05,.68,-.25,.12,.64);
+  }
+  const builders={tshirt:shirt,tote,shopping,giftbox,shipping,mug,bottle,cap,sign,cards,letterhead,envelope,laptop,hoodie,polo,backpack,mailer,tube:tubeProduct,phone,billboard,van};
   async function render(svg,onProgress){
     if(!window.WebGLRenderingContext)throw Error('المتصفح لا يدعم WebGL اللازم لعرض النماذج ثلاثية الأبعاد.');
     const logoUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));

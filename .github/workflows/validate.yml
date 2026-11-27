@@ -38,3 +38,19 @@ jobs:
           node-version: 20
       - name: Run non-tolerant acceptance gate
         run: npm run critic
+
+  mockup-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser test dependency
+        run: npm install --no-save --no-audit --no-fund playwright
+      - name: Install Chromium with WebGL software renderer
+        run: npx playwright install --with-deps chromium
+      - name: Render and inspect all 3D mockup PNGs in Chromium
+        run: npm run test:mockups

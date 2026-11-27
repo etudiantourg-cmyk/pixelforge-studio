@@ -61,3 +61,6 @@ MOCKUP QUALITY AND VERIFICATION UPDATE
 - Mug and bottle logo decals use curved surface geometry to follow their cylindrical bodies.
 - The browser test uses pinned Three.js 0.128.0 and Playwright 1.56.1 packages, runs Chromium with software WebGL, verifies each PNG's signature, dimensions, non-empty pixel content, visible product geometry and material/light variation, and saves 13 PNGs plus a manifest as a CI artifact.
 - Browser output evidence is a test artifact, not proof of photographic realism or vendor/manufacturing approval.
+
+- The latest lighting pass reduces exposure and key/fill/rim light intensity to preserve textile, ceramic, kraft-paper, and metallic surface contrast. Gift-box ribbon placement no longer crosses the center of the logo; the shipping carton has a cross-tape layout.
+- Chromium evidence is retained as a 7-day GitHub Actions artifact. The sampled color-diversity threshold was calibrated against the first real render measurements (11–98 sampled color buckets across the thirteen scenes); it is a basic render-integrity check, not a subjective quality score.

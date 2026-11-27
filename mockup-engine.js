@@ -32,6 +32,7 @@
   function mat(color,kind='paper',rough=.82,metal=0){const tex=noiseTexture(color,kind);return new T.MeshStandardMaterial({color:0xffffff,map:tex,bumpMap:tex,bumpScale:kind==='fabric'?.018:.009,roughness:rough,metalness:metal});}
   function planeLogo(parent,texture,w,h,x,y,z,rotation=0){const ratio=texture.image?.width&&texture.image?.height?texture.image.width/texture.image.height:1;if(ratio>w/h)h=w/ratio;else w=h*ratio;const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:T.DoubleSide}));m.position.set(x,y,z);m.rotation.z=rotation;m.renderOrder=5;parent.add(m);return m;}
   function curvedLogo(parent,texture,radius,width,height,centerY=0,centerZ=0){
+    const ratio=texture.image?.width&&texture.image?.height?texture.image.width/texture.image.height:1;if(ratio>width/height)height=width/ratio;else width=height*ratio;
     const segments=48,rows=8,positions=[],uvs=[],indices=[];
     for(let y=0;y<=rows;y++)for(let x=0;x<=segments;x++){
       const u=x/segments,v=y/rows,theta=(u-.5)*width/radius;

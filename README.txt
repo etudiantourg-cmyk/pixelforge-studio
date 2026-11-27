@@ -47,3 +47,10 @@ Both services are configured for automatic deploys on commits, but each new depl
 
 QUALITY POLICY
 See QUALITY_GATE.md. No release is accepted unless every requirement is independently tested and rated EXCELLENT / VERIFIED. The current build remains REJECTED / FOUNDATION ONLY.
+
+
+3D PRESENTATION MOCKUPS
+- The browser now renders ten local 3D product scenes and maps the uploaded logo onto each surface: T-shirt/apparel, fabric tote, paper shopping bag, rigid gift box, shipping carton, ceramic mug, bottle/product container, cap, storefront sign, and business cards.
+- Each scene is rendered at 1200×900 and exported as PNG. Individual images can be downloaded, filtered by product family, and included in the main ZIP or a separate mockup ZIP.
+- Rendering is local in the browser using the free Three.js library; the logo artwork is not uploaded to a mockup service. A Chromium/WebGL browser smoke test is included in GitHub Actions.
+- These are procedural 3D studio renders with modeled geometry, materials, lighting and shadows. They are not photographs or verified production proofs; photographic mockup assets and print/vendor proofing remain separate acceptance requirements.

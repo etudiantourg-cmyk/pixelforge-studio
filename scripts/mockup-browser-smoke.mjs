@@ -7,14 +7,21 @@ import { chromium } from 'playwright';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = fs.readFileSync(path.join(root, 'mockup-engine.js'));
+const three = fs.readFileSync(path.join(root, 'node_modules/three/build/three.min.js'));
+const artifactDir = path.join(root, 'artifacts', 'mockup-browser');
+fs.mkdirSync(artifactDir, { recursive: true });
 const server = http.createServer((req, res) => {
+  if (req.url === '/three.min.js') {
+    res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' });
+    return res.end(three);
+  }
   if (req.url === '/mockup-engine.js') {
     res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' });
     return res.end(engine);
   }
   if (req.url === '/' || req.url === '/test.html') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    return res.end('<!doctype html><meta charset="utf-8"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="/mockup-engine.js"></script><body>3D mockup smoke test</body>');
+    return res.end('<!doctype html><meta charset="utf-8"><script src="/three.min.js"></script><script src="/mockup-engine.js"></script><body>3D mockup smoke test</body>');
   }
   res.writeHead(404); res.end('Not found');
 });
@@ -35,7 +42,7 @@ try {
     const details = [];
     for (const item of items) {
       const bitmap = await createImageBitmap(item.blob);
-      details.push({ id: item.id, name: item.name, group: item.group, type: item.blob.type, size: item.blob.size, width: bitmap.width, height: bitmap.height });
+      details.push({ id: item.id, name: item.name, group: item.group, type: item.blob.type, size: item.blob.size, width: bitmap.width, height: bitmap.height, base64: await new Promise(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.readAsDataURL(item.blob); }) });
       bitmap.close();
     }
     return details;
@@ -47,9 +54,16 @@ try {
     assert.equal(item.height, 900, item.id + ' height');
     assert.ok(item.size > 12000, item.id + ' output must not be empty');
   }
-  assert.equal(new Set(results.map(x => x.id)).size, 10, 'mockup scene IDs must be unique');
+  assert.equal(new Set(results.map(x => x.id)).size, 13, 'mockup scene IDs must be unique');
+  for (const item of results) {
+    const png = Buffer.from(item.base64, 'base64');
+    assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', item.id + ' PNG signature');
+    fs.writeFileSync(path.join(artifactDir, item.id + '.png'), png);
+    delete item.base64;
+  }
+  fs.writeFileSync(path.join(artifactDir, 'manifest.json'), JSON.stringify(results, null, 2));
   assert.deepEqual(pageErrors, [], 'browser page must not report uncaught errors');
-  console.log('3D MOCKUP BROWSER TEST: PASS — ' + results.length + ' scenes, each 1200×900 PNG.');
+  console.log('3D MOCKUP BROWSER TEST: PASS — ' + results.length + ' scenes, each 1200×900 PNG. Artifacts: ' + artifactDir);
   for (const item of results) console.log('PASS ' + item.id + ' · ' + item.group + ' · ' + item.size + ' bytes');
 } finally {
   if (browser) await browser.close();

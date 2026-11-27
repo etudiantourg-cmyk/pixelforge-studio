@@ -54,3 +54,10 @@ See QUALITY_GATE.md. No release is accepted unless every requirement is independ
 - Each scene is rendered at 1200×900 and exported as PNG. Individual images can be downloaded, filtered by product family, and included in the main ZIP or a separate mockup ZIP.
 - Rendering is local in the browser using the free Three.js library; the logo artwork is not uploaded to a mockup service. A Chromium/WebGL browser smoke test is included in GitHub Actions.
 - These are procedural 3D studio renders with modeled geometry, materials, lighting and shadows. They are not photographs or verified production proofs; photographic mockup assets and print/vendor proofing remain separate acceptance requirements.
+
+
+MOCKUP QUALITY AND VERIFICATION UPDATE
+- The 13 studio scenes now compute their model bounds, sit on the ground plane, and automatically frame the product to the camera instead of using one fixed camera crop for every product.
+- Mug and bottle logo decals use curved surface geometry to follow their cylindrical bodies.
+- The browser test uses pinned Three.js 0.128.0 and Playwright 1.56.1 packages, runs Chromium with software WebGL, verifies each PNG's signature, dimensions, non-empty pixel content, visible product geometry and material/light variation, and saves 13 PNGs plus a manifest as a CI artifact.
+- Browser output evidence is a test artifact, not proof of photographic realism or vendor/manufacturing approval.

@@ -74,7 +74,7 @@ async function renderMockupGallery(){
   $('mockupGrid').innerHTML='';$('downloadMockups').disabled=true;$('mockupStatus').textContent='جارٍ بناء 10 مشاهد ثلاثية الأبعاد وإسقاط الشعار عليها…';
   mockupAssets.forEach(x=>{if(x.url)URL.revokeObjectURL(x.url);});mockupAssets=[];
   try{
-    const rendered=await window.PIXELFORGE_MOCKUPS.render(svgMarkup);
+    const rendered=await window.PIXELFORGE_MOCKUPS.render(svgMarkup,(item,done,total)=>{$('mockupStatus').textContent='جارٍ إنشاء '+done+' من '+total+' · '+item.name;});
     mockupAssets=rendered.map(x=>({...x,url:URL.createObjectURL(x.blob)}));
     const filter= $('mockupFilter').value;
     for(const item of mockupAssets){const card=document.createElement('article');card.className='mockupCard';card.dataset.group=item.group;card.style.display=filter==='all'||filter===item.group?'block':'none';const img=document.createElement('img');img.src=item.url;img.alt='عرض ثلاثي الأبعاد: '+item.name;img.loading='lazy';const meta=document.createElement('div');meta.className='mockupMeta';const title=document.createElement('b');title.textContent=item.name;const group=document.createElement('small');group.textContent=item.group;meta.append(title,group);const btn=document.createElement('button');btn.className='btn';btn.textContent='تنزيل صورة العرض';btn.onclick=()=>download(item.blob,baseName+'-mockup-'+item.id+'.png');card.append(img,meta,btn);$('mockupGrid').append(card);}

@@ -149,3 +149,11 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - Browser tests now load the exact pinned Three.js 0.128.0 package locally (no CDN dependency in CI), with Playwright 1.56.1. They validate PNG signatures, 1200×900 dimensions, file size, color/material variation, visible product geometry, and browser errors.
 - The test writes each rendered PNG and a manifest into `artifacts/mockup-browser/`; GitHub Actions uploads them for seven days for human visual inspection.
 - These are substantive implementation improvements, not yet accepted quality claims. The real Chromium job must run successfully and the resulting images must be visually inspected before MOCK-01 or MOCK-02 can be accepted.
+
+
+## First real Chromium render review — 2026-11-27
+- GitHub Actions run `46028183279` executed real Node 20 validation and the VTracer WASM smoke test successfully (`static-validation: success`).
+- The first Chromium/WebGL render did produce all 13 PNGs at 1200×900 and uploaded them as artifact `15212842927`. The first visual test correctly exposed a flaw in our acceptance metric: the T-shirt image had only 11 quantized sampled colors, while other scenes ranged from 12 to 98. The `>30` color threshold was too strict for mostly uniform product materials, so it falsely rejected a non-empty T-shirt render. The metric is recalibrated to require more than 8 color buckets plus visible foreground geometry; it is not a visual-design quality score.
+- Human visual inspection of the captured images found the studio lighting substantially overexposed: light fabrics, ceramics, and metallic parts lost contrast and the gold accents washed out. This is a real quality defect, not an acceptable output.
+- Updated the renderer with lower exposure and light intensities, darker studio floor, stronger fabric weave contrast, darker fabric/paper base tones, a ribbon moved away from the central gift-box logo, and a corrected cross-tape layout on the shipping carton.
+- A fresh Chromium run is required to confirm these lighting changes. Until then the 13-scene suite remains **PARTIAL / REJECTED**; no photographic realism or commercial-grade acceptance is claimed.

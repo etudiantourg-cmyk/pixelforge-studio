@@ -8,6 +8,7 @@ import { chromium } from 'playwright';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = fs.readFileSync(path.join(root, 'mockup-engine.js'));
 const three = fs.readFileSync(path.join(root, 'node_modules/three/build/three.min.js'));
+const rgbeLoader = fs.readFileSync(path.join(root, 'node_modules/three/examples/js/loaders/RGBELoader.js'));
 const artifactDir = path.join(root, 'artifacts', 'mockup-browser');
 fs.mkdirSync(artifactDir, { recursive: true });
 const server = http.createServer((req, res) => {
@@ -15,13 +16,17 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' });
     return res.end(three);
   }
+  if (req.url === '/RGBELoader.js') {
+    res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' });
+    return res.end(rgbeLoader);
+  }
   if (req.url === '/mockup-engine.js') {
     res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' });
     return res.end(engine);
   }
   if (req.url === '/' || req.url === '/test.html') {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    return res.end('<!doctype html><meta charset="utf-8"><script src="/three.min.js"></script><script src="/mockup-engine.js"></script><body>3D mockup smoke test</body>');
+    return res.end('<!doctype html><meta charset="utf-8"><script src="/three.min.js"></script><script src="/RGBELoader.js"></script><script src="/mockup-engine.js"></script><body>3D mockup smoke test</body>');
   }
   res.writeHead(404); res.end('Not found');
 });
@@ -39,6 +44,7 @@ try {
   const results = await page.evaluate(async () => {
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300"><path fill="#14283f" d="M40 40H560V260H40Z"/><path fill="#d4ad6b" d="M120 90H480V210H120Z"/></svg>';
     const items = await window.PIXELFORGE_MOCKUPS.render(svg);
+    const environmentStatus = window.PIXELFORGE_MOCKUPS.environmentStatus;
     const details = [];
     for (const item of items) {
       const bitmap = await createImageBitmap(item.blob);
@@ -50,10 +56,12 @@ try {
       details.push({ id: item.id, name: item.name, group: item.group, type: item.blob.type, size: item.blob.size, width: bitmap.width, height: bitmap.height, visualColors: colors.size, foregroundRatio: foreground / samples, base64: await new Promise(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.readAsDataURL(item.blob); }) });
       bitmap.close();
     }
-    return details;
+    return {details,environmentStatus};
   });
-  assert.equal(results.length, 21, 'exactly twenty-one mockup scenes must render');
-  for (const item of results) {
+  assert.equal(results.environmentStatus, 'loaded', 'Poly Haven Studio Small 09 HDRI must load and light the scenes');
+  const renderedItems = results.details;
+  assert.equal(renderedItems.length, 21, 'exactly twenty-one mockup scenes must render');
+  for (const item of renderedItems) {
     const png = Buffer.from(item.base64, 'base64');
     fs.writeFileSync(path.join(artifactDir, item.id + '.png'), png);
     console.log('VISUAL ' + item.id + ': colors=' + item.visualColors + ', foreground=' + item.foregroundRatio.toFixed(4) + ', bytes=' + item.size);
@@ -68,14 +76,14 @@ try {
     assert.ok(item.visualColors > 8, item.id + ' must contain rendered material and lighting variation');
     assert.ok(item.foregroundRatio > 0.025, item.id + ' must contain visible product geometry');
   }
-  assert.equal(new Set(results.map(x => x.id)).size, 21, 'mockup scene IDs must be unique');
+  assert.equal(new Set(renderedItems.map(x => x.id)).size, 21, 'mockup scene IDs must be unique');
   for (const item of results) {
     const png = fs.readFileSync(path.join(artifactDir, item.id + '.png'));
     assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', item.id + ' PNG signature');
   }
   assert.deepEqual(pageErrors, [], 'browser page must not report uncaught errors');
-  console.log('3D MOCKUP BROWSER TEST: PASS — ' + results.length + ' scenes, each 1200×900 PNG. Artifacts: ' + artifactDir);
-  for (const item of results) console.log('PASS ' + item.id + ' · ' + item.group + ' · ' + item.size + ' bytes');
+  console.log('3D MOCKUP BROWSER TEST: PASS — ' + renderedItems.length + ' scenes, each 1200×900 PNG; HDRI: ' + results.environmentStatus + '. Artifacts: ' + artifactDir);
+  for (const item of renderedItems) console.log('PASS ' + item.id + ' · ' + item.group + ' · ' + item.size + ' bytes');
 } finally {
   if (browser) await browser.close();
   await new Promise(resolve => server.close(resolve));

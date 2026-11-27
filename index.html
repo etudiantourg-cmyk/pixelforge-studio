@@ -1,129 +1,73 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta name="theme-color" content="#101827"><title>PIXELFORGE STUDIO</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020"><title>PIXELFORGE — Logo Conversion Studio</title>
+<script src="https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
-:root{color-scheme:dark;--bg:#0b1120;--panel:#17253b;--line:#30435f;--muted:#a8b8d0;--accent:#829cff;--green:#74e0b6}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#1b3150 0,transparent 38%),var(--bg);color:#f4f7ff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-header,.wrap{max-width:850px;margin:auto}header{padding:22px 18px 12px}h1{font-size:25px;margin:0;font-weight:850}header p{color:var(--muted);margin:6px 0 0;font-size:13px}
-.wrap{padding:10px 14px 40px}.card{background:linear-gradient(145deg,#17253b,#111b2c);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 12px 30px #0003}
-.label{font-size:13px;color:#d3def0;display:block;margin:12px 0 7px}.file{display:block;border:1px dashed #6b83ad;border-radius:13px;padding:16px;text-align:center;color:#dce7fa;cursor:pointer}
-textarea{width:100%;min-height:112px;resize:vertical;border:1px solid var(--line);border-radius:12px;background:#0b1423;color:white;padding:13px;font:inherit;line-height:1.7}
-.btn{border:1px solid var(--line);border-radius:12px;background:#1a2940;color:#eaf0ff;padding:12px 15px;font:inherit;font-size:14px;cursor:pointer}
-.primary{background:linear-gradient(135deg,#5478db,#795be1);border-color:transparent;font-weight:700}
-.btn:disabled{opacity:.55;cursor:wait}.preview{width:100%;max-height:560px;object-fit:contain;border-radius:12px;background:#080d16;margin-top:12px}
-.status{font-size:13px;color:var(--green);line-height:1.8;margin-top:11px;overflow-wrap:anywhere}.muted{color:var(--muted);font-size:12px;line-height:1.8}
-.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1}.hidden{display:none!important}
-.result-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.result-actions a{display:inline-block;text-decoration:none;text-align:center}
-footer{text-align:center;color:#71829c;font-size:11px;padding:12px}
-
-#floatingEdit{position:fixed;z-index:99999;left:14px;right:14px;bottom:14px;width:calc(100% - 28px);max-width:680px;margin:auto;box-shadow:0 5px 24px #0009;font-size:17px;padding:16px;border:2px solid #a9baff}
-body{padding-bottom:90px}
-</style>
-</head>
+:root{--bg:#090e1b;--panel:#111a2c;--panel2:#17233a;--line:#293956;--text:#f4f6fc;--muted:#9cabc4;--gold:#d5b477;--blue:#8299ff;--green:#63d6ac;--red:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 78% -15%,#26395b 0,transparent 44%),var(--bg);color:var(--text);font-family:Inter,system-ui,"Segoe UI",Arial,sans-serif}
+header{max-width:1180px;margin:auto;padding:27px 22px 16px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:13px}.mark{width:42px;height:42px;border:1px solid #9e895f;border-radius:13px;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:21px}.brand h1{font-size:18px;letter-spacing:2px;margin:0}.brand p{font-size:11px;color:var(--muted);margin:4px 0 0}
+.badge{border:1px solid #3d4b67;color:#cbd5e8;padding:8px 12px;border-radius:30px;font-size:11px}
+main{max-width:1180px;margin:auto;padding:8px 22px 70px}.hero{padding:26px 0 20px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:2px;font-weight:700}.hero h2{font-size:clamp(25px,4vw,39px);line-height:1.25;margin:10px 0}.hero p{color:var(--muted);max-width:760px;line-height:1.9;font-size:14px}
+.grid{display:grid;grid-template-columns:350px 1fr;gap:17px;align-items:start}.card{background:linear-gradient(145deg,#141f33,#101827);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 16px 40px #0003}.card h3{font-size:15px;margin:0 0 14px}.step{color:var(--gold);font-size:10px;letter-spacing:1px;margin-bottom:7px}
+.drop{border:1px dashed #607394;background:#0c1423;border-radius:14px;padding:24px 14px;text-align:center;cursor:pointer;transition:.2s}.drop:hover{border-color:var(--gold);background:#111c30}.drop strong{display:block;margin:8px 0}.drop small{color:var(--muted)}input[type=file]{display:none}
+label{display:block;font-size:12px;color:#c8d3e6;margin:17px 0 8px}input[type=range]{width:100%;accent-color:var(--gold)}select,input[type=text]{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:#0b1423;color:white}
+.row{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:7px}.btn{border:1px solid #3b4c6b;background:#1a2941;color:white;border-radius:10px;padding:11px 14px;font:inherit;font-size:12px;cursor:pointer}.btn.primary{background:linear-gradient(120deg,#b89a62,#e0c58e);color:#17130d;border:0;font-weight:800}.btn:disabled{opacity:.45;cursor:not-allowed}.full{width:100%;margin-top:13px}
+.workspace{min-height:590px}.tabs{display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:13px;margin-bottom:16px}.tab{background:transparent;border:1px solid transparent;color:var(--muted);padding:8px 12px;border-radius:8px;cursor:pointer;font:inherit;font-size:12px}.tab.active{background:#24334e;border-color:#465a7d;color:white}
+.previewArea{min-height:380px;border:1px solid #263653;border-radius:14px;background-color:#0a1120;background-image:linear-gradient(45deg,#111b2b 25%,transparent 25%),linear-gradient(-45deg,#111b2b 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#111b2b 75%),linear-gradient(-45deg,transparent 75%,#111b2b 75%);background-size:22px 22px;background-position:0 0,0 11px,11px -11px,-11px 0;display:grid;place-items:center;overflow:hidden;padding:22px}
+.previewArea img,.previewArea svg{max-width:100%;max-height:460px;object-fit:contain}.empty{text-align:center;color:var(--muted);line-height:2}.empty .symbol{font-size:45px;color:#657795}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.actions .btn{flex:1;min-width:120px}
+.status{font-size:12px;color:var(--green);line-height:1.8;margin-top:12px;min-height:24px}.warning{color:#f0c57b}.small{font-size:11px;color:var(--muted);line-height:1.8}
+.section{margin-top:16px}.sectionTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.sectionTitle h3{margin:0;font-size:14px}.miniGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini{background:#0d1626;border:1px solid #263653;border-radius:12px;padding:12px;min-height:105px;display:grid;place-items:center;text-align:center}.mini svg{width:100%;height:62px}.mini span{font-size:10px;color:var(--muted);margin-top:5px}
+.deliverables{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.deliverable{background:#0d1626;border:1px solid #263653;border-radius:10px;padding:11px;font-size:11px;color:#c8d3e6}.deliverable b{display:block;color:var(--gold);font-size:15px;margin-bottom:5px}
+footer{text-align:center;color:#65748e;font-size:10px;margin-top:30px}
+@media(max-width:850px){header{padding:20px 15px}main{padding:8px 15px 50px}.grid{grid-template-columns:1fr}.workspace{min-height:450px}.miniGrid{grid-template-columns:repeat(2,1fr)}.deliverables{grid-template-columns:repeat(2,1fr)}.previewArea{min-height:300px}}
+</style></head>
 <body>
-<header><h1>PIXELFORGE STUDIO</h1><p>استوديو تعديل الصور بالأوامر الطبيعية — اكتب ما تريد بلغتك</p></header>
-<main class="wrap">
-<section class="card">
-<b>1 · اختر الصورة</b>
-<label class="label file" for="photo">＋ اختيار صورة من معرض الهاتف</label>
-<input id="photo" type="file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" aria-label="اختيار صورة">
-<img id="sourcePreview" class="preview hidden" alt="الصورة الأصلية">
-<label class="label" for="editPrompt">2 · اكتب التعديل المطلوب</label>
-<textarea id="editPrompt" placeholder="مثال: بدّل لون القميص إلى الأزرق، احذف الشخص الموجود في الخلفية، غيّر الخلفية إلى شاطئ وقت الغروب، حسّن الإضاءة..."></textarea>
-<label class="label" for="referencePhoto">صورة مرجعية إضافية (اختياري: ملابس، إضاءة، أسلوب أو مشهد)</label>
-<input id="referencePhoto" type="file" accept="image/*" class="btn" style="width:100%">
-<label class="label" for="styleMode">نمط اختياري</label>
-<select id="styleMode" class="btn" style="width:100%">
-<option value="">تحرير طبيعي (بدون نمط إضافي)</option>
-<option>Multiple-Angles</option><option>Fal-Multiple-Angles</option><option>Photo-to-Anime</option><option>Anime-V2</option><option>Light-Migration</option><option>Any-light</option><option>Studio-DeLight</option><option>Cinematic-FlatLog</option><option>Upscaler</option><option>Unblur-Anything</option><option>Style-Transfer</option><option>Manga-Tone</option><option>Anything2Real</option><option>Polaroid-Photo</option><option>Midnight-Noir-Eyes-Spotlight</option><option>Hyper-Realistic-Portrait</option><option>Ultra-Realistic-Portrait</option><option>Pixar-Inspired-3D</option><option>Noir-Comic-Book</option>
-</select>
-<p class="muted">يفهم الأوامر المكتوبة بالعربية والدارجة الجزائرية والفرنسية والإنجليزية. يمكنك وصف أكثر من تعديل في طلب واحد.</p>
-<button class="btn primary" id="doEdit" style="width:100%;margin-top:8px">✨ نفّذ التعديل على الصورة</button>
-<div id="editStatus" class="status" aria-live="polite">ارفع صورة واكتب التغييرات التي تريدها.</div>
-<div id="editResult"></div>
-</section>
-<section class="card">
-<b>حول المحرك</b>
-<p class="muted">يعتمد PIXELFORGE STUDIO على FLUX.2 Klein 4B عبر Cloudflare Workers AI لتوليد الصور وتحريرها بالتعليمات النصية، مع دعم صورة أساسية وصورة مرجعية. لا يحتاج المستخدم إلى إدخال مفاتيح أو تشغيل عامل GPU.</p>
-<p class="muted">تُعالج الصور لدى مزود الذكاء الاصطناعي ولا تُحفظ في حساب PIXELFORGE. يعتمد التوافر والتكلفة على حساب Cloudflare وخطته.</p>
-</section>
-<footer>PIXELFORGE STUDIO</footer>
+<header><div class="brand"><div class="mark">P</div><div><h1>PIXELFORGE</h1><p>IDENTITY CONVERSION WORKSHOP</p></div></div><div class="badge">LOGO CONVERSION · BETA ENGINE</div></header>
+<main>
+<section class="hero"><div class="eyebrow">FROM RASTER TO BRAND ASSET SYSTEM</div><h2>حوّل رسمتك إلى أصل بصري قابل للاستخدام</h2><p>ارفع صورة الشعار أو الرسم الموجود لديك. يقوم الاستوديو بتحليل الألوان وتحويل الصورة إلى مسارات SVG قابلة للتكبير، ثم تجهيز نسخ أساسية ومقاسات رقمية وحزمة ملفات أولية. هذه أداة تحويل وتحضير؛ لا تنشئ شعاراً جديداً من الصفر.</p></section>
+<div class="grid">
+<aside class="card">
+<div class="step">01 / SOURCE ARTWORK</div><h3>الصورة الأصلية</h3>
+<label class="drop" for="sourceFile"><span style="font-size:27px">⇧</span><strong>اختر صورة الشعار</strong><small>PNG · JPG · WEBP · يفضّل خلفية واضحة</small></label><input id="sourceFile" type="file" accept="image/png,image/jpeg,image/webp">
+<div id="sourceInfo" class="small" style="margin-top:9px">لم يتم اختيار صورة بعد.</div>
+<label for="colors">عدد الألوان في إعادة البناء</label><input id="colors" type="range" min="2" max="16" value="8"><div class="row"><span>مبسّط</span><b id="colorsValue">8 ألوان</b><span>تفصيلي</span></div>
+<label for="detail">دقة تتبع الحدود</label><input id="detail" type="range" min="0" max="3" value="2"><div class="row"><span>أسرع</span><span id="detailValue">متوازن</span><span>أدق</span></div>
+<label for="speckle">إزالة التفاصيل الصغيرة</label><input id="speckle" type="range" min="0" max="12" value="2"><div class="row"><span>الحفاظ على التفاصيل</span><span id="speckleValue">2 px</span></div>
+<label for="background">معالجة الخلفية</label><select id="background"><option value="keep">الاحتفاظ بالخلفية كما هي</option><option value="white">اعتبار الأبيض خلفية شفافة</option><option value="black">اعتبار الأسود خلفية شفافة</option></select>
+<button id="convert" class="btn primary full" disabled>تحويل الصورة إلى مسارات SVG</button>
+<div id="status" class="status">ارفع الصورة للبدء.</div>
+<p class="small warning">تنبيه جودة: التتبع الآلي لا يضمن إعادة تصميم الحروف أو إصلاح هندسة الشعار تلقائياً. يجب فحص النتيجة بصرياً قبل اعتمادها للطباعة أو الاستخدام التجاري.</p>
+</aside>
+<section class="card workspace">
+<div class="tabs"><button class="tab active" data-tab="main">الشعار المتجهي</button><button class="tab" data-tab="variants">النسخ اللونية</button><button class="tab" data-tab="sizes">المقاسات الرقمية</button><button class="tab" data-tab="kit">حزمة الهوية</button></div>
+<div id="mainPanel"><div class="previewArea" id="mainPreview"><div class="empty"><div class="symbol">◇</div>ستظهر هنا نتيجة التحويل المتجهي<br><small>ارفع صورة ثم ابدأ عملية التحويل</small></div></div><div class="actions"><button class="btn" id="downloadSvg" disabled>تنزيل SVG</button><button class="btn" id="downloadPng" disabled>تنزيل PNG 2048</button><button class="btn" id="downloadPdf" disabled>تنزيل PDF</button></div></div>
+<div id="variantsPanel" class="hidden"><div class="miniGrid" id="variantsGrid"></div><p class="small">تُشتق النسخ أحادية اللون من المسارات المستخرجة نفسها، وليست إعادة رسم يدوية.</p></div>
+<div id="sizesPanel" class="hidden"><div class="deliverables" id="sizesGrid"></div><p class="small">تشمل الحزمة أيقونات مربعة ومقاسات شاشة شائعة بصيغة PNG.</p></div>
+<div id="kitPanel" class="hidden"><div class="miniGrid" id="kitGrid"></div><p class="small warning">المعاينات هنا قوالب تطبيق أولية وليست تصويراً واقعياً لمنتجات مطبوعة. لا تُعرض بوصفها موك أب تصويرياً نهائياً.</p></div>
+<div class="section"><div class="sectionTitle"><h3>محتويات الحزمة التي جرى توليدها</h3><span class="small">يتم تفعيلها بعد نجاح التحويل</span></div><div class="deliverables"><div class="deliverable"><b>01</b>SVG متجهي قابل للتحرير</div><div class="deliverable"><b>02</b>نسخ أسود وأبيض</div><div class="deliverable"><b>03</b>PNG بمقاسات متعددة</div><div class="deliverable"><b>04</b>ملف معاينة ودليل أولي</div></div><button class="btn primary full" id="downloadPack" disabled>تنزيل حزمة الملفات ZIP</button></div>
+</section></div>
+<footer>PIXELFORGE STUDIO · لا اعتماد تلقائي قبل المراجعة البشرية والاختبار.</footer>
 </main>
 <script>
-// Store the selected file globally so the editor always receives the same file as the preview.
-(()=>{const input=document.getElementById("photo"),preview=document.getElementById("sourcePreview"),status=document.getElementById("editStatus");let currentUrl="";input.addEventListener("change",()=>{const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith("image/")){status.textContent="الملف المختار ليس صورة.";return;}window.__pixelForgeSelectedPhoto=file;if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=URL.createObjectURL(file);preview.src=currentUrl;preview.classList.remove("hidden");document.getElementById("editResult").innerHTML="";status.textContent="تم اختيار الصورة بنجاح. اكتب التعديل ثم اضغط زر تنفيذ التعديل.";});const prompt=document.getElementById("editPrompt");prompt.addEventListener("input",()=>{const value=prompt.value.trim();if(value){status.textContent="تم استلام الأمر ("+value.length+" حرفاً). اضغط زر «نفّذ التعديل على الصورة»."; }else if(window.__pixelForgeSelectedPhoto){status.textContent="الصورة جاهزة. اكتب التعديل في مربع النص الكبير.";}});})();
-</script>
-<script>
-let Client;
-const $=id=>document.getElementById(id);
-$('editPrompt').addEventListener('input',()=>{const text=$('editPrompt').value.trim();if(text){$('editStatus').textContent='تم إدخال التعديل ('+text.length+' حرفاً). اضغط الآن زر «نفّذ التعديل على الصورة».';}else if(window.__pixelForgeSelectedPhoto){$('editStatus').textContent='الصورة جاهزة. اكتب التعديل في مربع النص الكبير.';}});
-function getOutputUrl(item){
- if(typeof item==='string'){
-  if(/^https?:\/\//i.test(item))return item;
-  return 'https://kulkas2pintu-qwen-edit-image.hf.space/gradio_api/file='+encodeURIComponent(item);
- }
- if(item&&typeof item.url==='string'&&item.url)return item.url;
- if(item&&typeof item.path==='string'){
-  if(item.path.startsWith('http'))return item.path;
-  return 'https://kulkas2pintu-qwen-edit-image.hf.space/gradio_api/file='+encodeURIComponent(item.path);
- }
- throw new Error('لم يرجع المحرك ملف صورة صالحاً.');
-}
-async function fileToDataURL(file,maxSide=512){
- return new Promise((resolve,reject)=>{
-  const reader=new FileReader();
-  reader.onerror=()=>reject(new Error('تعذرت قراءة الصورة.'));
-  reader.onload=()=>{
-   const image=new Image();
-   image.onerror=()=>reject(new Error('صيغة الصورة غير مدعومة.'));
-   image.onload=()=>{
-    const scale=Math.min(1,maxSide/Math.max(image.width,image.height));
-    const canvas=document.createElement('canvas');
-    canvas.width=Math.max(1,Math.round(image.width*scale));
-    canvas.height=Math.max(1,Math.round(image.height*scale));
-    canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
-    resolve(canvas.toDataURL('image/jpeg',0.88));
-   };
-   image.src=reader.result;
-  };
-  reader.readAsDataURL(file);
- });
-}
-$('doEdit').addEventListener('click',async()=>{
- const prompt=String($('editPrompt').value||'').trim(),btn=$('doEdit'),status=$('editStatus'),box=$('editResult');
- const selectedFile=window.__pixelForgeSelectedPhoto||($('photo').files&&$('photo').files[0]);
- if(!selectedFile){status.textContent='اختر صورة أولاً.';return;}
- if(!prompt){status.textContent='اكتب التعديل المطلوب أولاً.';$('editPrompt').focus();return;}
- btn.disabled=true;box.innerHTML='';
- try{
-  status.textContent='جارٍ تجهيز الصورة وإرسالها إلى محرّك PIXELFORGE...';
-  const image=await fileToDataURL(selectedFile,512);
-  const refFile=$('referencePhoto').files[0]||null;
-  const reference=refFile?await fileToDataURL(refFile,512):null;
-  const style=$('styleMode').value;
-  const instruction=(style?'Visual style requested: '+style+'. ':'')+'Follow this image-editing instruction accurately. Preserve the subject identity and all details not requested to change. User instruction: '+prompt;
-  status.textContent='وصلت الصورة إلى المحرّك. جارٍ تنفيذ التعديل...';
-  const response=await fetch('https://pixelforge-studio-zajl.onrender.com/api/edit',{
-   method:'POST',headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({prompt:instruction,image,reference})
-  });
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok||!data.ok)throw new Error(data.error||('تعذر تنفيذ التعديل (HTTP '+response.status+').'));
-  const outputUrl=data.image||data.result;
-  if(typeof outputUrl!=='string'||!outputUrl.startsWith('data:image/'))throw new Error('لم يرجع المحرّك صورة صالحة.');
-  const img=document.createElement('img');img.className='preview';img.alt='الصورة بعد التعديل';img.src=outputUrl;
-  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error('تعذر عرض الصورة الناتجة.'));});
-  const actions=document.createElement('div');actions.className='result-actions';
-  const link=document.createElement('a');link.className='btn primary';link.textContent='تنزيل الصورة المعدّلة';link.href=outputUrl;link.download='pixelforge-edited.png';
-  actions.append(link);box.append(img,actions);
-  status.textContent='اكتمل تعديل الصورة بنجاح. يمكنك تنزيل النتيجة.';
- }catch(err){
-  console.error(err);status.textContent='لم يكتمل التعديل: '+String(err&&err.message||err);
- }finally{btn.disabled=false;}
-});
-</script>
-<button id="floatingEdit" class="btn primary" type="button" onclick="(function(){var st=document.getElementById('editStatus');var b=document.getElementById('doEdit');if(st)st.textContent='وصل الضغط إلى زر التنفيذ. أتحقق من تشغيل المحرّك...';if(b){b.disabled=false;b.scrollIntoView({behavior:'smooth',block:'center'});b.click();}else if(st){st.textContent='تعذّر العثور على وظيفة التنفيذ داخل الصفحة.';}})()">✨ نفّذ التعديل على الصورة</button>
-<script>window.addEventListener("error",function(e){var st=document.getElementById("editStatus");if(st)st.textContent="خطأ في تشغيل المحرر: "+(e.message||"تعذر تشغيل JavaScript");});window.addEventListener("unhandledrejection",function(e){var st=document.getElementById("editStatus");if(st)st.textContent="فشل اتصال المحرر: "+(e.reason&&e.reason.message||e.reason||"خطأ غير معروف");});</script>
-</body></html>
+(()=>{const $=id=>document.getElementById(id);let source=null,svgMarkup='',variants={},baseName='logo';const detailLabels=['أسرع','خفيف','متوازن','دقيق'];$('colors').oninput=()=> $('colorsValue').textContent=$('colors').value+' ألوان';$('detail').oninput=()=> $('detailValue').textContent=detailLabels[+$('detail').value];$('speckle').oninput=()=> $('speckleValue').textContent=$('speckle').value+' px';
+$('sourceFile').onchange=()=>{const f=$('sourceFile').files[0];if(!f)return;if(!f.type.startsWith('image/')){setStatus('صيغة الملف غير مدعومة.','warning');return;}source=f;$('sourceInfo').textContent=f.name+' · '+Math.round(f.size/1024)+' KB';baseName=(f.name.replace(/\.[^.]+$/,'').replace(/[^\p{L}\p{N}_-]+/gu,'-')||'logo');$('convert').disabled=false;setStatus('تم تحميل الصورة. راجع الإعدادات ثم نفّذ التحويل.');};
+function setStatus(t,c=''){ $('status').textContent=t;$('status').className='status '+c;}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['main','variants','sizes','kit'].forEach(k=>$(k+'Panel').classList.toggle('hidden',k!==b.dataset.tab));});
+function cleanBackground(svg,mode){if(mode==='keep')return svg;const parser=new DOMParser(),doc=parser.parseFromString(svg,'image/svg+xml');const nodes=[...doc.querySelectorAll('path,polygon,rect')];let candidates=nodes.filter(n=>{const fill=(n.getAttribute('fill')||'').toLowerCase();return mode==='white'?['#fff','#ffffff','white','rgb(255,255,255)'].includes(fill):['#000','#000000','black','rgb(0,0,0)'].includes(fill);});if(candidates.length){let largest=candidates.sort((a,b)=>{const aa=a.getAttribute('d')||'',bb=b.getAttribute('d')||'';return bb.length-aa.length;})[0];largest.remove();}return new XMLSerializer().serializeToString(doc);}
+function recolor(svg,color){const doc=new DOMParser().parseFromString(svg,'image/svg+xml');doc.querySelectorAll('[fill]').forEach(n=>{const f=n.getAttribute('fill');if(f&&f!=='none')n.setAttribute('fill',color);});doc.querySelectorAll('[stroke]').forEach(n=>{const s=n.getAttribute('stroke');if(s&&s!=='none')n.setAttribute('stroke',color);});return new XMLSerializer().serializeToString(doc);}
+function normalizeSvg(svg){const doc=new DOMParser().parseFromString(svg,'image/svg+xml'),root=doc.documentElement;root.setAttribute('xmlns','http://www.w3.org/2000/svg');root.setAttribute('role','img');root.setAttribute('aria-label','Converted logo');root.removeAttribute('style');return new XMLSerializer().serializeToString(doc);}
+$('convert').onclick=async()=>{if(!source||!window.ImageTracer){setStatus('تعذر تحميل محرك التتبع. تحقق من اتصال الشبكة ثم أعد المحاولة.','warning');return;}const btn=$('convert');btn.disabled=true;setStatus('جارٍ تحليل الصورة واستخراج المسارات…');try{const data=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onerror=()=>reject(Error('تعذرت قراءة الملف'));fr.onload=()=>resolve(fr.result);fr.readAsDataURL(source)});const opts={ltres:[1,1.5,2,3][+$('detail').value],qtres:[1,1.5,2,3][+$('detail').value],pathomit:+$('speckle').value,numberofcolors:+$('colors').value,colorsampling:2,strokewidth:0,scale:1,roundcoords:2,viewbox:true,desc:false,blurradius:0, blurdelta:20};let result=await new Promise((resolve,reject)=>{const im=new Image();im.onerror=()=>reject(Error('تعذر فك الصورة'));im.onload=()=>{try{const c=document.createElement('canvas');const max=1800,s=Math.min(1,max/Math.max(im.width,im.height));c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(im,0,0,c.width,c.height);resolve(ImageTracer.imagedataToSVG(ctx.getImageData(0,0,c.width,c.height),opts));}catch(e){reject(e)}};im.src=data});result=cleanBackground(result,$('background').value);svgMarkup=normalizeSvg(result);variants={color:svgMarkup,black:recolor(svgMarkup,'#111111'),white:recolor(svgMarkup,'#ffffff')};renderAll();['downloadSvg','downloadPng','downloadPdf','downloadPack'].forEach(id=>$(id).disabled=false);setStatus('اكتمل التتبع. افحص الحواف والتفاصيل الدقيقة قبل اعتماد الملف.');}catch(e){console.error(e);setStatus('فشل التحويل: '+e.message,'warning');}finally{btn.disabled=false;}};
+function renderAll(){$('mainPreview').innerHTML=svgMarkup;$('variantsGrid').innerHTML='';[['النسخة الملونة','color','#dce4f2'],['أسود على أبيض','black','#fff'],['أبيض على داكن','white','#18243a']].forEach(([title,key,bg])=>{const d=document.createElement('div');d.className='mini';d.style.background=bg;d.innerHTML=variants[key]+'<span style="color:#8b99ad">'+title+'</span>';$('variantsGrid').append(d);});$('sizesGrid').innerHTML=[16,32,48,64,128,256,512,1024,2048].map(n=>'<div class="deliverable"><b>'+n+' px</b>PNG شفاف</div>').join('');$('kitGrid').innerHTML='';[['بطاقة أعمال','BUSINESS CARD'],['ورق رسمي','LETTERHEAD'],['صورة حساب','SOCIAL AVATAR'],['توقيع بريد','EMAIL SIGNATURE'],['أيقونة تطبيق','APP ICON'],['علامة مائية','WATERMARK']].forEach(([a,b])=>{const d=document.createElement('div');d.className='mini';d.innerHTML=variants.black+'<span>'+a+' · '+b+'</span>';$('kitGrid').append(d);});}
+function svgBlob(svg){return new Blob([svg],{type:'image/svg+xml;charset=utf-8'});}
+function download(blob,name){const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);}
+function svgToPng(svg,size){return new Promise((resolve,reject)=>{const u=URL.createObjectURL(svgBlob(svg)),im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=size;c.height=size;const x=c.getContext('2d');const vb=(svg.match(/viewBox=["']([^"']+)/)||[])[1];let w=im.width,h=im.height;if(vb){const a=vb.split(/[ ,]+/).map(Number);w=a[2]||w;h=a[3]||h;}const scale=Math.min(size/w,size/h),dw=w*scale,dh=h*scale;x.drawImage(im,(size-dw)/2,(size-dh)/2,dw,dh);URL.revokeObjectURL(u);c.toBlob(b=>b?resolve(b):reject(Error('PNG export failed')),'image/png');};im.onerror=()=>{URL.revokeObjectURL(u);reject(Error('SVG render failed'));};im.src=u;});}
+$('downloadSvg').onclick=()=>download(svgBlob(svgMarkup),baseName+'.svg');$('downloadPng').onclick=async()=>{try{download(await svgToPng(svgMarkup,2048),baseName+'-2048.png')}catch(e){setStatus(e.message,'warning')}};
+$('downloadPdf').onclick=async()=>{try{const png=await svgToPng(svgMarkup,2048),url=URL.createObjectURL(png);const w=window.open('','_blank');if(!w)throw Error('اسمح بفتح نافذة الطباعة لتنزيل PDF');w.document.write('<html><body style="margin:0;display:grid;place-items:center;height:100vh"><img style="max-width:90%;max-height:90%" src="'+url+'"><script>onload=()=>setTimeout(()=>print(),500)<\/script></body></html>');}catch(e){setStatus(e.message,'warning')}};
+$('downloadPack').onclick=async()=>{try{const zip=new JSZip();zip.file('01-master/'+baseName+'.svg',svgMarkup);zip.file('01-master/'+baseName+'-black.svg',variants.black);zip.file('01-master/'+baseName+'-white.svg',variants.white);for(const n of [16,32,48,64,128,256,512,1024,2048])zip.file('02-digital/png-'+n+'/'+baseName+'-'+n+'.png',await svgToPng(svgMarkup,n));zip.file('03-documentation/README.txt','PIXELFORGE STUDIO — Initial conversion package\n\nFiles are automatically traced from the supplied raster image. Review paths, typography, color accuracy, and print specifications with a professional designer before production.\n');zip.file('03-documentation/quality-status.txt','AUTOMATED TRACE ONLY — NOT HUMAN APPROVED\nNo claim of professional redesign, font reconstruction, CMYK proof, EPS/PDF vector certification, or photographic mockup is made.\n');const blob=await zip.generateAsync({type:'blob'});download(blob,baseName+'-brand-assets.zip');setStatus('تم تجهيز الحزمة الأولية. هذه ليست حزمة هوية نهائية معتمدة.');}catch(e){setStatus('تعذر تجهيز ZIP: '+e.message,'warning')}};
+})();
+</script></body></html>

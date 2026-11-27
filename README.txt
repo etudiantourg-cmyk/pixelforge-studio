@@ -36,15 +36,8 @@ This is an automated tracing foundation, not a finished professional identity-de
 
 Never use generated files for commercial print without visual and prepress review.
 
-SEPARATE IMAGE-EDITING BACKEND
-The repository contains server.js, a Node service hosting both the VTracer WASM vectorization endpoint and a separate Cloudflare Workers AI FLUX.2 Klein 4B image-editing API. VTracer vectorization does not use Cloudflare or a GPU.
-Required environment variables for that service:
-  CLOUDFLARE_ACCOUNT_ID
-  CLOUDFLARE_API_TOKEN
-The backend applies a lightweight in-memory per-IP request limit (5 requests/minute), checks browser Origin when present, caps prompts at 4,000 characters, caps image payloads at 18 MiB, and limits concurrent AI calls to two. These are abuse-reduction measures, not authentication or a durable distributed quota; in-memory counters reset on restart and can be bypassed by distributed clients.
-PORT is provided by the host.
-
-Do not commit secrets to GitHub. Configure them in the hosting provider's environment settings. Cloudflare usage and limits depend on the account and plan.
+COST AND OPERATIONAL REQUIREMENTS
+The owner must not perform technical or operational setup. The service requires no API key, paid AI provider, GPU rental, credit card, or secret configuration. Logo tracing runs on the existing free Render CPU service, with a local browser fallback. The Render free service can sleep when idle and has usage limits; this is a free-tier constraint, not a hidden paid dependency.
 
 RENDER
 Frontend service: pixelforge-studio-app (static site; publish path .)

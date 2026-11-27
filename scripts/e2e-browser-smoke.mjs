@@ -82,7 +82,7 @@ try{
   await page.locator('#convert').click();
   await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM'));
   assert.ok((await page.locator('#diagnostics').textContent()).includes('عدد المسارات:'),'real VTracer output must populate vector diagnostics');
-  await page.waitForFunction(()=>document.querySelectorAll('.mockupCard').length===21,{timeout:180000});
+  await page.waitForFunction(()=>document.querySelectorAll('.mockupCard').length===21);
   assert.equal(await page.evaluate(()=>window.PIXELFORGE_MOCKUPS?.environmentStatus),'loaded','real mockup engine must load the Poly Haven HDRI');
   assert.equal(await page.locator('#downloadSvg').isDisabled(),false,'SVG export should be enabled');
   assert.equal(await page.locator('#downloadPdf').isDisabled(),false,'PDF export should be enabled');

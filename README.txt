@@ -72,3 +72,5 @@ EXPANDED PRESENTATION SET
 
 - Latest verified run: GitHub Actions run 140 passed the real Chromium/WebGL render test for all 21 scenes and uploaded PNG evidence. The overall strict critic still rejects the release because other product requirements remain incomplete.
 - The 3D scenes are modeled studio renders, not photorealistic photography or vendor-approved proofs.
+
+- Presentation-suite scope is now 21 distinct product scenes, including apparel, totes and backpacks, paper and rigid packaging, drinkware, stationery, storefront/billboard signage, phone/laptop and delivery van. The browser suite asserts all 21 unique scenes, not merely the original thirteen. This is breadth of coverage only; every scene remains subject to individual visual acceptance.

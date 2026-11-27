@@ -43,10 +43,12 @@ Required capability groups to be individually specified and verified:
 ## Current build status — 2026-11-27
 - The existing repository and Render services were inspected.
 - The existing product was a generic image editor, not a complete logo conversion system.
-- A browser-side conversion foundation was committed: image upload, raster-to-SVG tracing using ImageTracerJS, pixel-level white/black background transparency preprocessing, monochrome variants, PNG size exports, SVG-based browser print-to-PDF flow, and a ZIP package with palette manifest, preliminary HTML brand notes, and multiple monochrome PNG sizes. The embedded JavaScript syntax was checked with a parser and passed.
+- Browser-side conversion foundation: image upload, raster-to-SVG tracing via ImageTracerJS, pixel-level white/black transparency preprocessing, monochrome variants, PNG exports at 9 sizes, SVG-based browser print flow, and ZIP delivery with palette manifest and preliminary brand notes.
+- Added source-image preview and structural vector diagnostics (path count, path-command estimate, viewBox, extracted fill palette).
+- Added a dependency-free Node validation script at `scripts/validate.mjs` and `npm run validate`; its source syntax and app-script syntax were parser-checked in this session. The Node command itself has not been executed in a Render build.
 - This is **not an accepted release**. Automated tracing is not equivalent to professional manual/vector reconstruction. The current build does not yet prove all required export formats, CMYK production, typography reconstruction, full collateral generation, realistic mockups, or independent quality approval.
 - The current user interface explicitly discloses that the generated package is preliminary and not human-approved.
-- The updated source commits have not yet been confirmed live on Render; the Render static-site deployment history still reports the older 2026-11-26 deployment, despite the newer GitHub commits. Live deployment of these latest changes is therefore unverified.\n- No claim of "excellent", complete, or production-ready is permitted until all requirement groups above are implemented and independently tested.
+- The latest GitHub commits are not present in Render's deployment history. The static site is configured for automatic deploys, but the last confirmed live deploy still points to commit `d47318ff375e1935ef91269e6454389dde19751f` from 2026-11-26. Newer commits through `7f5eecdc063d0127740470c4c6505b3f936f207b` have not been confirmed live. Live HTTP verification was unavailable from this execution environment.\n- No claim of "excellent", complete, or production-ready is permitted until all requirement groups above are implemented and independently tested.
 
 ## Release decision
 Current status: **REJECTED — FOUNDATION BUILD ONLY**.

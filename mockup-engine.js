@@ -27,7 +27,7 @@
     const tex=new T.CanvasTexture(c);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.repeat.set(2,2);tex.anisotropy=4;return tex;
   }
   function mat(color,kind='paper',rough=.82,metal=0){const tex=noiseTexture(color,kind);return new T.MeshStandardMaterial({color:0xffffff,map:tex,bumpMap:tex,bumpScale:kind==='fabric'?.018:.009,roughness:rough,metalness:metal});}
-  function planeLogo(parent,texture,w,h,x,y,z,rotation=0){const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:T.DoubleSide}));m.position.set(x,y,z);m.rotation.z=rotation;m.renderOrder=5;parent.add(m);return m;}
+  function planeLogo(parent,texture,w,h,x,y,z,rotation=0){const ratio=texture.image?.width&&texture.image?.height?texture.image.width/texture.image.height:1;if(ratio>w/h)h=w/ratio;else w=h*ratio;const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:T.DoubleSide}));m.position.set(x,y,z);m.rotation.z=rotation;m.renderOrder=5;parent.add(m);return m;}
   function box(parent,w,h,d,material,x=0,y=0,z=0){const m=new T.Mesh(new T.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m;}
   function tube(parent,points,r,material){const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p)));const m=new T.Mesh(new T.TubeGeometry(curve,48,r,10,false),material);parent.add(m);return m;}
   function shirt(parent,logo){

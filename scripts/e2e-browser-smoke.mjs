@@ -1,0 +1,107 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import http from 'node:http';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import JSZip from 'jszip';
+import { chromium } from 'playwright';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const html = fs.readFileSync(path.join(root, 'index.html'));
+const jszip = fs.readFileSync(path.join(root, 'node_modules/jszip/dist/jszip.min.js'));
+const jspdf = fs.readFileSync(path.join(root, 'node_modules/jspdf/dist/jspdf.umd.min.js'));
+const svg2pdf = fs.readFileSync(path.join(root, 'node_modules/svg2pdf.js/dist/svg2pdf.umd.min.js'));
+const artifactDir = path.join(root, 'artifacts', 'e2e-browser');
+fs.mkdirSync(artifactDir, { recursive: true });
+
+const tinyPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/mioAAAAASUVORK5CYII=', 'base64');
+const groups = ['الملابس','الحقائب','العلب والتغليف','المنتجات','اللافتات','المطبوعات','الأجهزة','المركبات'];
+const items = Array.from({length:21}, (_,i)=>({
+  id:'e2e-'+String(i+1).padStart(2,'0'),
+  name:'اختبار عرض '+(i+1),
+  group:groups[i%groups.length]
+}));
+const mockupStub = `(()=>{const items=${JSON.stringify(items)};const png=Uint8Array.from(atob('${tinyPng.toString('base64')}'),c=>c.charCodeAt(0));window.PIXELFORGE_MOCKUPS={available:true,items,environmentStatus:'E2E-STUB',render:async(svg,onProgress)=>items.map((item,i)=>{if(onProgress)onProgress(item,i+1,items.length);return {...item,blob:new Blob([png],{type:'image/png'})}})};})();`;
+const testSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" width="600" height="300"><path fill="#14283f" d="M40 40H560V260H40Z"/><path fill="#d4ad6b" d="M120 90H480V210H120Z"/></svg>';
+
+const server = http.createServer((req,res)=>{
+  if(req.url==='/mockup-engine.js'){res.writeHead(200,{'content-type':'text/javascript; charset=utf-8'});return res.end(mockupStub);}
+  if(req.url==='/'||req.url==='/index.html'){res.writeHead(200,{'content-type':'text/html; charset=utf-8'});return res.end(html);}
+  res.writeHead(404);res.end('Not found');
+});
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+const address=server.address();
+let browser;
+const failures=[];
+try{
+  browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+  const page=await browser.newPage({acceptDownloads:true});
+  page.setDefaultTimeout(45000);
+  page.on('pageerror',e=>failures.push(e.message));
+  page.on('console',m=>{if(m.type()==='error')failures.push('console: '+m.text());});
+  await page.route('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:jszip}));
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:jspdf}));
+  await page.route('https://cdn.jsdelivr.net/npm/svg2pdf.js@2.9.0/dist/svg2pdf.umd.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:svg2pdf}));
+  await page.route('https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:'window.ImageTracer={};'}));
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:''}));
+  await page.route('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:''}));
+  await page.route('https://pixelforge-studio-zajl.onrender.com/api/vectorize',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,engine:'E2E fixture',svg:testSvg})}));
+  await page.goto('http://127.0.0.1:'+address.port+'/',{waitUntil:'load',timeout:60000});
+  await page.waitForFunction(()=>window.JSZip&&window.jspdf?.jsPDF&&typeof new window.jspdf.jsPDF().svg==='function');
+  const inputPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/mioAAAAASUVORK5CYII=','base64');
+  await page.locator('#sourceFile').setInputFiles({name:'brand-test.png',mimeType:'image/png',buffer:inputPng});
+  await page.waitForFunction(()=>document.querySelector('#convert')?.disabled===false);
+  await page.locator('#convert').click();
+  await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع'));
+  await page.waitForFunction(()=>document.querySelectorAll('.mockupCard').length===21);
+  assert.equal(await page.locator('#downloadSvg').isDisabled(),false,'SVG export should be enabled');
+  assert.equal(await page.locator('#downloadPdf').isDisabled(),false,'PDF export should be enabled');
+  assert.equal(await page.locator('#downloadPack').isDisabled(),false,'ZIP export should be enabled');
+
+  const saveDownload=async(selector,name)=>{
+    const pending=page.waitForEvent('download');
+    await page.locator(selector).click();
+    const download=await pending;
+    const target=path.join(artifactDir,name);
+    await download.saveAs(target);
+    return target;
+  };
+  const svgPath=await saveDownload('#downloadSvg','brand-test.svg');
+  const svgText=fs.readFileSync(svgPath,'utf8');
+  assert.match(svgText,/<svg[\\s>]/i,'downloaded SVG must contain an SVG root');
+
+  const pngPath=await saveDownload('#downloadPng','brand-test-2048.png');
+  const png=fs.readFileSync(pngPath);
+  assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a','PNG export must have a real PNG signature');
+  assert.equal(png.readUInt32BE(16),2048,'PNG export must be 2048 pixels wide');
+  assert.equal(png.readUInt32BE(20),2048,'PNG export must be 2048 pixels high');
+
+  const pdfPath=await saveDownload('#downloadPdf','brand-test.pdf');
+  const pdf=fs.readFileSync(pdfPath);
+  assert.equal(pdf.subarray(0,5).toString('ascii'),'%PDF-','PDF export must be a real PDF document');
+
+  const zipPath=await saveDownload('#downloadPack','brand-test-assets.zip');
+  const zipBytes=fs.readFileSync(zipPath);
+  assert.equal(zipBytes.subarray(0,2).toString('ascii'),'PK','ZIP export must be a real ZIP archive');
+  const zip=await JSZip.loadAsync(zipBytes);
+  const names=Object.keys(zip.files).filter(name=>!zip.files[name].dir);
+  assert.ok(names.includes('01-master/brand-test.svg'),'ZIP must contain the SVG master');
+  assert.ok(names.includes('01-master/brand-test.pdf'),'ZIP must contain the vector PDF master');
+  assert.ok(names.includes('01-master/brand-test-black.pdf'),'ZIP must contain the black PDF variant');
+  assert.ok(names.includes('01-master/brand-test-white.pdf'),'ZIP must contain the white PDF variant');
+  assert.ok(names.includes('03-documentation/brand-manifest.json'),'ZIP must contain the machine-readable brand manifest');
+  assert.ok(names.includes('03-documentation/brand-guidelines.html'),'ZIP must contain the brand guide');
+  assert.equal(names.filter(n=>n.startsWith('05-presentation-mockups/')).length,21,'ZIP must contain all twenty-one presentation assets');
+  assert.ok(names.includes('02-digital/png-2048/brand-test-2048.png'),'ZIP must contain the 2048px digital export');
+  const embeddedPdf=await zip.file('01-master/brand-test.pdf').async('nodebuffer');
+  assert.equal(embeddedPdf.subarray(0,5).toString('ascii'),'%PDF-','embedded PDF must be valid');
+  const manifest=JSON.parse(await zip.file('03-documentation/brand-manifest.json').async('string'));
+  assert.equal(manifest.approval,'NOT HUMAN APPROVED','package must not misrepresent automated tracing as human approved');
+  assert.deepEqual(failures,[],'browser must not report uncaught JavaScript or console errors');
+  fs.writeFileSync(path.join(artifactDir,'e2e-summary.json'),JSON.stringify({source:'brand-test.png',svgBytes:svgText.length,pngBytes:png.length,pdfBytes:pdf.length,zipBytes:zipBytes.length,zipFiles:names.length,mockupAssets:names.filter(n=>n.startsWith('05-presentation-mockups/')).length,vectorPdf:'PASS',svg:'PASS',png:'PASS',zip:'PASS'},null,2));
+  console.log('PIXELFORGE BROWSER E2E: PASS — upload, mocked vectorization, SVG/PNG/PDF downloads, and complete ZIP package verified.');
+}finally{
+  if(browser)await browser.close();
+  await new Promise(resolve=>server.close(resolve));
+}

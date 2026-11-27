@@ -1,0 +1,196 @@
+{
+  "policy": "Every requirement is mandatory. Only EXCELLENT / VERIFIED with reproducible evidence is acceptable.",
+  "reviewDate": "2026-11-27",
+  "requirements": [
+    {
+      "id": "SRC-01",
+      "requirement": "Upload existing logo image; do not generate a new logo",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "SRC-02",
+      "requirement": "Robust image decoding, orientation, alpha, color profile, resolution and error handling",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "VEC-01",
+      "requirement": "Professional vector reconstruction with clean geometry and Bézier paths",
+      "implementation": "server.js",
+      "test": "scripts/vtracer-smoke.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "VEC-02",
+      "requirement": "Typography recovery, optical correction and faithful wordmark reconstruction",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "VAR-01",
+      "requirement": "Color, black, white, monochrome, symbol-only, wordmark, horizontal, vertical and responsive variants",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "EXP-01",
+      "requirement": "Valid editable SVG master and variants",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "EXP-02",
+      "requirement": "True vector PDF master and variants with verified output integrity",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_TESTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "EXP-03",
+      "requirement": "Real EPS exports and verified production compatibility",
+      "implementation": "",
+      "test": "",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "PRN-01",
+      "requirement": "Genuine CMYK production files with documented ICC profile and print checks",
+      "implementation": "",
+      "test": "",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "DIG-01",
+      "requirement": "Complete digital size matrix, favicons, platform avatars, covers and retina assets",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "GEO-01",
+      "requirement": "Measured construction grid, clear space, proportions, alignment and minimum sizes",
+      "implementation": "",
+      "test": "",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "COL-01",
+      "requirement": "Complete professional stationery, packaging, signage, merchandise and campaign collateral",
+      "implementation": "",
+      "test": "",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "MOCK-01",
+      "requirement": "Professional realistic mockups, never misrepresented template previews",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "GUIDE-01",
+      "requirement": "Complete brand guideline with measured specifications and usage rules",
+      "implementation": "index.html",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "FREE-01",
+      "requirement": "No paid services, API usage, GPU rental, credits or owner credentials",
+      "implementation": "server.js",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "OPS-01",
+      "requirement": "Owner performs no technical or operational intervention",
+      "implementation": "README.txt",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "SEC-01",
+      "requirement": "Secure processing, safe SVG, abuse protection, privacy and file integrity",
+      "implementation": "server.js",
+      "test": "scripts/validate.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "PARTIAL",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "E2E-01",
+      "requirement": "Independent real-browser end-to-end tests on desktop and mobile",
+      "implementation": "",
+      "test": "",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_TESTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    },
+    {
+      "id": "CRIT-01",
+      "requirement": "Independent critic review of every output and final release",
+      "implementation": "scripts/critic.mjs",
+      "test": "scripts/critic.mjs",
+      "evidence": "QUALITY_GATE.md",
+      "status": "NOT_IMPLEMENTED",
+      "criticVerdict": "REJECT",
+      "ownerDecision": "NOT_APPROVED"
+    }
+  ]
+}

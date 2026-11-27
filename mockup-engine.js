@@ -26,7 +26,7 @@
     x.fillStyle=base;x.fillRect(0,0,256,256);
     let seed=kind==='fabric'?17:kind==='paper'?31:47;
     for(let i=0;i<14000;i++){seed=(seed*1664525+1013904223)>>>0;const a=(seed&255)/255*.12;x.fillStyle='rgba(255,255,255,'+a.toFixed(3)+')';const px=seed%256,py=(seed>>>8)%256;x.fillRect(px,py,kind==='fabric'?1:2,kind==='fabric'?3:1);}
-    if(kind==='fabric'){x.strokeStyle='rgba(30,25,20,.08)';x.lineWidth=.5;for(let i=0;i<256;i+=4){x.beginPath();x.moveTo(i,0);x.lineTo(i,256);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(256,i);x.stroke();}}
+    if(kind==='fabric'){x.strokeStyle='rgba(30,25,20,.14)';x.lineWidth=.5;for(let i=0;i<256;i+=4){x.beginPath();x.moveTo(i,0);x.lineTo(i,256);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(256,i);x.stroke();}}
     const tex=new T.CanvasTexture(c);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.repeat.set(2,2);tex.anisotropy=4;return tex;
   }
   function mat(color,kind='paper',rough=.82,metal=0){const tex=noiseTexture(color,kind);return new T.MeshStandardMaterial({color:0xffffff,map:tex,bumpMap:tex,bumpScale:kind==='fabric'?.018:.009,roughness:rough,metalness:metal});}
@@ -50,29 +50,29 @@
   function tube(parent,points,r,material){const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p)));const m=new T.Mesh(new T.TubeGeometry(curve,48,r,10,false),material);parent.add(m);return m;}
   function shirt(parent,logo){
     const s=new T.Shape();s.moveTo(-.68,1.15);s.lineTo(-1.12,1.02);s.lineTo(-1.72,.55);s.lineTo(-1.35,-.08);s.lineTo(-1.02,.12);s.lineTo(-1.02,-1.25);s.quadraticCurveTo(0,-1.42,1.02,-1.25);s.lineTo(1.02,.12);s.lineTo(1.35,-.08);s.lineTo(1.72,.55);s.lineTo(1.12,1.02);s.lineTo(.68,1.15);s.quadraticCurveTo(0,.55,-.68,1.15);
-    const g=new T.ExtrudeGeometry(s,{depth:.12,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025,curveSegments:16});g.computeVertexNormals();const m=new T.Mesh(g,mat('#d8d4cc','fabric',.94));m.position.y=-.02;parent.add(m);planeLogo(parent,logo,.62,.62,0,.2,.19);
+    const g=new T.ExtrudeGeometry(s,{depth:.12,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025,curveSegments:16});g.computeVertexNormals();const m=new T.Mesh(g,mat('#aeb3b5','fabric',.94));m.position.y=-.02;parent.add(m);planeLogo(parent,logo,.62,.62,0,.2,.19);
     tube(parent,[[-.65,1.12,.16],[-.35,.82,.17],[0,.7,.17],[.35,.82,.17],[.65,1.12,.16]],.012,mat('#aaa69f','fabric',.9));
   }
   function tote(parent,logo){
-    box(parent,2.05,2.25,.18,mat('#c5b9a3','fabric',.98),0,-.05,0);
-    box(parent,1.94,2.12,.025,mat('#b8aa92','fabric',.98),0,-.05,.105);
+    box(parent,2.05,2.25,.18,mat('#a99c86','fabric',.98),0,-.05,0);
+    box(parent,1.94,2.12,.025,mat('#9d907a','fabric',.98),0,-.05,.105);
     const strap=mat('#9e9079','fabric',.95);tube(parent,[[-.62,1.02,.02],[-.62,1.72,.02],[-.38,1.88,.02],[.38,1.88,.02],[.62,1.72,.02],[.62,1.02,.02]],.075,strap);
     planeLogo(parent,logo,.92,.92,0,-.05,.135);
   }
   function shopping(parent,logo){
-    const paper=mat('#d9c9ad','paper',.94);box(parent,1.85,2.1,.62,paper,0,-.08,0);box(parent,.62,2.1,.025,mat('#b7a487','paper'),1.0,-.08,-.01);
+    const paper=mat('#bba98d','paper',.94);box(parent,1.85,2.1,.62,paper,0,-.08,0);box(parent,.62,2.1,.025,mat('#b7a487','paper'),1.0,-.08,-.01);
     const rope=mat('#554638','fabric',.9);tube(parent,[[-.5,.96,.12],[-.5,1.55,.12],[-.28,1.7,.12],[.28,1.7,.12],[.5,1.55,.12],[.5,.96,.12]],.035,rope);
     planeLogo(parent,logo,.95,.85,0,-.12,.33);
   }
   function giftbox(parent,logo){
     box(parent,2.0,1.45,1.35,mat('#182b43','paper',.42),0,-.05,0);
     box(parent,2.08,.18,1.42,mat('#263e5b','paper',.38),0,.76,0);
-    const gold=mat('#c4a36b','paper',.42,.5);box(parent,.15,1.42,1.45,gold,0,.0,.02);box(parent,2.06,.12,1.45,gold,0,.83,.02);
+    const gold=mat('#c4a36b','paper',.42,.5);box(parent,.15,1.42,1.45,gold,-.82,.0,.02);box(parent,2.06,.12,1.45,gold,0,.83,.02);
     planeLogo(parent,logo,.85,.62,0,-.05,.69);
   }
   function shipping(parent,logo){
     const kraft=mat('#b78d5d','paper',.95);box(parent,2.15,1.55,1.5,kraft,0,0,0);
-    const tape=mat('#d7bd8d','paper',.88);box(parent,.28,.018,1.51,tape,0,.79,0);box(parent,.28,.018,1.51,tape,0,.79,0);
+    const tape=mat('#d7bd8d','paper',.88);box(parent,.28,.018,1.51,tape,0,.79,0);box(parent,2.15,.018,.28,tape,0,.79,0);
     planeLogo(parent,logo,.9,.7,0,.0,.77);
     const seam=mat('#8f6b47','paper',.96);box(parent,2.12,.012,.012,seam,0,.78,.76);
   }
@@ -135,18 +135,18 @@
     try{
       const logoTexture=await new Promise((resolve,reject)=>new T.TextureLoader().load(logoUrl,t=>{t.encoding=T.sRGBEncoding;t.anisotropy=8;resolve(t);},undefined,reject));
       const renderer=new T.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'low-power'});
-      renderer.setPixelRatio(1);renderer.setSize(1200,900,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+      renderer.setPixelRatio(1);renderer.setSize(1200,900,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.82;
       const out=[];
       try{
         for(const item of items){
-          const scene=new T.Scene();scene.background=new T.Color('#e9e6e0');
+          const scene=new T.Scene();scene.background=new T.Color('#d9d5ce');
           const camera=new T.PerspectiveCamera(34,4/3,.1,100);
-          scene.add(new T.HemisphereLight(0xffffff,0x8d877e,2.0));
-          const key=new T.DirectionalLight(0xfff4e5,3.2);key.position.set(-3.5,6,5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;key.shadow.bias=-.0002;scene.add(key);
-          const fill=new T.DirectionalLight(0xd5e2ff,1.1);fill.position.set(4,2,3);scene.add(fill);
-          const rim=new T.DirectionalLight(0xffffff,1.7);rim.position.set(0,4,-4);scene.add(rim);
+          scene.add(new T.HemisphereLight(0xffffff,0x665f56,.68));
+          const key=new T.DirectionalLight(0xfff0dc,1.75);key.position.set(-3.5,6,5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;key.shadow.bias=-.0002;scene.add(key);
+          const fill=new T.DirectionalLight(0xd5e2ff,.38);fill.position.set(4,2,3);scene.add(fill);
+          const rim=new T.DirectionalLight(0xffffff,.68);rim.position.set(0,4,-4);scene.add(rim);
           const floorY=-1.65;
-          const floor=new T.Mesh(new T.PlaneGeometry(200,200),new T.MeshStandardMaterial({color:'#c9c5bd',roughness:.92}));floor.rotation.x=-Math.PI/2;floor.position.y=floorY-.012;floor.receiveShadow=true;scene.add(floor);
+          const floor=new T.Mesh(new T.PlaneGeometry(200,200),new T.MeshStandardMaterial({color:'#a9a39a',roughness:.92}));floor.rotation.x=-Math.PI/2;floor.position.y=floorY-.012;floor.receiveShadow=true;scene.add(floor);
           const group=new T.Group();scene.add(group);builders[item.id](group,logoTexture);
           group.updateMatrixWorld(true);
           const bounds=new T.Box3().setFromObject(group),dimensions=bounds.getSize(new T.Vector3());

@@ -23,6 +23,7 @@ LOGO CONVERSION ENGINE
 - Local ImageTracerJS fallback if the VTracer service is unavailable; the interface identifies which engine produced the current output.
 - Edge-connected white/black background removal: only matching pixels connected to the image border are removed, preserving enclosed details; the processed alpha channel is written into the PNG passed to the vector engine.
 - Color, black and white SVG variants.
+- True vector PDF exports generated directly from sanitized SVG paths (master, black, and white variants) using pinned free browser libraries.
 - PNG exports at multiple pixel sizes.
 - Preliminary ZIP package, palette manifest, and initial brand notes.
 

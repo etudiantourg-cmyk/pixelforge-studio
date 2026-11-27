@@ -25,7 +25,7 @@ const svg = vtracer.convertPixels(rgba, width, height, {
   optimize: 2
 });
 
-if (typeof svg !== 'string' || !svg.includes('<svg') || !/<path\\b/.test(svg)) {
+if (typeof svg !== 'string' || !svg.includes('<svg') || !/<path\b/.test(svg)) {
   throw new Error('VTracer smoke test did not produce an SVG path document.');
 }
 console.log('VTracer WASM smoke test PASS (' + svg.length + ' SVG characters)');

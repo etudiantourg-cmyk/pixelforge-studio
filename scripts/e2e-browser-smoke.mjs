@@ -38,15 +38,14 @@ function makePng(width,height){
   return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),pngChunk('IHDR',ihdr),pngChunk('IDAT',deflateSync(rows)),pngChunk('IEND',Buffer.alloc(0))]);
 }
 
-const server = http.createServer((req,res)=>{
-  if(req.url==='/mockup-engine.js'){res.writeHead(200,{'content-type':'text/javascript; charset=utf-8'});return res.end(mockupEngine);}
-  if(req.url==='/'||req.url==='/index.html'){res.writeHead(200,{'content-type':'text/html; charset=utf-8'});return res.end(html);}
-  res.writeHead(404);res.end('Not found');
-});
-await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-const address=server.address();
-const origin='http://127.0.0.1:'+address.port;
-let browser,backend,backendPort;
+const portProbe=http.createServer();
+await new Promise(resolve=>portProbe.listen(0,'127.0.0.1',resolve));
+const port=portProbe.address().port;
+await new Promise(resolve=>portProbe.close(resolve));
+const origin='http://127.0.0.1:'+port;
+const localHtml=html.toString('utf8').replace('https://pixelforge-studio-zajl.onrender.com/api/vectorize','/api/vectorize');
+if(localHtml===html.toString('utf8'))throw new Error('Vector API URL rewrite was not applied');
+let browser,backend;
 const failures=[];
 try{
   browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-webgl','--ignore-gpu-blocklist','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
@@ -60,21 +59,18 @@ try{
   await page.route('https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:'window.ImageTracer={};'}));
   await page.route('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:three}));
   await page.route('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:rgbeLoader}));
-  backend=spawn(process.execPath,['server.js'],{cwd:root,env:{...process.env,PORT:'0',ALLOWED_ORIGIN:origin},stdio:['ignore','pipe','pipe']});
+  backend=spawn(process.execPath,['server.js'],{cwd:root,env:{...process.env,PORT:String(port),ALLOWED_ORIGIN:origin},stdio:['ignore','pipe','pipe']});
   let backendError='';
   backend.stderr.on('data',chunk=>{backendError+=chunk.toString();});
-  backendPort=await new Promise((resolve,reject)=>{
+  await new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>reject(new Error('Local VTracer API startup timed out. '+backendError)),15000);
     backend.once('error',error=>{clearTimeout(timer);reject(error);});
     backend.once('exit',code=>{clearTimeout(timer);reject(new Error('Local VTracer API exited early ('+code+'). '+backendError));});
-    backend.stdout.on('data',chunk=>{const match=chunk.toString().match(/listening on (\d+)/);if(match){clearTimeout(timer);resolve(Number(match[1]));}});
+    backend.stdout.on('data',chunk=>{if(chunk.toString().includes('listening on '+port)){clearTimeout(timer);resolve();}});
   });
-  await page.route('https://pixelforge-studio-zajl.onrender.com/api/vectorize',async route=>{
-    const request=route.request();
-    const response=await fetch('http://127.0.0.1:'+backendPort+'/api/vectorize',{method:request.method(),headers:{'Content-Type':'application/json',Origin:origin},body:request.postData()});
-    await route.fulfill({status:response.status,headers:Object.fromEntries(response.headers.entries()),body:await response.text()});
-  });
-  await page.goto('http://127.0.0.1:'+address.port+'/',{waitUntil:'load',timeout:60000});
+  await page.route(origin+'/',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:localHtml}));
+  await page.route(origin+'/index.html',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:localHtml}));
+  await page.goto(origin+'/',{waitUntil:'load',timeout:60000});
   await page.waitForFunction(()=>window.JSZip&&window.jspdf?.jsPDF&&typeof new window.jspdf.jsPDF().svg==='function');
   const inputPng=makePng(64,64);
   await page.locator('#sourceFile').setInputFiles({name:'brand-test.png',mimeType:'image/png',buffer:inputPng});
@@ -138,5 +134,5 @@ try{
 }finally{
   if(browser)await browser.close();
   if(backend){backend.kill('SIGTERM');await Promise.race([once(backend,'exit'),new Promise(resolve=>setTimeout(resolve,3000))]);}
-  await new Promise(resolve=>server.close(resolve));
+
 }

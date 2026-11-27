@@ -40,8 +40,7 @@ The repository also contains server.js, a separate Node service that calls Cloud
 Required environment variables for that service:
   CLOUDFLARE_ACCOUNT_ID
   CLOUDFLARE_API_TOKEN
-Optional:
-  ADMIN_PASSWORD
+The backend applies a lightweight in-memory per-IP request limit (5 requests/minute), checks browser Origin when present, caps prompts at 4,000 characters, caps image payloads at 18 MiB, and limits concurrent AI calls to two. These are abuse-reduction measures, not authentication or a durable distributed quota; in-memory counters reset on restart and can be bypassed by distributed clients.
 PORT is provided by the host.
 
 Do not commit secrets to GitHub. Configure them in the hosting provider's environment settings. Cloudflare usage and limits depend on the account and plan.

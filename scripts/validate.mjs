@@ -9,6 +9,7 @@ const vtracerSmoke = fs.readFileSync(new URL('./vtracer-smoke.mjs', import.meta.
 const acceptanceMatrix = JSON.parse(fs.readFileSync(new URL('../ACCEPTANCE_MATRIX.json', import.meta.url), 'utf8'));
 const critic = fs.readFileSync(new URL('./critic.mjs', import.meta.url), 'utf8');
 const workflow = fs.readFileSync(new URL('../.github/workflows/validate.yml', import.meta.url), 'utf8');
+const mockupEngine = fs.readFileSync(new URL('../mockup-engine.js', import.meta.url), 'utf8');
 const errors = [];
 const checks = [];
 
@@ -79,6 +80,12 @@ const features = [
   ['Strict critic rejects any status other than EXCELLENT / VERIFIED', critic.includes("item.status !== 'EXCELLENT / VERIFIED'") && critic.includes("item.criticVerdict !== 'ACCEPT'")],
   ['Acceptance matrix covers all mandatory groups', acceptanceMatrix.requirements.length >= 18 && new Set(acceptanceMatrix.requirements.map(item => item.id)).size === acceptanceMatrix.requirements.length],
   ['GitHub Actions runs strict critic after engineering validation', workflow.includes('strict-critic:') && workflow.includes('run: npm run critic')],
+  ['Ten distinct presentation mockup products are implemented', ['tshirt','tote','shopping','giftbox','shipping','mug','bottle','cap','sign','cards'].every(id => mockupEngine.includes("id:'" + id + "'"))],
+  ['Mockup engine renders real WebGL scenes at 1200×900 and exports PNG', mockupEngine.includes('new T.WebGLRenderer') && mockupEngine.includes('renderer.setSize(1200,900,false)') && mockupEngine.includes("'image/png'")],
+  ['Logo aspect ratio is preserved on mockup surfaces', mockupEngine.includes('texture.image.width/texture.image.height')],
+  ['Mockup generation is local and does not upload source logos', !mockupEngine.includes('fetch(') && !mockupEngine.includes('XMLHttpRequest')],
+  ['Mockup cards and individual downloads are integrated into the app', html.includes('id="mockupGrid"') && html.includes('id="downloadMockups"') && html.includes('renderMockupGallery')],
+  ['Complete mockup set is mandatory in ZIP export', html.includes("mockupAssets.length!==10") && html.includes("05-presentation-mockups/" )],
   ['No unused admin password claim', !server.includes('adminConfigured') && !server.includes('ADMIN_PASSWORD')]
 ];
 function solidImage(width, height, rgb) {

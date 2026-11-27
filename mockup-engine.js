@@ -113,7 +113,7 @@
           await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
           const blob=await new Promise((resolve,reject)=>renderer.domElement.toBlob(b=>b?resolve(b):reject(Error('تعذر حفظ صورة العرض.')),'image/png'));
           out.push({id:item.id,name:item.name,group:item.group,blob});
-          group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m.map&&m.map!==logoTexture)m.map.dispose();if(m.bumpMap&&m.bumpMap!==m.map)m.bumpMap.dispose();m.dispose();});}});
+          scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m.map&&m.map!==logoTexture)m.map.dispose();if(m.bumpMap&&m.bumpMap!==m.map)m.bumpMap.dispose();m.dispose();});}});
           scene.clear();
         }
       }finally{renderer.dispose();renderer.forceContextLoss();logoTexture.dispose();}

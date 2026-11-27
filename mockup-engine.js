@@ -227,7 +227,8 @@
         );
       });
       const env=generator.fromEquirectangular(hdr).texture;
-      return {texture:env,generator,background:hdr};
+      hdr.dispose();
+      return {texture:env,generator};
     }catch(error){
       generator.dispose();
       console.warn('PIXELFORGE HDRI unavailable; using local studio lights.',error);
@@ -240,14 +241,14 @@
     try{
       const logoTexture=await new Promise((resolve,reject)=>new T.TextureLoader().load(logoUrl,t=>{t.encoding=T.sRGBEncoding;t.anisotropy=8;resolve(t);},undefined,reject));
       const renderer=new T.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'low-power'});
-      renderer.setPixelRatio(1);renderer.setSize(1200,900,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.42;
+      renderer.setPixelRatio(1);renderer.setSize(1200,900,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.46;
       const out=[];
       const environment=await loadStudioEnvironment(renderer);
       window.PIXELFORGE_MOCKUPS.environmentStatus=environment?'loaded':'fallback';
       const backdrop=studioBackdrop();
       try{
         for(const item of items){
-          const scene=new T.Scene();scene.background=environment?environment.background:backdrop;if(environment)scene.environment=environment.texture;
+          const scene=new T.Scene();scene.background=backdrop;if(environment)scene.environment=environment.texture;
           const camera=new T.PerspectiveCamera(34,4/3,.1,100);
           scene.add(new T.HemisphereLight(0xffffff,0x665f56,.18));
           const key=new T.DirectionalLight(0xfff0dc,.58);key.position.set(-3.5,6,5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;key.shadow.bias=-.0002;scene.add(key);
@@ -271,7 +272,7 @@
           scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m.map&&m.map!==logoTexture)m.map.dispose();if(m.bumpMap&&m.bumpMap!==m.map)m.bumpMap.dispose();m.dispose();});}});
           scene.clear();
         }
-      }finally{if(environment){environment.texture.dispose();environment.background.dispose();environment.generator.dispose();}renderer.dispose();renderer.forceContextLoss();logoTexture.dispose();}
+      }finally{if(environment){environment.texture.dispose();environment.generator.dispose();}renderer.dispose();renderer.forceContextLoss();logoTexture.dispose();}
       return out;
     }finally{URL.revokeObjectURL(logoUrl);}
   }

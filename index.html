@@ -50,7 +50,7 @@ footer{text-align:center;color:#65748e;font-size:10px;margin-top:30px}
 </aside>
 <section class="card workspace">
 <div class="tabs"><button class="tab active" data-tab="main">الشعار المتجهي</button><button class="tab" data-tab="variants">النسخ اللونية</button><button class="tab" data-tab="sizes">المقاسات الرقمية</button><button class="tab" data-tab="kit">حزمة الهوية</button></div>
-<div id="mainPanel"><div class="previewArea" id="mainPreview"><div class="empty"><div class="symbol">◇</div>ستظهر هنا نتيجة التحويل المتجهي<br><small>ارفع صورة ثم ابدأ عملية التحويل</small></div></div><div id="diagnostics" class="section small" style="display:none"></div><div class="actions"><button class="btn" id="downloadSvg" disabled>تنزيل SVG</button><button class="btn" id="downloadPng" disabled>تنزيل PNG 2048</button><button class="btn" id="downloadPdf" disabled>PDF متجهي</button></div></div>
+<div id="mainPanel"><div class="previewArea" id="mainPreview"><div class="empty"><div class="symbol">◇</div>ستظهر هنا نتيجة التحويل المتجهي<br><small>ارفع صورة ثم ابدأ عملية التحويل</small></div></div><div id="diagnostics" class="section small" style="display:none"></div><div class="actions"><button class="btn" id="downloadSvg" disabled>تنزيل SVG</button><button class="btn" id="downloadPng" disabled>تنزيل PNG 2048</button><button class="btn" id="downloadPdf" disabled>PDF متجهي</button><button class="btn" id="downloadEps" disabled>EPS متجهي CMYK</button></div></div>
 <div id="variantsPanel" class="hidden"><div class="miniGrid" id="variantsGrid"></div><p class="small">تُشتق النسخ أحادية اللون من المسارات المستخرجة نفسها، وليست إعادة رسم يدوية.</p></div>
 <div id="sizesPanel" class="hidden"><div class="deliverables" id="sizesGrid"></div><p class="small">تشمل الحزمة أيقونات مربعة ومقاسات شاشة شائعة بصيغة PNG.</p></div>
 <div id="kitPanel" class="hidden"><div class="sectionTitle"><h3>حزم العرض ثلاثية الأبعاد</h3><span class="small">21 مشهداً · 1200×900 px</span></div><p class="small">يعرض الشعار على نماذج ثلاثية الأبعاد بخامات وإضاءة وظلال استوديو. تُنشأ الصور محلياً داخل المتصفح ولا يُرسل الشعار إلى خدمة خارجية. إضاءة HDRI: Studio Small 09 من Poly Haven (CC0).</p><div class="mockupToolbar"><select id="mockupFilter" aria-label="تصفية حزم العرض"><option value="all">كل المنتجات</option><option value="الملابس">الملابس</option><option value="الحقائب">الحقائب</option><option value="العلب والتغليف">العلب والتغليف</option><option value="المنتجات">المنتجات</option><option value="اللافتات">اللافتات</option><option value="المطبوعات">المطبوعات</option><option value="الأجهزة">الأجهزة</option><option value="المركبات">المركبات</option></select><button class="btn" id="downloadMockups" disabled>تنزيل حزمة العروض PNG</button></div><div id="mockupStatus" class="mockupStatus">ستُنشأ العروض بعد نجاح تحويل الشعار.</div><div id="mockupGrid" class="mockupGrid"></div><p class="small warning">هذه عروض ثلاثية الأبعاد مولّدة برمجياً وليست صوراً فوتوغرافية لمنتجات مصنّعة. يجب اعتماد ألوان الخامات ومقاسات الطباعة مع المورد قبل الإنتاج.</p></div>
@@ -60,7 +60,7 @@ footer{text-align:center;color:#65748e;font-size:10px;margin-top:30px}
 </main>
 <script>
 (()=>{const $=id=>document.getElementById(id);let source=null,svgMarkup='',variants={},baseName='logo',sourcePreviewUrl=null,mockupAssets=[],mockupPromise=Promise.resolve([]);const detailLabels=['أسرع','خفيف','متوازن','دقيق'];$('colors').oninput=()=> $('colorsValue').textContent=$('colors').value+' ألوان';$('detail').oninput=()=> $('detailValue').textContent=detailLabels[+$('detail').value];$('speckle').oninput=()=> $('speckleValue').textContent=$('speckle').value+' px';
-$('sourceFile').onchange=()=>{const f=$('sourceFile').files[0];if(!f)return;source=null;svgMarkup='';variants={};$('convert').disabled=true;['downloadSvg','downloadPng','downloadPdf','downloadPack'].forEach(id=>$(id).disabled=true);$('diagnostics').style.display='none';if(sourcePreviewUrl){URL.revokeObjectURL(sourcePreviewUrl);sourcePreviewUrl=null;}const rejectFile=message=>{ $('sourceFile').value='';$('sourceInfo').textContent='لم يتم اختيار صورة صالحة.';$('sourceThumb').style.display='none';setStatus(message,'warning');};if(!['image/png','image/jpeg','image/webp'].includes(f.type)){rejectFile('الصيغ المدعومة هي PNG وJPG وWEBP فقط.');return;}if(f.size>20*1024*1024){rejectFile('حجم الصورة يتجاوز الحد المسموح: 20 ميغابايت.');return;}sourcePreviewUrl=URL.createObjectURL(f);const probe=new Image();probe.onload=()=>{const w=probe.naturalWidth,h=probe.naturalHeight;if(!w||!h||w>10000||h>10000||w*h>40000000){URL.revokeObjectURL(sourcePreviewUrl);sourcePreviewUrl=null;rejectFile('أبعاد الصورة كبيرة جداً أو غير صالحة. الحد الأقصى 10000×10000 وبإجمالي 40 مليون بكسل.');return;}source=f;$('sourceInfo').textContent=f.name+' · '+Math.round(f.size/1024)+' KB · '+w+'×'+h+' px';$('sourceImage').src=sourcePreviewUrl;$('sourceThumb').style.display='grid';baseName=(f.name.replace(/\.[^.]+$/,'').replace(/[^\p{L}\p{N}_-]+/gu,'-').slice(0,80)||'logo');$('convert').disabled=false;setStatus('تم التحقق من الصورة وتحميلها. راجع الإعدادات ثم نفّذ التحويل.');};probe.onerror=()=>{URL.revokeObjectURL(sourcePreviewUrl);sourcePreviewUrl=null;rejectFile('تعذر فك الصورة. قد يكون الملف تالفاً أو ليس صورة مدعومة.');};probe.src=sourcePreviewUrl;};
+$('sourceFile').onchange=()=>{const f=$('sourceFile').files[0];if(!f)return;source=null;svgMarkup='';variants={};$('convert').disabled=true;['downloadSvg','downloadPng','downloadPdf','downloadEps','downloadPack'].forEach(id=>$(id).disabled=true);$('diagnostics').style.display='none';if(sourcePreviewUrl){URL.revokeObjectURL(sourcePreviewUrl);sourcePreviewUrl=null;}const rejectFile=message=>{ $('sourceFile').value='';$('sourceInfo').textContent='لم يتم اختيار صورة صالحة.';$('sourceThumb').style.display='none';setStatus(message,'warning');};if(!['image/png','image/jpeg','image/webp'].includes(f.type)){rejectFile('الصيغ المدعومة هي PNG وJPG وWEBP فقط.');return;}if(f.size>20*1024*1024){rejectFile('حجم الصورة يتجاوز الحد المسموح: 20 ميغابايت.');return;}sourcePreviewUrl=URL.createObjectURL(f);const probe=new Image();probe.onload=()=>{const w=probe.naturalWidth,h=probe.naturalHeight;if(!w||!h||w>10000||h>10000||w*h>40000000){URL.revokeObjectURL(sourcePreviewUrl);sourcePreviewUrl=null;rejectFile('أبعاد الصورة كبيرة جداً أو غير صالحة. الحد الأقصى 10000×10000 وبإجمالي 40 مليون بكسل.');return;}source=f;$('sourceInfo').textContent=f.name+' · '+Math.round(f.size/1024)+' KB · '+w+'×'+h+' px';$('sourceImage').src=sourcePreviewUrl;$('sourceThumb').style.display='grid';baseName=(f.name.replace(/\.[^.]+$/,'').replace(/[^\p{L}\p{N}_-]+/gu,'-').slice(0,80)||'logo');$('convert').disabled=false;setStatus('تم التحقق من الصورة وتحميلها. راجع الإعدادات ثم نفّذ التحويل.');};probe.onerror=()=>{URL.revokeObjectURL(sourcePreviewUrl);sourcePreviewUrl=null;rejectFile('تعذر فك الصورة. قد يكون الملف تالفاً أو ليس صورة مدعومة.');};probe.src=sourcePreviewUrl;};
 function setStatus(t,c=''){ $('status').textContent=t;$('status').className='status '+c;}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['main','variants','sizes','kit'].forEach(k=>$(k+'Panel').classList.toggle('hidden',k!==b.dataset.tab));});
 function removeEdgeConnectedBackground(imageData,mode){if(mode==='keep')return 0;const {data,width,height}=imageData,total=width*height,queue=new Int32Array(total);let head=0,tail=0,removed=0;const matches=i=>{const p=i*4;if(data[p+3]===0)return false;const r=data[p],g=data[p+1],b=data[p+2];return mode==='white'?(r>=245&&g>=245&&b>=245):(r<=10&&g<=10&&b<=10);};const enqueue=i=>{if(i<0||i>=total||!matches(i))return;data[i*4+3]=0;queue[tail++]=i;removed++;};for(let x=0;x<width;x++){enqueue(x);if(height>1)enqueue((height-1)*width+x);}for(let y=1;y<height-1;y++){enqueue(y*width);if(width>1)enqueue(y*width+width-1);}while(head<tail){const i=queue[head++],x=i%width;if(x>0)enqueue(i-1);if(x+1<width)enqueue(i+1);if(i>=width)enqueue(i-width);if(i+width<total)enqueue(i+width);}return removed;}
@@ -88,9 +88,101 @@ function svgBlob(svg){return new Blob([svg],{type:'image/svg+xml;charset=utf-8'}
 function download(blob,name){const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);}
 function svgToPng(svg,size){return new Promise((resolve,reject)=>{const u=URL.createObjectURL(svgBlob(svg)),im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=size;c.height=size;const x=c.getContext('2d');const vb=(svg.match(/viewBox=["']([^"']+)/)||[])[1];let w=im.width,h=im.height;if(vb){const a=vb.split(/[ ,]+/).map(Number);w=a[2]||w;h=a[3]||h;}const scale=Math.min(size/w,size/h),dw=w*scale,dh=h*scale;x.drawImage(im,(size-dw)/2,(size-dh)/2,dw,dh);URL.revokeObjectURL(u);c.toBlob(b=>b?resolve(b):reject(Error('PNG export failed')),'image/png');};im.onerror=()=>{URL.revokeObjectURL(u);reject(Error('SVG render failed'));};im.src=u;});}
 $('downloadSvg').onclick=()=>download(svgBlob(svgMarkup),baseName+'.svg');$('downloadPng').onclick=async()=>{try{download(await svgToPng(svgMarkup,2048),baseName+'-2048.png')}catch(e){setStatus(e.message,'warning')}};
+function svgPathToPostScript(data){
+  const tokens=data.match(/[a-zA-Z]|[-+]?(?:\\d*\\.\\d+|\\d+\\.?\\d*)(?:[eE][-+]?\\d+)?/g)||[];
+  let i=0,cmd=null,x=0,y=0,sx=0,sy=0,lastC=null,lastQ=null;
+  const out=[],isCommand=t=>/^[a-zA-Z]$/.test(t),hasNumbers=()=>i<tokens.length&&!isCommand(tokens[i]);
+  const read=()=>{if(!hasNumbers())throw Error('مسار SVG غير مكتمل أو غير مدعوم.');const n=Number(tokens[i++]);if(!Number.isFinite(n))throw Error('قيمة غير صالحة في مسار SVG.');return n;};
+  const fmt=n=>Number(n.toFixed(5)).toString(),point=(a,b,rel)=>rel?[x+a,y+b]:[a,b];
+  while(i<tokens.length){
+    if(isCommand(tokens[i]))cmd=tokens[i++];
+    if(!cmd)throw Error('تعليمة SVG مفقودة.');
+    const op=cmd.toUpperCase(),rel=cmd!==op;
+    if(op==='Z'){out.push('closepath');x=sx;y=sy;lastC=lastQ=null;cmd=null;continue;}
+    if(op==='M'){
+      const [nx,ny]=point(read(),read(),rel);x=nx;y=ny;sx=x;sy=y;out.push(fmt(x)+' '+fmt(y)+' moveto');lastC=lastQ=null;cmd=rel?'l':'L';
+      while(hasNumbers()){const [lx,ly]=point(read(),read(),rel);x=lx;y=ly;out.push(fmt(x)+' '+fmt(y)+' lineto');}
+      continue;
+    }
+    if(op==='L'){
+      if(!hasNumbers())throw Error('تعليمة L بلا إحداثيات.');
+      while(hasNumbers()){const [nx,ny]=point(read(),read(),rel);x=nx;y=ny;out.push(fmt(x)+' '+fmt(y)+' lineto');}
+      lastC=lastQ=null;continue;
+    }
+    if(op==='H'){
+      if(!hasNumbers())throw Error('تعليمة H بلا إحداثيات.');
+      while(hasNumbers()){const n=read();x=rel?x+n:n;out.push(fmt(x)+' '+fmt(y)+' lineto');}
+      lastC=lastQ=null;continue;
+    }
+    if(op==='V'){
+      if(!hasNumbers())throw Error('تعليمة V بلا إحداثيات.');
+      while(hasNumbers()){const n=read();y=rel?y+n:n;out.push(fmt(x)+' '+fmt(y)+' lineto');}
+      lastC=lastQ=null;continue;
+    }
+    if(op==='C'){
+      if(!hasNumbers())throw Error('تعليمة C بلا إحداثيات.');
+      while(hasNumbers()){
+        const a=point(read(),read(),rel),b=point(read(),read(),rel),end=point(read(),read(),rel);
+        out.push([...a,...b,...end].map(fmt).join(' ')+' curveto');x=end[0];y=end[1];lastC=b;lastQ=null;
+      }continue;
+    }
+    if(op==='S'){
+      if(!hasNumbers())throw Error('تعليمة S بلا إحداثيات.');
+      while(hasNumbers()){
+        const a=lastC?[2*x-lastC[0],2*y-lastC[1]]:[x,y],b=point(read(),read(),rel),end=point(read(),read(),rel);
+        out.push([...a,...b,...end].map(fmt).join(' ')+' curveto');x=end[0];y=end[1];lastC=b;lastQ=null;
+      }continue;
+    }
+    if(op==='Q'){
+      if(!hasNumbers())throw Error('تعليمة Q بلا إحداثيات.');
+      while(hasNumbers()){
+        const q=point(read(),read(),rel),end=point(read(),read(),rel);
+        const c1=[x+2/3*(q[0]-x),y+2/3*(q[1]-y)],c2=[end[0]+2/3*(q[0]-end[0]),end[1]+2/3*(q[1]-end[1])];
+        out.push([...c1,...c2,...end].map(fmt).join(' ')+' curveto');x=end[0];y=end[1];lastQ=q;lastC=null;
+      }continue;
+    }
+    if(op==='T'){
+      if(!hasNumbers())throw Error('تعليمة T بلا إحداثيات.');
+      while(hasNumbers()){
+        const q=lastQ?[2*x-lastQ[0],2*y-lastQ[1]]:[x,y],end=point(read(),read(),rel);
+        const c1=[x+2/3*(q[0]-x),y+2/3*(q[1]-y)],c2=[end[0]+2/3*(q[0]-end[0]),end[1]+2/3*(q[1]-end[1])];
+        out.push([...c1,...c2,...end].map(fmt).join(' ')+' curveto');x=end[0];y=end[1];lastQ=q;lastC=null;
+      }continue;
+    }
+    throw Error('صيغة EPS لا تدعم تعليمة SVG: '+cmd);
+  }
+  return out.join('\\n');
+}
+function svgColorToCmyk(color){
+  let r,g,b;const v=(color||'#000000').trim().toLowerCase();
+  if(v==='none')return null;
+  if(v==='black'){r=g=b=0;}else if(v==='white'){r=g=b=1;}
+  else if(/^#[0-9a-f]{3}$/.test(v)){r=parseInt(v[1]+v[1],16)/255;g=parseInt(v[2]+v[2],16)/255;b=parseInt(v[3]+v[3],16)/255;}
+  else if(/^#[0-9a-f]{6}$/.test(v)){r=parseInt(v.slice(1,3),16)/255;g=parseInt(v.slice(3,5),16)/255;b=parseInt(v.slice(5,7),16)/255;}
+  else{const m=v.match(/^rgb\\(\\s*(\\d+(?:\\.\\d+)?)\\s*,\\s*(\\d+(?:\\.\\d+)?)\\s*,\\s*(\\d+(?:\\.\\d+)?)\\s*\\)$/);if(!m)throw Error('لون SVG غير مدعوم في EPS: '+v);r=Number(m[1])/255;g=Number(m[2])/255;b=Number(m[3])/255;}
+  const k=1-Math.max(r,g,b);if(k>=.999999)return [0,0,0,1];
+  return [(1-r-k)/(1-k),(1-g-k)/(1-k),(1-b-k)/(1-k),k];
+}
+function svgToEps(svg){
+  const doc=new DOMParser().parseFromString(svg,'image/svg+xml');if(doc.querySelector('parsererror'))throw Error('SVG غير صالح لإنشاء EPS.');
+  const root=doc.documentElement,vb=(root.getAttribute('viewBox')||'').trim().split(/[ ,]+/).map(Number);
+  if(root.localName!=='svg'||vb.length!==4||!vb.every(Number.isFinite)||vb[2]<=0||vb[3]<=0)throw Error('viewBox غير صالح لإنشاء EPS.');
+  if(doc.querySelector('g[transform],path[transform],text,image,foreignObject,use'))throw Error('يحتوي SVG على عناصر أو تحويلات لا يمكن تحويلها بأمان إلى EPS.');
+  const paths=[...doc.querySelectorAll('path')];if(!paths.length)throw Error('لا توجد مسارات متجهية في SVG.');
+  const fmt=n=>Number(n.toFixed(5)).toString(),lines=['%!PS-Adobe-3.0 EPSF-3.0','%%BoundingBox: 0 0 '+Math.ceil(vb[2])+' '+Math.ceil(vb[3]),'%%HiResBoundingBox: 0 0 '+fmt(vb[2])+' '+fmt(vb[3]),'%%LanguageLevel: 2','%%DocumentData: Clean7Bit','%%Pages: 1','%%EndComments','gsave','0 '+fmt(vb[3])+' translate','1 -1 scale',fmt(-vb[0])+' '+fmt(-vb[1])+' translate'];
+  for(const path of paths){
+    const d=path.getAttribute('d')||'',style=path.getAttribute('style')||'',styleFill=(style.match(/(?:^|;)\\s*fill\\s*:\\s*([^;]+)/i)||[])[1],fill=path.getAttribute('fill')||styleFill||'#000000';
+    const opacity=Number(path.getAttribute('opacity')||path.getAttribute('fill-opacity')||1);if(opacity!==1)throw Error('شفافية المسارات تحتاج تسطيحاً غير مدعوم في EPS.');
+    const cmyk=svgColorToCmyk(fill);if(!cmyk)continue;
+    lines.push('newpath',cmyk.map(fmt).join(' ')+' setcmykcolor',svgPathToPostScript(d),String(path.getAttribute('fill-rule')||'').toLowerCase()==='evenodd'?'eofill':'fill');
+  }
+  lines.push('grestore','%%EOF');
+  return new Blob([lines.join('\\n')+'\\n'],{type:'application/postscript'});
+}
 async function svgToPdf(svg){if(!window.jspdf?.jsPDF)throw Error('تعذر تحميل مكتبة PDF المجانية. أعد تحميل الصفحة مع اتصال بالإنترنت.');const parsed=new DOMParser().parseFromString(svg,'image/svg+xml');if(parsed.querySelector('parsererror'))throw Error('SVG غير صالح لإنشاء PDF.');const root=parsed.documentElement;const vb=(root.getAttribute('viewBox')||'').trim().split(/[ ,]+/).map(Number);if(vb.length!==4||!vb.every(Number.isFinite)||vb[2]<=0||vb[3]<=0)throw Error('أبعاد SVG غير صالحة.');const width=vb[2],height=vb[3],pdf=new window.jspdf.jsPDF({unit:'pt',format:[width,height],orientation:width>=height?'landscape':'portrait',compress:true});if(typeof pdf.svg!=='function')throw Error('محول SVG إلى PDF غير متاح.');await pdf.svg(root,{x:0,y:0,width,height});return pdf.output('blob');}
 $('downloadPdf').onclick=async()=>{try{setStatus('جارٍ إنشاء PDF متجهي…');const blob=await svgToPdf(svgMarkup);download(blob,baseName+'.pdf');setStatus('تم إنشاء PDF من مسارات SVG. افحصه في قارئ PDF قبل الطباعة.');}catch(e){setStatus('تعذر إنشاء PDF: '+e.message,'warning')}};
-$('downloadPack').onclick=async()=>{try{const zip=new JSZip();await mockupPromise;if(mockupAssets.length!==21)throw Error('حزمة العرض غير مكتملة: يلزم إنشاء المشاهد الإحدى والعشرين كلها قبل تسليم الحزمة.');for(const item of mockupAssets)zip.file('05-presentation-mockups/'+item.group+'/'+baseName+'-'+item.id+'.png',item.blob);zip.file('01-master/'+baseName+'.svg',svgMarkup);zip.file('01-master/'+baseName+'.pdf',await svgToPdf(svgMarkup));zip.file('01-master/'+baseName+'-black.pdf',await svgToPdf(variants.black));zip.file('01-master/'+baseName+'-white.pdf',await svgToPdf(variants.white));zip.file('01-master/'+baseName+'-black.svg',variants.black);zip.file('01-master/'+baseName+'-white.svg',variants.white);for(const n of [16,32,48,64,128,256,512,1024,2048])zip.file('02-digital/png-'+n+'/'+baseName+'-'+n+'.png',await svgToPng(svgMarkup,n));zip.file('03-documentation/README.txt','PIXELFORGE STUDIO — Initial conversion package\n\nFiles are automatically traced from the supplied raster image. Review paths, typography, color accuracy, and print specifications with a professional designer before production.\n');zip.file('03-documentation/quality-status.txt','AUTOMATED TRACE ONLY — NOT HUMAN APPROVED\nNo claim of professional redesign, font reconstruction, CMYK proof, EPS/PDF vector certification, or photographic mockup is made.\n');
+$('downloadEps').onclick=()=>{try{const blob=svgToEps(svgMarkup);download(blob,baseName+'.eps');setStatus('تم إنشاء EPS متجهي بصيغة CMYK. افحصه في برنامج الطباعة قبل الإنتاج.');}catch(e){setStatus('تعذر إنشاء EPS: '+e.message,'warning')}};
+$('downloadPack').onclick=async()=>{try{const zip=new JSZip();await mockupPromise;if(mockupAssets.length!==21)throw Error('حزمة العرض غير مكتملة: يلزم إنشاء المشاهد الإحدى والعشرين كلها قبل تسليم الحزمة.');for(const item of mockupAssets)zip.file('05-presentation-mockups/'+item.group+'/'+baseName+'-'+item.id+'.png',item.blob);zip.file('01-master/'+baseName+'.svg',svgMarkup);zip.file('01-master/'+baseName+'.pdf',await svgToPdf(svgMarkup));zip.file('01-master/'+baseName+'.eps',svgToEps(svgMarkup));zip.file('01-master/'+baseName+'-black.pdf',await svgToPdf(variants.black));zip.file('01-master/'+baseName+'-black.eps',svgToEps(variants.black));zip.file('01-master/'+baseName+'-white.pdf',await svgToPdf(variants.white));zip.file('01-master/'+baseName+'-white.eps',svgToEps(variants.white));zip.file('01-master/'+baseName+'-black.svg',variants.black);zip.file('01-master/'+baseName+'-white.svg',variants.white);for(const n of [16,32,48,64,128,256,512,1024,2048])zip.file('02-digital/png-'+n+'/'+baseName+'-'+n+'.png',await svgToPng(svgMarkup,n));zip.file('03-documentation/README.txt','PIXELFORGE STUDIO — Initial conversion package\n\nFiles are automatically traced from the supplied raster image. Review paths, typography, color accuracy, and print specifications with a professional designer before production.\n');zip.file('03-documentation/quality-status.txt','AUTOMATED TRACE ONLY — NOT HUMAN APPROVED\nNo claim of professional redesign, font reconstruction, CMYK proof, EPS/PDF vector certification, or photographic mockup is made.\n');
 const palette=[...new Set((svgMarkup.match(/#[0-9a-fA-F]{3,8}/g)||[]).map(x=>x.toUpperCase()))].slice(0,24);
 zip.file('03-documentation/brand-manifest.json',JSON.stringify({project:'PIXELFORGE STUDIO',assetName:baseName,createdAt:new Date().toISOString(),sourceFile:source?.name||null,conversion:'Automated raster-to-vector trace',palette,variants:['full-color','black','white'],approval:'NOT HUMAN APPROVED',productionStatus:'PRELIMINARY — verify typography, geometry, color and print requirements'},null,2));
 const guide='<!doctype html><html lang="en"><meta charset="utf-8"><title>'+baseName+' — Brand Asset Notes</title><style>body{font:16px/1.7 Arial,sans-serif;max-width:900px;margin:50px auto;padding:0 24px;color:#172033}h1,h2{letter-spacing:.03em}section{border-top:1px solid #ddd;padding:20px 0}.swatches{display:flex;gap:12px;flex-wrap:wrap}.swatch{width:110px;height:72px;border:1px solid #ddd;border-radius:8px}.note{background:#fff4d9;padding:15px;border-radius:8px}</style><h1>'+baseName+' — Preliminary Brand Asset Notes</h1><p>Generated by PIXELFORGE STUDIO from an uploaded raster artwork.</p><section><h2>Master artwork</h2><p>Use the supplied SVG master for scalable editing. Inspect path quality and remove unwanted tracing artifacts before production.</p></section><section><h2>Color samples</h2><div class="swatches">'+palette.map(c=>'<div><div class="swatch" style="background:'+c+'"></div><code>'+c+'</code></div>').join('')+'</div></section><section><h2>Available variants</h2><p>Full color, black and white vector variants. PNG exports are included in the digital asset folders.</p></section><section><h2>Production review</h2><div class="note"><b>Not production approved.</b> Automated tracing does not guarantee font reconstruction, optical correction, clean Bézier geometry, CMYK accuracy, bleed, or print certification. A qualified designer/printer must review before commercial production.</div></section></html>';

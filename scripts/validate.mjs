@@ -89,7 +89,7 @@ const features = [
   ['Cylindrical mug and bottle branding follows curved surfaces', mockupEngine.includes('function curvedLogo(') && mockupEngine.includes("curvedLogo(parent,logo,.724") && mockupEngine.includes("curvedLogo(parent,logo,.505") && mockupEngine.includes('texture.image.width/texture.image.height')],
   ['Logo aspect ratio is preserved on mockup surfaces', mockupEngine.includes('texture.image.width/texture.image.height')],
   ['Mockup generation is local and does not upload source logos', !mockupEngine.includes('fetch(') && !mockupEngine.includes('XMLHttpRequest')],
-  ['Chromium smoke test verifies all thirteen rendered PNGs and their dimensions', mockupSmoke.includes('assert.equal(results.length, 21') && mockupSmoke.includes('createImageBitmap(item.blob)') && mockupSmoke.includes('assert.equal(item.width, 1200') && mockupSmoke.includes('assert.equal(item.height, 900')],
+  ['Chromium smoke test verifies all twenty-one rendered PNGs and their dimensions', mockupSmoke.includes('assert.equal(renderedItems.length, 21') && mockupSmoke.includes('createImageBitmap(item.blob)') && mockupSmoke.includes('assert.equal(item.width, 1200') && mockupSmoke.includes('assert.equal(item.height, 900')],
   ['Browser mockup test checks visible geometry and calibrated color variation', mockupSmoke.includes('item.visualColors > 8') && mockupSmoke.includes('item.foregroundRatio > 0.025')],
   ['GitHub Actions runs the 3D mockup browser test', workflow.includes('mockup-browser:') && workflow.includes('npm run test:mockups')],
   ['Browser test pins Three.js and Playwright versions', packageJson.devDependencies?.three === '0.128.0' && packageJson.devDependencies?.playwright === '1.56.1'],

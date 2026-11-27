@@ -200,7 +200,7 @@
     box(parent,1.05,1.05,1.22,body,1.05,.15,0);
     box(parent,.92,.55,.035,glass,1.05,.48,.635);
     box(parent,1.02,.48,.025,glass,-.95,.42,.64);
-    for(const x of [-1.0,1.0]){const wheel=new T.Mesh(new T.CylinderGeometry(.34,.34,.18,40),rubber);wheel.rotation.z=Math.PI/2;wheel.position.set(x,-.65,.42);parent.add(wheel);const hub=new T.Mesh(new T.CylinderGeometry(.14,.14,.19,32),mat('#9ca3aa','paper',.36,.72));hub.rotation.z=Math.PI/2;hub.position.set(x,-.65,.42);parent.add(hub);}
+    for(const x of [-1.0,1.0])for(const z of [-.66,.66]){const wheel=new T.Mesh(new T.CylinderGeometry(.34,.34,.18,40),rubber);wheel.rotation.x=Math.PI/2;wheel.position.set(x,-.65,z);parent.add(wheel);const hub=new T.Mesh(new T.CylinderGeometry(.14,.14,.19,32),mat('#9ca3aa','paper',.36,.72));hub.rotation.x=Math.PI/2;hub.position.set(x,-.65,z);parent.add(hub);}
     planeLogo(parent,logo,1.05,.68,-.25,.12,.64);
   }
   const builders={tshirt:shirt,tote,shopping,giftbox,shipping,mug,bottle,cap,sign,cards,letterhead,envelope,laptop,hoodie,polo,backpack,mailer,tube:tubeProduct,phone,billboard,van};

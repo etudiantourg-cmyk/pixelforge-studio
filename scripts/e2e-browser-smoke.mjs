@@ -95,11 +95,13 @@ try{
   await page.locator('#sourceFile').setInputFiles({name:'brand-test.png',mimeType:'image/png',buffer:inputPng});
   await page.waitForFunction(()=>document.querySelector('#convert')?.disabled===false);
   await page.locator('#convert').click();
-  try{
-    await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM'),null,{timeout:60000});
-  }catch(error){
-    const status=await page.locator('#status').textContent().catch(()=>'<missing status>');
-    throw new Error('Real VTracer browser conversion did not complete. UI status='+status+'; backend stdout='+backendStdout+'; backend stderr='+backendError+'; browser errors='+failures.join(' | ')+'; request headers='+JSON.stringify(vectorApiRequestHeaders)+'; response status='+vectorApiStatus+'; payload='+JSON.stringify(vectorApiPayload)+'; '+error.message);
+  await page.waitForFunction(()=>{
+    const status=document.querySelector('#status')?.textContent||'';
+    return status.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM')||status.includes('فشل التحويل:');
+  },null,{timeout:60000});
+  const conversionStatus=await page.locator('#status').textContent();
+  if(!conversionStatus.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM')){
+    throw new Error('Real VTracer browser conversion failed. UI status='+conversionStatus+'; backend stdout='+backendStdout+'; backend stderr='+backendError+'; browser errors='+failures.join(' | ')+'; request headers='+JSON.stringify(vectorApiRequestHeaders)+'; response status='+vectorApiStatus+'; payload='+JSON.stringify(vectorApiPayload));
   }
   assert.equal(vectorApiStatus,200,'real VTracer API must return HTTP 200; request headers: '+JSON.stringify(vectorApiRequestHeaders));
   assert.ok((await page.locator('#diagnostics').textContent()).includes('عدد المسارات:'),'real VTracer output must populate vector diagnostics');

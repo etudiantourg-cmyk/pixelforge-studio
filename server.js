@@ -8,6 +8,7 @@ const require=createRequire(import.meta.url);let vtracerInstance=null;function g
 const PORT=Number(process.env.PORT||8787);
 const ALLOWED_ORIGIN=process.env.ALLOWED_ORIGIN||'https://pixelforge-studio-app.onrender.com';
 const rateBuckets=new Map();let activeVector=0;const MAX_CONCURRENT_VECTOR=1;
+function ensureSvgViewBox(svg,width,height){const root=svg.match(/<svg\\b[^>]*>/i);if(!root)throw new Error('VTracer SVG root missing');if(/\\bviewBox\\s*=/.test(root[0]))return svg;const updated=root[0].replace(/\\/?>$/,match=>` viewBox=\"0 0 ${width} ${height}\"${match}`);return svg.replace(root[0],updated);}
 function originAllowed(req){const origin=req.headers.origin;if(origin)return origin===ALLOWED_ORIGIN;const referer=req.headers.referer;if(!referer)return false;try{return new URL(referer).origin===ALLOWED_ORIGIN;}catch{return false;}}
 function consumeRateLimit(req){const now=Date.now(),ip=String(req.headers['x-forwarded-for']||req.socket.remoteAddress||'unknown').split(',')[0].trim();let b=rateBuckets.get(ip);if(!b||now-b.started>=60_000)b={started:now,count:0};if(b.count>=5)return false;b.count++;rateBuckets.set(ip,b);if(rateBuckets.size>5000){for(const [key,value] of rateBuckets)if(now-value.started>120_000)rateBuckets.delete(key);}return true;}
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.txt':'text/plain; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon'};
@@ -26,7 +27,8 @@ if(input.type!=='image/png'||input.buffer.length<24||!input.buffer.subarray(0,8)
 const width=input.buffer.readUInt32BE(16),height=input.buffer.readUInt32BE(20);
 if(!width||!height||width>1800||height>1800||width*height>3240000)return send(res,413,{error:'أبعاد صورة التحويل يجب ألا تتجاوز 1800×1800 أو 3.24 مليون بكسل.'});
 const options={mode:'spline',hierarchical:'stacked',filterSpeckle:Math.max(0,Math.min(128,Number(body.speckle)||0)),maxColors:Math.max(2,Math.min(16,Number(body.colors)||8)),simplify:Math.max(0.5,Math.min(2.5,Number(body.simplify)||1.5)),optimize:2};
-const svg=getVTracer().convertBuffer(input.buffer,options);
+const rawSvg=getVTracer().convertBuffer(input.buffer,options);
+const svg=ensureSvgViewBox(rawSvg,width,height);
 if(typeof svg!=='string'||!svg.includes('<svg')||svg.length>25*1024*1024)return send(res,502,{error:'لم ينتج محرك VTracer ملف SVG صالحاً أو أن الملف تجاوز الحد.'});
 return send(res,200,{ok:true,svg,engine:'VTracer 1.0 WASM',width,height,options});
 }finally{activeVector--;}

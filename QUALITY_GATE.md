@@ -118,16 +118,16 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 
 
 ## Product presentation mockup kit — 2026-11-27
-- Added `mockup-engine.js`, a browser-local Three.js renderer with ten product scenes: T-shirt/apparel, fabric tote, paper shopping bag, rigid gift box, shipping carton, ceramic mug, bottle/container, cap, storefront sign, and business cards.
+- Added `mockup-engine.js`, a browser-local Three.js renderer with thirteen product scenes: T-shirt/apparel, fabric tote, paper shopping bag, rigid gift box, shipping carton, ceramic mug, bottle/container, cap, storefront sign, business cards, letterhead, envelopes, and laptop branding.
 - Logo aspect ratio is preserved on the product surfaces. Scenes are rendered at 1200×900 and exported as PNG. The UI provides product-family filtering, per-image download, a separate mockup ZIP, and inclusion in the main delivery ZIP.
 - The renderer performs no network upload of the client's logo. Three.js is loaded from a pinned public CDN; the rendering itself runs in the browser using WebGL. If WebGL or the CDN is unavailable, the mockup feature reports a failure and the main ZIP refuses to silently omit the required ten-scene set.
-- Added `scripts/mockup-browser-smoke.mjs`, a real Chromium/WebGL test that renders all ten scenes, decodes each PNG, checks dimensions and non-empty output, and rejects uncaught browser errors. GitHub Actions now installs Playwright/Chromium and runs this test automatically.
+- Added `scripts/mockup-browser-smoke.mjs`, a real Chromium/WebGL test that renders all thirteen scenes, decodes each PNG, checks dimensions and non-empty output, and rejects uncaught browser errors. GitHub Actions now installs Playwright/Chromium and runs this test automatically.
 - Honesty boundary: these are procedural 3D studio renders with modeled geometry, materials, studio lighting and shadows—not photographs, not vendor-approved product proofs, and not evidence of physical production. The quality gate remains REJECT until the browser job passes and the scenes receive visual inspection. Photographic mockup sets and complete collateral remain outstanding.
 
 
 ## Latest mockup implementation audit — 2026-11-27
-- Current source includes the ten-scene WebGL renderer and the browser test. V8 parsing passed for the frontend, mockup engine, validator, critic, mockup browser test module, and VTracer smoke-test module.
-- The source validation logic was replayed in a compatibility harness against the current repository files: **49 assertions passed**. This includes the ten mockup scene markers, 1200×900 PNG export contract, local-only logo processing, browser-test assertions, and mandatory ZIP inclusion.
+- Current source includes the thirteen-scene WebGL renderer and the browser test. V8 parsing passed for the frontend, mockup engine, validator, critic, mockup browser test module, and VTracer smoke-test module.
+- The source validation logic was replayed in a compatibility harness against the current repository files: **49 assertions passed**. This includes the thirteen mockup scene markers, 1200×900 PNG export contract, local-only logo processing, browser-test assertions, and mandatory ZIP inclusion.
 - The strict critic still rejects the project: 20 acceptance groups remain unaccepted. Mockup requirements are only PARTIAL / NOT TESTED until Chromium renders and visually inspected output evidence is available.
 - The Chromium/WebGL smoke test is configured as a GitHub Actions job, but no actual workflow run result has yet been retrieved. Do not describe the browser render as tested or the mockup images as approved.
 - The presentation images are procedural 3D studio renders, not photographs. They must not be represented as photographic product photography or manufacturing proofs. High-fidelity photographic mockup sets and broader collateral remain outstanding.

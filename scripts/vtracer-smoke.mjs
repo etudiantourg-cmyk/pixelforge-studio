@@ -78,6 +78,15 @@ try {
       typeof payload.svg !== 'string' || !payload.svg.includes('<svg') || !/<path\b/.test(payload.svg)) {
     throw new Error('VTracer HTTP endpoint integration failed: ' + JSON.stringify(payload).slice(0, 500));
   }
+  const sameOriginReferer = await fetch('http://127.0.0.1:' + port + '/api/vectorize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Referer: 'https://pixelforge-studio-app.onrender.com/index.html' },
+    body: JSON.stringify({ image })
+  });
+  const sameOriginPayload = await sameOriginReferer.json();
+  if (!sameOriginReferer.ok || !sameOriginPayload.ok) {
+    throw new Error('Same-origin Referer fallback failed: HTTP ' + sameOriginReferer.status);
+  }
   const denied = await fetch('http://127.0.0.1:' + port + '/api/vectorize', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Origin: 'https://example.invalid' },

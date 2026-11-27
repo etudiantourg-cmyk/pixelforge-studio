@@ -42,7 +42,12 @@ try {
     const details = [];
     for (const item of items) {
       const bitmap = await createImageBitmap(item.blob);
-      details.push({ id: item.id, name: item.name, group: item.group, type: item.blob.type, size: item.blob.size, width: bitmap.width, height: bitmap.height, base64: await new Promise(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.readAsDataURL(item.blob); }) });
+      const canvas = document.createElement('canvas'); canvas.width = bitmap.width; canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true }); ctx.drawImage(bitmap, 0, 0);
+      const pixels = ctx.getImageData(0, 0, bitmap.width, bitmap.height).data;
+      const background = [pixels[0], pixels[1], pixels[2]]; const colors = new Set(); let foreground = 0, samples = 0;
+      for (let y = 0; y < bitmap.height; y += 12) for (let x = 0; x < bitmap.width; x += 12) { const i = (y * bitmap.width + x) * 4; colors.add([pixels[i] >> 3, pixels[i+1] >> 3, pixels[i+2] >> 3].join(',')); if (Math.abs(pixels[i]-background[0]) + Math.abs(pixels[i+1]-background[1]) + Math.abs(pixels[i+2]-background[2]) > 36) foreground++; samples++; }
+      details.push({ id: item.id, name: item.name, group: item.group, type: item.blob.type, size: item.blob.size, width: bitmap.width, height: bitmap.height, visualColors: colors.size, foregroundRatio: foreground / samples, base64: await new Promise(resolve => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.readAsDataURL(item.blob); }) });
       bitmap.close();
     }
     return details;
@@ -53,6 +58,8 @@ try {
     assert.equal(item.width, 1200, item.id + ' width');
     assert.equal(item.height, 900, item.id + ' height');
     assert.ok(item.size > 12000, item.id + ' output must not be empty');
+    assert.ok(item.visualColors > 30, item.id + ' must contain rendered material and lighting variation');
+    assert.ok(item.foregroundRatio > 0.025, item.id + ' must contain visible product geometry');
   }
   assert.equal(new Set(results.map(x => x.id)).size, 13, 'mockup scene IDs must be unique');
   for (const item of results) {

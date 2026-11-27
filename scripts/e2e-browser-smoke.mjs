@@ -66,16 +66,16 @@ try{
   backend=spawn(process.execPath,['server.js'],{cwd:root,env:{...process.env,PORT:String(port),ALLOWED_ORIGIN:origin},stdio:['ignore','pipe','pipe']});
   let backendError='',backendStdout='';
   backend.stderr.on('data',chunk=>{backendError+=chunk.toString();});
-  const healthResponse=await fetch(origin+'/api/health');
-  const healthPayload=await healthResponse.json();
-  assert.equal(healthResponse.status,200,'local VTracer health endpoint must respond');
-  assert.equal(healthPayload.engine,'VTracer 1.0 WASM','local API must expose the actual VTracer engine');
   await new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>reject(new Error('Local VTracer API startup timed out. '+backendError)),15000);
     backend.once('error',error=>{clearTimeout(timer);reject(error);});
     backend.once('exit',code=>{clearTimeout(timer);reject(new Error('Local VTracer API exited early ('+code+'). '+backendError));});
     backend.stdout.on('data',chunk=>{backendStdout+=chunk.toString();if(backendStdout.includes('listening on '+port)){clearTimeout(timer);resolve();}});
   });
+  const healthResponse=await fetch(origin+'/api/health');
+  const healthPayload=await healthResponse.json();
+  assert.equal(healthResponse.status,200,'local VTracer health endpoint must respond');
+  assert.equal(healthPayload.engine,'VTracer 1.0 WASM','local API must expose the actual VTracer engine');
   await page.route(origin+'/',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:localHtml}));
   await page.route(origin+'/index.html',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:localHtml}));
   await page.goto(origin+'/',{waitUntil:'load',timeout:60000});

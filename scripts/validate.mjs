@@ -66,11 +66,10 @@ const features = [
   ['Stale outputs cleared on new upload', html.includes("svgMarkup='';variants={}")],
   ['Backend API rate limiting', server.includes('function consumeRateLimit')],
   ['Backend origin validation', server.includes("origin!=='https://pixelforge-studio-app.onrender.com'")],
-  ['Backend prompt length cap', server.includes('prompt.length>4000')],
   ['Backend image payload cap', server.includes('18*1024*1024')],
-  ['Backend concurrent request cap', server.includes('MAX_CONCURRENT_AI=2')],
-  ['Backend releases concurrency slot on all exits', server.includes('activeAI++;') && server.includes('finally{activeAI--;}')],
-  ['Environment template matches Cloudflare backend', envExample.includes('CLOUDFLARE_ACCOUNT_ID=') && envExample.includes('CLOUDFLARE_API_TOKEN=') && !envExample.includes('FAL_KEY=')],
+  ['No paid AI provider or API credentials are required', !server.includes('CLOUDFLARE') && !server.includes('FLUX') && !server.includes('runAI') && !envExample.includes('API_TOKEN') && !envExample.includes('API_KEY')],
+  ['Health endpoint identifies local CPU vector engine', server.includes("engine:'VTracer 1.0 WASM'") && server.includes('requiresApiKey:false')],
+  ['No image generation/editing API routes remain', !server.includes("url.pathname==='/api/edit'") && !server.includes("url.pathname==='/api/generate'")],
   ['No unused admin password claim', !server.includes('adminConfigured') && !server.includes('ADMIN_PASSWORD')]
 ];
 function solidImage(width, height, rgb) {

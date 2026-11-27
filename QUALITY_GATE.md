@@ -45,6 +45,8 @@ Required capability groups to be individually specified and verified:
 - The existing product was a generic image editor, not a complete logo conversion system.
 - Browser-side conversion foundation: image upload, raster-to-SVG tracing via ImageTracerJS, pixel-level white/black transparency preprocessing, monochrome variants, PNG exports at 9 sizes, SVG-based browser print flow, and ZIP delivery with palette manifest and preliminary brand notes.
 - Added source-image preview and structural vector diagnostics (path count, path-command estimate, viewBox, extracted fill palette).
+- Hardened source upload: accepts PNG/JPEG/WEBP only, caps files at 20 MiB, rejects dimensions above 10,000 px per side or 40 MP total, and invalidates old conversion outputs when a new file is selected.
+- Added GitHub Actions workflow `.github/workflows/validate.yml` to run `npm run validate` on pushes, pull requests, and manual dispatch. The latest commit's CI status must be checked before treating the workflow as passing.
 - Added a dependency-free Node validation script at `scripts/validate.mjs` and `npm run validate`; its source syntax and app-script syntax were parser-checked in this session. The Node command itself has not been executed in a Render build.
 - This is **not an accepted release**. Automated tracing is not equivalent to professional manual/vector reconstruction. The current build does not yet prove all required export formats, CMYK production, typography reconstruction, full collateral generation, realistic mockups, or independent quality approval.
 - The current user interface explicitly discloses that the generated package is preliminary and not human-approved.

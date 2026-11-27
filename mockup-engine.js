@@ -58,12 +58,12 @@
   function tube(parent,points,r,material){const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p)));const m=new T.Mesh(new T.TubeGeometry(curve,48,r,10,false),material);parent.add(m);return m;}
   function shirt(parent,logo){
     const s=new T.Shape();s.moveTo(-.68,1.15);s.lineTo(-1.12,1.02);s.lineTo(-1.72,.55);s.lineTo(-1.35,-.08);s.lineTo(-1.02,.12);s.lineTo(-1.02,-1.25);s.quadraticCurveTo(0,-1.42,1.02,-1.25);s.lineTo(1.02,.12);s.lineTo(1.35,-.08);s.lineTo(1.72,.55);s.lineTo(1.12,1.02);s.lineTo(.68,1.15);s.quadraticCurveTo(0,.55,-.68,1.15);
-    const g=new T.ExtrudeGeometry(s,{depth:.12,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025,curveSegments:16});g.computeVertexNormals();const m=new T.Mesh(g,mat('#aeb3b5','fabric',.94));m.position.y=-.02;parent.add(m);planeLogo(parent,logo,.62,.62,0,.2,.19);
-    tube(parent,[[-.65,1.12,.16],[-.35,.82,.17],[0,.7,.17],[.35,.82,.17],[.65,1.12,.16]],.012,mat('#aaa69f','fabric',.9));
+    const g=new T.ExtrudeGeometry(s,{depth:.12,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025,curveSegments:16});g.computeVertexNormals();const m=new T.Mesh(g,mat('#8c949b','fabric',.94));m.position.y=-.02;parent.add(m);const decal=planeLogo(parent,logo,.62,.62,0,.2,.19);
+    tube(parent,[[-.65,1.12,.16],[-.35,.82,.17],[0,.7,.17],[.35,.82,.17],[.65,1.12,.16]],.012,mat('#aaa69f','fabric',.9));return decal;
   }
   function tote(parent,logo){
-    box(parent,2.05,2.25,.18,mat('#a99c86','fabric',.98),0,-.05,0);
-    box(parent,1.94,2.12,.025,mat('#9d907a','fabric',.98),0,-.05,.105);
+    box(parent,2.05,2.25,.18,mat('#82735f','fabric',.98),0,-.05,0);
+    box(parent,1.94,2.12,.025,mat('#766953','fabric',.98),0,-.05,.105);
     const strap=mat('#9e9079','fabric',.95);tube(parent,[[-.62,1.02,.02],[-.62,1.72,.02],[-.38,1.88,.02],[.38,1.88,.02],[.62,1.72,.02],[.62,1.02,.02]],.075,strap);
     planeLogo(parent,logo,.92,.92,0,-.05,.135);
   }
@@ -138,15 +138,15 @@
   }
   function hoodie(parent,logo){
     const s=new T.Shape();s.moveTo(-.7,1.0);s.lineTo(-1.12,.9);s.lineTo(-1.7,.45);s.lineTo(-1.38,-.1);s.lineTo(-1.02,.1);s.lineTo(-1.02,-1.3);s.quadraticCurveTo(0,-1.48,1.02,-1.3);s.lineTo(1.02,.1);s.lineTo(1.38,-.1);s.lineTo(1.7,.45);s.lineTo(1.12,.9);s.lineTo(.7,1.0);s.quadraticCurveTo(0,.7,-.7,1.0);
-    const g=new T.ExtrudeGeometry(s,{depth:.16,bevelEnabled:true,bevelSegments:4,bevelSize:.045,bevelThickness:.03,curveSegments:20});const body=new T.Mesh(g,mat('#657080','fabric',.97));parent.add(body);
+    const g=new T.ExtrudeGeometry(s,{depth:.16,bevelEnabled:true,bevelSegments:4,bevelSize:.045,bevelThickness:.03,curveSegments:20});const body=new T.Mesh(g,mat('#3e4a5b','fabric',.97));parent.add(body);
     const hood=new T.Mesh(new T.SphereGeometry(.57,40,24,0,Math.PI*2,0,Math.PI/2),mat('#4b5667','fabric',.98));hood.scale.set(1,.8,.38);hood.position.set(0,1.0,-.08);parent.add(hood);
     box(parent,1.0,.42,.055,mat('#4b5667','fabric',.98),0,-.68,.19);
-    tube(parent,[[-.16,.9,.2],[-.18,.45,.2],[-.17,.1,.2]],.018,mat('#d0c8b8','fabric',.9));
-    tube(parent,[[.16,.9,.2],[.18,.45,.2],[.17,.1,.2]],.018,mat('#d0c8b8','fabric',.9));
+    tube(parent,[[-.32,.9,.2],[-.32,.58,.2],[-.32,.35,.2]],.018,mat('#d0c8b8','fabric',.9));
+    tube(parent,[[.32,.9,.2],[.32,.58,.2],[.32,.35,.2]],.018,mat('#d0c8b8','fabric',.9));
     planeLogo(parent,logo,.58,.58,0,.22,.205);
   }
   function polo(parent,logo){
-    shirt(parent,logo);
+    const decal=shirt(parent,logo);if(decal)decal.position.y=-.04;
     const collar=mat('#26384e','fabric',.92);
     const left=new T.Shape();left.moveTo(-.48,1.1);left.lineTo(0,.78);left.lineTo(-.12,.58);left.lineTo(-.58,.94);left.closePath();
     const right=new T.Shape();right.moveTo(.48,1.1);right.lineTo(0,.78);right.lineTo(.12,.58);right.lineTo(.58,.94);right.closePath();
@@ -159,8 +159,8 @@
     const fabric=mat('#4b5968','fabric',.98),edge=mat('#273748','fabric',.92),zip=mat('#c4a36b','paper',.45,.55);
     box(parent,1.78,2.15,.72,fabric,0,-.02,0);
     box(parent,1.52,1.02,.18,edge,0,-.52,.43);
-    box(parent,1.58,.08,.2,zip,0,.02,.46);
-    box(parent,.13,1.45,.12,edge,-.72,-.08,-.34);box(parent,.13,1.45,.12,edge,.72,-.08,-.34);
+    box(parent,1.42,.025,.06,zip,0,-.02,.54);
+    box(parent,.13,1.45,.12,edge,-.62,-.08,-.5);box(parent,.13,1.45,.12,edge,.62,-.08,-.5);
     tube(parent,[[-.48,1.0,-.05],[-.48,1.55,-.1],[0,1.68,-.1],[.48,1.55,-.1],[.48,1.0,-.05]],.075,edge);
     const side=mat('#344253','fabric',.98);box(parent,.22,.75,.58,side,-.91,-.35,0);box(parent,.22,.75,.58,side,.91,-.35,0);
     planeLogo(parent,logo,.7,.55,0,-.48,.535);
@@ -199,7 +199,7 @@
     box(parent,3.25,1.25,1.25,body,0,.05,0);
     box(parent,1.05,1.05,1.22,body,1.05,.15,0);
     box(parent,.92,.55,.035,glass,1.05,.48,.635);
-    box(parent,1.02,.48,.025,glass,-.95,.42,.64);
+    box(parent,.025,.62,.95,glass,1.58,.48,0);
     for(const x of [-1.0,1.0])for(const z of [-.66,.66]){const wheel=new T.Mesh(new T.CylinderGeometry(.34,.34,.18,40),rubber);wheel.rotation.x=Math.PI/2;wheel.position.set(x,-.65,z);parent.add(wheel);const hub=new T.Mesh(new T.CylinderGeometry(.14,.14,.19,32),mat('#9ca3aa','paper',.36,.72));hub.rotation.x=Math.PI/2;hub.position.set(x,-.65,z);parent.add(hub);}
     planeLogo(parent,logo,1.05,.68,-.25,.12,.64);
   }

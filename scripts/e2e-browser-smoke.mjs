@@ -109,6 +109,7 @@ try{
   assert.equal(await page.evaluate(()=>window.PIXELFORGE_MOCKUPS?.environmentStatus),'loaded','real mockup engine must load the Poly Haven HDRI');
   assert.equal(await page.locator('#downloadSvg').isDisabled(),false,'SVG export should be enabled');
   assert.equal(await page.locator('#downloadPdf').isDisabled(),false,'PDF export should be enabled');
+  assert.equal(await page.locator('#downloadEps').isDisabled(),false,'EPS export should be enabled');
   assert.equal(await page.locator('#downloadPack').isDisabled(),false,'ZIP export should be enabled');
 
   const saveDownload=async(selector,name)=>{
@@ -133,6 +134,11 @@ try{
   const pdf=fs.readFileSync(pdfPath);
   assert.equal(pdf.subarray(0,5).toString('ascii'),'%PDF-','PDF export must be a real PDF document');
 
+  const epsPath=await saveDownload('#downloadEps','brand-test.eps');
+  const eps=fs.readFileSync(epsPath,'utf8');
+  assert.ok(eps.startsWith('%!PS-Adobe-3.0 EPSF-3.0'),'EPS export must have a valid EPS header');
+  assert.ok(eps.includes('%%BoundingBox:')&&eps.includes('setcmykcolor')&&eps.includes('curveto'),'EPS must contain CMYK vector path operators');
+
   const zipPath=await saveDownload('#downloadPack','brand-test-assets.zip');
   const zipBytes=fs.readFileSync(zipPath);
   assert.equal(zipBytes.subarray(0,2).toString('ascii'),'PK','ZIP export must be a real ZIP archive');
@@ -140,8 +146,12 @@ try{
   const names=Object.keys(zip.files).filter(name=>!zip.files[name].dir);
   assert.ok(names.includes('01-master/brand-test.svg'),'ZIP must contain the SVG master');
   assert.ok(names.includes('01-master/brand-test.pdf'),'ZIP must contain the vector PDF master');
+  assert.ok(names.includes('01-master/brand-test.eps'),'ZIP must contain the CMYK EPS master');
+  assert.ok(names.includes('01-master/brand-test-black.eps'),'ZIP must contain the black EPS variant');
+  assert.ok(names.includes('01-master/brand-test-white.eps'),'ZIP must contain the white EPS variant');
   assert.ok(names.includes('01-master/brand-test-black.pdf'),'ZIP must contain the black PDF variant');
   assert.ok(names.includes('01-master/brand-test-white.pdf'),'ZIP must contain the white PDF variant');
+  assert.equal(names.length,63,'ZIP must contain all expected deliverable files including three EPS masters');
   assert.ok(names.includes('03-documentation/brand-manifest.json'),'ZIP must contain the machine-readable brand manifest');
   assert.ok(names.includes('03-documentation/brand-guidelines.html'),'ZIP must contain the brand guide');
   assert.equal(names.filter(n=>n.startsWith('05-presentation-mockups/')).length,21,'ZIP must contain all twenty-one presentation assets');
@@ -156,8 +166,8 @@ try{
   assert.equal(await page.locator('label[for="sourceFile"]').isVisible(),true,'mobile upload control must remain visible');
   assert.equal(await page.locator('#convert').isVisible(),true,'mobile conversion control must remain visible');
   assert.deepEqual(failures,[],'browser must not report uncaught JavaScript or console errors');
-  fs.writeFileSync(path.join(artifactDir,'e2e-summary.json'),JSON.stringify({source:'brand-test.png',svgBytes:svgText.length,pngBytes:png.length,pdfBytes:pdf.length,zipBytes:zipBytes.length,zipFiles:names.length,mockupAssets:names.filter(n=>n.startsWith('05-presentation-mockups/')).length,mockupRenderer:'REAL_WEBGL_21_SCENES',mobileViewport:'PASS',vectorPdf:'PASS',svg:'PASS',png:'PASS',zip:'PASS'},null,2));
-  console.log('PIXELFORGE BROWSER E2E: PASS — upload, real VTracer vectorization, real 21-scene WebGL mockups, SVG/PNG/PDF downloads, and complete ZIP package verified.');
+  fs.writeFileSync(path.join(artifactDir,'e2e-summary.json'),JSON.stringify({source:'brand-test.png',svgBytes:svgText.length,pngBytes:png.length,pdfBytes:pdf.length,zipBytes:zipBytes.length,zipFiles:names.length,mockupAssets:names.filter(n=>n.startsWith('05-presentation-mockups/')).length,mockupRenderer:'REAL_WEBGL_21_SCENES',mobileViewport:'PASS',vectorPdf:'PASS',vectorEpsCmyk:'PASS',svg:'PASS',png:'PASS',zip:'PASS'},null,2));
+  console.log('PIXELFORGE BROWSER E2E: PASS — upload, real VTracer vectorization, real 21-scene WebGL mockups, SVG/PNG/PDF/CMYK-EPS downloads, and complete ZIP package verified.');
 }finally{
   if(browser)await browser.close();
   if(backend){backend.kill('SIGTERM');await Promise.race([once(backend,'exit'),new Promise(resolve=>setTimeout(resolve,3000))]);}

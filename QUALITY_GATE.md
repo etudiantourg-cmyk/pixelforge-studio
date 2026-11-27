@@ -171,3 +171,11 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - The same run's `static-validation` job passed, including the real Node 20 `npm run validate` and VTracer WASM HTTP smoke test. The separate strict critic job failed as expected because the remaining product requirements are not all accepted.
 - A subsequent visual review found the main product categories are legible, with studio shadows and visible branding. The scenes remain procedural 3D illustrations/renders, not photographs or physical production proofs.
 - Follow-up adjustments were made to hoodie drawstring clearance, polo logo/button clearance, backpack zipper placement, fabric contrast, and delivery-van windshield/wheels. Those final refinements are being re-tested in run 140 before deployment.
+
+
+## Final 21-scene regression after product refinements — 2026-11-27
+- Run `46029686900` (GitHub Actions run 140) passed both `static-validation` and `mockup-browser`. The real Node 20 validator and VTracer HTTP smoke test passed; Chromium/WebGL rendered all 21 current scenes at 1200×900, checked unique IDs, PNG signatures, material/color variation and visible product geometry, and uploaded artifact `15213103217` (about 8.9 MB).
+- The 21-scene suite now covers apparel (T-shirt, hoodie, polo, cap), bags (tote, shopping bag, backpack), packaging (rigid gift box, shipping carton, mailer), products (mug, bottle, tube), signage (storefront sign, billboard), stationery (cards, letterhead, envelope), devices (laptop, phone), and a branded delivery van.
+- The follow-up visual review confirms the hoodie drawstrings and polo buttons no longer cross the logo; backpack zipper placement is reduced; the delivery van now has four correctly oriented wheels and front glazing.
+- `MOCK-02` is now recorded as PARTIAL based on this reproducible browser evidence, not EXCELLENT. `MOCK-01` remains PARTIAL because the procedural 3D scenes are not photorealistic product photography or verified vendor proofs.
+- The strict critic still returns REJECT because typography reconstruction, EPS, genuine CMYK/ICC, geometry specification, full collateral, complete security/privacy, independent expert critic, and other required acceptance groups remain incomplete or unverified.

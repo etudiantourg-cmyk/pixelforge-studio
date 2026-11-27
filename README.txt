@@ -21,7 +21,7 @@ LOGO CONVERSION ENGINE
 - Raster source upload and preview.
 - Primary vector engine: VTracer 1.0 WASM on the project's Node backend, using spline fitting, curve simplification, color clustering, and SVG optimization.
 - Local ImageTracerJS fallback if the VTracer service is unavailable; the interface identifies which engine produced the current output.
-- Edge-connected white/black background removal: only matching pixels connected to the image border are removed, preserving enclosed details.
+- Edge-connected white/black background removal: only matching pixels connected to the image border are removed, preserving enclosed details; the processed alpha channel is written into the PNG passed to the vector engine.
 - Color, black and white SVG variants.
 - PNG exports at multiple pixel sizes.
 - Preliminary ZIP package, palette manifest, and initial brand notes.

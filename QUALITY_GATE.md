@@ -210,3 +210,9 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - This lighting improvement is not a claim of photorealism. The current product geometry remains mostly procedural, and the mockup acceptance status stays PARTIAL / REJECT pending professional asset geometry, accurate surface/decal mapping, and visual review.
 
 - Visual calibration follow-up: the HDRI is used for image-based material reflections and illumination, while the clean neutral studio gradient remains the background. Directly using the equirectangular HDRI as the visible background produced a distracting dark horizon band in the 21-scene contact sheet, so that approach was rejected. Exposure was recalibrated to 0.46 with reduced key/fill/rim lights. This remains a lighting improvement only, not photorealistic product geometry.
+
+
+## Browser end-to-end export smoke — 2026-11-27
+
+- Added `scripts/e2e-browser-smoke.mjs` and the `test:e2e` CI job. The real Chromium page uploads a PNG, uses a deterministic mocked vectorization response, renders a 21-item mockup fixture, and downloads/inspects SVG, 2048px PNG, vector PDF, and ZIP. The ZIP is inspected for master variants, digital PNGs, 21 mockup entries, a manifest and a brand guide; embedded PDFs are checked for a real PDF signature.
+- The test intentionally stubs the VTracer HTTP response and the 3D mockup renderer so this browser test isolates the frontend delivery/export flow. Actual VTracer has its separate WASM smoke test; the actual Three.js mockup renderer has its separate 21-scene Chromium test. This is not yet a full production-service E2E test and does not cover mobile browsers. Therefore E2E-01 remains PARTIAL / REJECT.

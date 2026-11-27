@@ -164,3 +164,10 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - Added dedicated product geometry and logo placements for each new item. The main delivery ZIP now requires all 21 scenes, and the Chromium smoke test verifies 21 unique scene IDs and 1200×900 PNG output per item.
 - Previous 13-scene real-browser run `46028635176` completed the rendering job successfully and uploaded artifact `15213670991`. It verified 13 scenes at that revision only; it does not verify the new eight scenes.
 - The 21-scene revision has not yet completed a real Chromium run. All new scenes remain pending verification and the critic must continue to reject the overall release.
+
+
+## 21-scene Chromium verification — 2026-11-27
+- Run `46029228085` (GitHub Actions run 137) executed the 21-scene suite in real Chromium/WebGL on Ubuntu 24.04. The mockup-browser job **passed**, rendered 21 unique 1200×900 PNGs, validated their PNG signatures, sampled visible geometry and material color variation, and uploaded artifact `15212449664` (8.6 MB).
+- The same run's `static-validation` job passed, including the real Node 20 `npm run validate` and VTracer WASM HTTP smoke test. The separate strict critic job failed as expected because the remaining product requirements are not all accepted.
+- A subsequent visual review found the main product categories are legible, with studio shadows and visible branding. The scenes remain procedural 3D illustrations/renders, not photographs or physical production proofs.
+- Follow-up adjustments were made to hoodie drawstring clearance, polo logo/button clearance, backpack zipper placement, fabric contrast, and delivery-van windshield/wheels. Those final refinements are being re-tested in run 140 before deployment.

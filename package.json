@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "validate": "node scripts/validate.mjs"
+    "validate": "node scripts/validate.mjs",
+    "test:vtracer": "node scripts/vtracer-smoke.mjs"
   },
   "engines": {
     "node": ">=20"

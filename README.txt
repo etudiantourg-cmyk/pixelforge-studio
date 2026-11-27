@@ -69,3 +69,6 @@ MOCKUP QUALITY AND VERIFICATION UPDATE
 EXPANDED PRESENTATION SET
 - The presentation library now contains 21 scenes: T-shirt, hoodie, polo shirt, fabric tote, paper shopping bag, backpack, rigid gift box, shipping carton, mailer box, mug, bottle, cylindrical product tube, cap, storefront sign, billboard, business cards, letterhead, envelope, laptop, smartphone, and delivery van.
 - Each scene uses a product-specific 3D model and logo placement. The full set is required in the main delivery ZIP; incomplete sets are rejected.
+
+- Latest verified run: GitHub Actions run 140 passed the real Chromium/WebGL render test for all 21 scenes and uploaded PNG evidence. The overall strict critic still rejects the release because other product requirements remain incomplete.
+- The 3D scenes are modeled studio renders, not photorealistic photography or vendor-approved proofs.

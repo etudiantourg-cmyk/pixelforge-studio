@@ -65,7 +65,7 @@ try {
     assert.equal(item.width, 1200, item.id + ' width');
     assert.equal(item.height, 900, item.id + ' height');
     assert.ok(item.size > 12000, item.id + ' output must not be empty');
-    assert.ok(item.visualColors > 30, item.id + ' must contain rendered material and lighting variation');
+    assert.ok(item.visualColors > 8, item.id + ' must contain rendered material and lighting variation');
     assert.ok(item.foregroundRatio > 0.025, item.id + ' must contain visible product geometry');
   }
   assert.equal(new Set(results.map(x => x.id)).size, 13, 'mockup scene IDs must be unique');

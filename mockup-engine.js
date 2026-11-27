@@ -215,6 +215,26 @@
     const g=x.createRadialGradient(250,190,35,256,256,390);g.addColorStop(0,'#f4f1eb');g.addColorStop(.58,'#d8d4cc');g.addColorStop(1,'#aaa59d');x.fillStyle=g;x.fillRect(0,0,512,512);
     const tex=new T.CanvasTexture(canvas);tex.encoding=T.sRGBEncoding;return tex;
   }
+  async function loadStudioEnvironment(renderer){
+    if(!T.RGBELoader||!T.PMREMGenerator)return null;
+    const generator=new T.PMREMGenerator(renderer);
+    generator.compileEquirectangularShader();
+    try{
+      const hdr=await new Promise((resolve,reject)=>{
+        new T.RGBELoader().setDataType(T.UnsignedByteType).load(
+          'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr',
+          resolve,undefined,reject
+        );
+      });
+      const env=generator.fromEquirectangular(hdr).texture;
+      hdr.dispose();
+      return {texture:env,generator};
+    }catch(error){
+      generator.dispose();
+      console.warn('PIXELFORGE HDRI unavailable; using local studio lights.',error);
+      return null;
+    }
+  }
   async function render(svg,onProgress){
     if(!window.WebGLRenderingContext)throw Error('المتصفح لا يدعم WebGL اللازم لعرض النماذج ثلاثية الأبعاد.');
     const logoUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
@@ -223,10 +243,12 @@
       const renderer=new T.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'low-power'});
       renderer.setPixelRatio(1);renderer.setSize(1200,900,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.62;
       const out=[];
+      const environment=await loadStudioEnvironment(renderer);
+      window.PIXELFORGE_MOCKUPS.environmentStatus=environment?'loaded':'fallback';
       const backdrop=studioBackdrop();
       try{
         for(const item of items){
-          const scene=new T.Scene();scene.background=backdrop;
+          const scene=new T.Scene();scene.background=backdrop;if(environment)scene.environment=environment.texture;
           const camera=new T.PerspectiveCamera(34,4/3,.1,100);
           scene.add(new T.HemisphereLight(0xffffff,0x665f56,.48));
           const key=new T.DirectionalLight(0xfff0dc,1.25);key.position.set(-3.5,6,5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;key.shadow.bias=-.0002;scene.add(key);
@@ -250,9 +272,9 @@
           scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m.map&&m.map!==logoTexture)m.map.dispose();if(m.bumpMap&&m.bumpMap!==m.map)m.bumpMap.dispose();m.dispose();});}});
           scene.clear();
         }
-      }finally{renderer.dispose();renderer.forceContextLoss();logoTexture.dispose();}
+      }finally{if(environment){environment.texture.dispose();environment.generator.dispose();}renderer.dispose();renderer.forceContextLoss();logoTexture.dispose();}
       return out;
     }finally{URL.revokeObjectURL(logoUrl);}
   }
-  window.PIXELFORGE_MOCKUPS={available:true,items,render};
+  window.PIXELFORGE_MOCKUPS={available:true,items,render,environmentStatus:'not-started',environmentCredit:'Studio Small 09 · Sergej Majboroda · Poly Haven · CC0'};
 })();

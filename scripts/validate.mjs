@@ -10,6 +10,7 @@ const acceptanceMatrix = JSON.parse(fs.readFileSync(new URL('../ACCEPTANCE_MATRI
 const critic = fs.readFileSync(new URL('./critic.mjs', import.meta.url), 'utf8');
 const workflow = fs.readFileSync(new URL('../.github/workflows/validate.yml', import.meta.url), 'utf8');
 const mockupEngine = fs.readFileSync(new URL('../mockup-engine.js', import.meta.url), 'utf8');
+const mockupSmoke = fs.readFileSync(new URL('./mockup-browser-smoke.mjs', import.meta.url), 'utf8');
 const errors = [];
 const checks = [];
 
@@ -84,6 +85,9 @@ const features = [
   ['Mockup engine renders real WebGL scenes at 1200×900 and exports PNG', mockupEngine.includes('new T.WebGLRenderer') && mockupEngine.includes('renderer.setSize(1200,900,false)') && mockupEngine.includes("'image/png'")],
   ['Logo aspect ratio is preserved on mockup surfaces', mockupEngine.includes('texture.image.width/texture.image.height')],
   ['Mockup generation is local and does not upload source logos', !mockupEngine.includes('fetch(') && !mockupEngine.includes('XMLHttpRequest')],
+  ['Chromium smoke test verifies all ten rendered PNGs and their dimensions', mockupSmoke.includes('assert.equal(results.length, 10') && mockupSmoke.includes('createImageBitmap(item.blob)') && mockupSmoke.includes('assert.equal(item.width, 1200') && mockupSmoke.includes('assert.equal(item.height, 900'))],
+  ['GitHub Actions runs the 3D mockup browser test', workflow.includes('mockup-browser:') && workflow.includes('npm run test:mockups')],
+  ['Project exposes the 3D mockup browser test command', packageJson.scripts?.['test:mockups'] === 'node scripts/mockup-browser-smoke.mjs'],
   ['Mockup cards and individual downloads are integrated into the app', html.includes('id="mockupGrid"') && html.includes('id="downloadMockups"') && html.includes('renderMockupGallery')],
   ['Complete mockup set is mandatory in ZIP export', html.includes("mockupAssets.length!==10") && html.includes("05-presentation-mockups/" )],
   ['No unused admin password claim', !server.includes('adminConfigured') && !server.includes('ADMIN_PASSWORD')]

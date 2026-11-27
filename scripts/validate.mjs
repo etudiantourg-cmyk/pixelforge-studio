@@ -63,6 +63,42 @@ const features = [
   ['Environment template matches Cloudflare backend', envExample.includes('CLOUDFLARE_ACCOUNT_ID=') && envExample.includes('CLOUDFLARE_API_TOKEN=') && !envExample.includes('FAL_KEY=')],
   ['No unused admin password claim', !server.includes('adminConfigured') && !server.includes('ADMIN_PASSWORD')]
 ];
+function solidImage(width, height, rgb) {
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let i = 0; i < width * height; i++) {
+    data[i * 4] = rgb[0]; data[i * 4 + 1] = rgb[1]; data[i * 4 + 2] = rgb[2]; data[i * 4 + 3] = 255;
+  }
+  return { data, width, height };
+}
+try {
+  const start = html.indexOf('function removeEdgeConnectedBackground(');
+  const end = html.indexOf('\\nfunction cleanBackground', start);
+  if (start < 0 || end < 0) throw new Error('Background-removal function not found');
+  const sandbox = { Int32Array };
+  vm.runInNewContext(html.slice(start, end) + '\\nthis.removeEdgeConnectedBackground = removeEdgeConnectedBackground;', sandbox);
+  const removeBackground = sandbox.removeEdgeConnectedBackground;
+  const white = solidImage(5, 5, [255, 255, 255]);
+  for (let y = 1; y <= 3; y++) for (let x = 1; x <= 3; x++) {
+    const p = (y * 5 + x) * 4; white.data[p] = 0; white.data[p + 1] = 0; white.data[p + 2] = 0;
+  }
+  const whiteRemoved = removeBackground(white, 'white');
+  checks.push(whiteRemoved === 16 && white.data[(2 * 5 + 2) * 4 + 3] === 255 && white.data[3] === 0
+    ? 'Flood-fill test: white exterior removed, enclosed white detail preserved'
+    : 'Flood-fill test FAILED: white exterior/detail preservation');
+  const black = solidImage(3, 3, [0, 0, 0]);
+  const center = (4) * 4; black.data[center] = 255; black.data[center + 1] = 255; black.data[center + 2] = 255;
+  const blackRemoved = removeBackground(black, 'black');
+  checks.push(blackRemoved === 8 && black.data[center + 3] === 255 && black.data[3] === 0
+    ? 'Flood-fill test: black exterior removed, enclosed white detail preserved'
+    : 'Flood-fill test FAILED: black exterior/detail preservation');
+  const keep = solidImage(3, 3, [255, 255, 255]);
+  checks.push(removeBackground(keep, 'keep') === 0 && keep.data[3] === 255
+    ? 'Flood-fill test: keep mode leaves source pixels unchanged'
+    : 'Flood-fill test FAILED: keep mode altered source pixels');
+  if (checks.slice(-3).some(item => item.includes('FAILED'))) errors.push('Edge-connected background algorithm unit test failed.');
+} catch (error) {
+  errors.push('Background-removal unit tests: ' + error.message);
+}
 for (const [name, condition] of features) {
   if (condition) checks.push(name);
   else errors.push('Feature marker missing: ' + name);

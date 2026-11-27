@@ -63,6 +63,7 @@ const features = [
   ['Source image preview', html.includes("sourceImage').src=sourcePreviewUrl")],
   ['Structural vector diagnostics', html.includes('فحص بنية الملف المتجهي')],
   ['Multiple PNG sizes', html.includes('[16,32,48,64,128,256,512,1024,2048]')],
+  ['ImageTracer fallback requires a real conversion function and rejects errors instead of hanging', html.includes("typeof window.ImageTracer.imagedataToSVG==='function'") && html.includes('else reject(error)')],
   ['Quality disclosure', html.includes('NOT HUMAN APPROVED')],
   ['Edge-connected background preserves enclosed details', html.includes('removeEdgeConnectedBackground(pixels,mode)') && html.includes('removedBackgroundPixels')],
   ['Background pixel count is scoped to the conversion workflow', html.includes('let removedBackgroundPixels=0;let result=await') && html.includes('removedBackgroundPixels=removeEdgeConnectedBackground(pixels,mode)') && !html.includes('const removedBackgroundPixels=removeEdgeConnectedBackground(pixels,mode)')],

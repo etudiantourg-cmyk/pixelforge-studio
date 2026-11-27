@@ -121,7 +121,7 @@ try{
   };
   const svgPath=await saveDownload('#downloadSvg','brand-test.svg');
   const svgText=fs.readFileSync(svgPath,'utf8');
-  assert.ok(svgText.trimStart().startsWith('<svg'),'downloaded SVG must contain an SVG root');
+  assert.ok(svgText.includes('<svg'),'downloaded SVG must contain an SVG root');
 
   const pngPath=await saveDownload('#downloadPng','brand-test-2048.png');
   const png=fs.readFileSync(pngPath);

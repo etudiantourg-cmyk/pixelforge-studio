@@ -109,3 +109,9 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - The VTracer smoke-test script's async module syntax parsed successfully when wrapped as an async module body. Actual package execution remains unverified until the GitHub Actions workflow is observed passing.
 - No GitHub Actions status/run was returned for the latest push. Render frontend deployment for the latest PDF and SVG sanitizer changes must be checked independently.
 - Current decision remains **REJECTED — FOUNDATION BUILD ONLY**. The PDF export is an implementation step, not a claim of release acceptance.
+
+## Strict critic gate implementation — 2026-11-27
+- Added `ACCEPTANCE_MATRIX.json` with 19 individually identified requirement groups, covering source ingestion, vector fidelity, typography, variants, exports, CMYK, digital assets, geometry, collateral, mockups, guidelines, free operation, owner non-intervention, security, E2E, and critic review.
+- Added `scripts/critic.mjs` and `npm run critic`. It rejects any requirement not marked exactly `EXCELLENT / VERIFIED`, any verdict other than `ACCEPT`, and any missing implementation, test, or evidence path. It never awards partial credit.
+- Added a separate GitHub Actions `strict-critic` job after engineering validation. It is intentionally expected to fail until every mandatory group has reproducible evidence.
+- Important independence disclosure: this is a deterministic acceptance gate, not a separate autonomous AI critic. It enforces the non-negotiable acceptance policy but cannot replace an independent expert inspecting the actual visual outputs.

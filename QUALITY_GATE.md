@@ -85,3 +85,9 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - GitHub repository is public; GitHub states Actions minutes are free for public repositories.
 - Removed Cloudflare Workers AI and all its secret requirements to prevent hidden API usage, paid inference dependencies, or requests for owner-provided credentials. Logo vectorization runs on the existing free CPU web service; ImageTracerJS remains the browser fallback.
 - No paid plan, paid API, GPU rental, credit card, or owner setup step is introduced by this change. Free-host quotas and provider availability still apply; do not imply unlimited capacity or guaranteed uptime.
+
+
+## Vector PDF delivery improvement — 2026-11-27
+- Replaced the former print-dialog-based PDF button with direct PDF file generation using jsPDF 2.5.2 and svg2pdf.js 2.7.0, both MIT-licensed browser libraries loaded from pinned public CDN versions. The converter passes the validated SVG DOM directly to `pdf.svg()` and returns a PDF Blob; it does not embed a raster screenshot.
+- Added master, black, and white vector PDF files to the ZIP package. The static validator now checks library pinning, SVG-to-PDF API usage, and all three ZIP entries.
+- This is a source-level implementation claim pending real-browser PDF inspection and independent verification of text/path preservation, page bounds, and PDF output integrity. No CMYK, EPS, or print-profile certification is implied.

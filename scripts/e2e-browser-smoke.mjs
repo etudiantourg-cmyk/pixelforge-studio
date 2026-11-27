@@ -72,7 +72,7 @@ try{
   await page.route('https://pixelforge-studio-zajl.onrender.com/api/vectorize',async route=>{
     const request=route.request();
     const response=await fetch('http://127.0.0.1:'+backendPort+'/api/vectorize',{method:request.method(),headers:{'Content-Type':'application/json',Origin:origin},body:request.postData()});
-    await route.fulfill({status:response.status,contentType:'application/json',body:await response.text()});
+    await route.fulfill({status:response.status,headers:Object.fromEntries(response.headers.entries()),body:await response.text()});
   });
   await page.goto('http://127.0.0.1:'+address.port+'/',{waitUntil:'load',timeout:60000});
   await page.waitForFunction(()=>window.JSZip&&window.jspdf?.jsPDF&&typeof new window.jspdf.jsPDF().svg==='function');

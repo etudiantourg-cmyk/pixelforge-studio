@@ -157,3 +157,10 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - Human visual inspection of the captured images found the studio lighting substantially overexposed: light fabrics, ceramics, and metallic parts lost contrast and the gold accents washed out. This is a real quality defect, not an acceptable output.
 - Updated the renderer with lower exposure and light intensities, darker studio floor, stronger fabric weave contrast, darker fabric/paper base tones, a ribbon moved away from the central gift-box logo, and a corrected cross-tape layout on the shipping carton.
 - A fresh Chromium run is required to confirm these lighting changes. Until then the 13-scene suite remains **PARTIAL / REJECTED**; no photographic realism or commercial-grade acceptance is claimed.
+
+
+## Expanded product presentation suite — 2026-11-27
+- Expanded the 13-scene library to **21 scenes**: T-shirt, hoodie, polo shirt, fabric tote, paper shopping bag, backpack, rigid gift box, shipping carton, mailer box, mug, bottle, cylindrical product tube, cap, storefront sign, billboard, business cards, letterhead, envelope, laptop, smartphone, and delivery van.
+- Added dedicated product geometry and logo placements for each new item. The main delivery ZIP now requires all 21 scenes, and the Chromium smoke test verifies 21 unique scene IDs and 1200×900 PNG output per item.
+- Previous 13-scene real-browser run `46028635176` completed the rendering job successfully and uploaded artifact `15213670991`. It verified 13 scenes at that revision only; it does not verify the new eight scenes.
+- The 21-scene revision has not yet completed a real Chromium run. All new scenes remain pending verification and the critic must continue to reject the overall release.

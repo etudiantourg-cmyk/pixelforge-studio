@@ -52,7 +52,7 @@ try {
     }
     return details;
   });
-  assert.equal(results.length, 13, 'exactly thirteen mockup scenes must render');
+  assert.equal(results.length, 21, 'exactly twenty-one mockup scenes must render');
   for (const item of results) {
     const png = Buffer.from(item.base64, 'base64');
     fs.writeFileSync(path.join(artifactDir, item.id + '.png'), png);
@@ -68,7 +68,7 @@ try {
     assert.ok(item.visualColors > 8, item.id + ' must contain rendered material and lighting variation');
     assert.ok(item.foregroundRatio > 0.025, item.id + ' must contain visible product geometry');
   }
-  assert.equal(new Set(results.map(x => x.id)).size, 13, 'mockup scene IDs must be unique');
+  assert.equal(new Set(results.map(x => x.id)).size, 21, 'mockup scene IDs must be unique');
   for (const item of results) {
     const png = fs.readFileSync(path.join(artifactDir, item.id + '.png'));
     assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', item.id + ' PNG signature');

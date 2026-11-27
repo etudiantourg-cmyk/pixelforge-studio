@@ -47,11 +47,14 @@ const localHtml=html.toString('utf8').replace('https://pixelforge-studio-zajl.on
 if(localHtml===html.toString('utf8'))throw new Error('Vector API URL rewrite was not applied');
 let browser,backend;
 const failures=[];
+let vectorApiStatus=null,vectorApiRequestHeaders=null;
 try{
   browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-webgl','--ignore-gpu-blocklist','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   const page=await browser.newPage({acceptDownloads:true});
   page.setDefaultTimeout(180000);
   page.on('pageerror',e=>failures.push(e.message));
+  page.on('request',request=>{if(request.url().endsWith('/api/vectorize'))vectorApiRequestHeaders=request.headers();});
+  page.on('response',response=>{if(response.url().endsWith('/api/vectorize'))vectorApiStatus=response.status();});
   page.on('requestfailed',request=>failures.push('request failed: '+request.url()+' · '+request.failure()?.errorText));
   page.on('console',m=>{if(m.type()==='error')failures.push('console: '+m.text());});
   await page.route('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:jszip}));
@@ -87,8 +90,9 @@ try{
     await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM'),null,{timeout:60000});
   }catch(error){
     const status=await page.locator('#status').textContent().catch(()=>'<missing status>');
-    throw new Error('Real VTracer browser conversion did not complete. UI status='+status+'; backend stdout='+backendStdout+'; backend stderr='+backendError+'; browser errors='+failures.join(' | ')+'; '+error.message);
+    throw new Error('Real VTracer browser conversion did not complete. UI status='+status+'; backend stdout='+backendStdout+'; backend stderr='+backendError+'; browser errors='+failures.join(' | ')+'; request headers='+JSON.stringify(vectorApiRequestHeaders)+'; response status='+vectorApiStatus+'; '+error.message);
   }
+  assert.equal(vectorApiStatus,200,'real VTracer API must return HTTP 200; request headers: '+JSON.stringify(vectorApiRequestHeaders));
   assert.ok((await page.locator('#diagnostics').textContent()).includes('عدد المسارات:'),'real VTracer output must populate vector diagnostics');
   await page.waitForFunction(()=>document.querySelectorAll('.mockupCard').length===21);
   assert.equal(await page.evaluate(()=>window.PIXELFORGE_MOCKUPS?.environmentStatus),'loaded','real mockup engine must load the Poly Haven HDRI');

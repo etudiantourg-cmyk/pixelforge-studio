@@ -97,6 +97,7 @@ const features = [
   ['GitHub Actions uploads mockup evidence artifacts', workflow.includes('actions/upload-artifact@v4') && workflow.includes('pixelforge-mockup-browser-evidence')],
   ['Project exposes the 3D mockup browser test command', packageJson.scripts?.['test:mockups'] === 'node scripts/mockup-browser-smoke.mjs'],
   ['Mockup filter exposes all seven product groups including devices and vehicles', ['الملابس','الحقائب','العلب والتغليف','المنتجات','اللافتات','المطبوعات','الأجهزة','المركبات'].every(group => html.includes('<option value="'+group+'">'))],
+  ['Mockup progress UI contains no obsolete ten-scene count', !html.includes('جارٍ بناء 10 مشاهد ثلاثية الأبعاد')],
   ['Mockup cards and individual downloads are integrated into the app', html.includes('id="mockupGrid"') && html.includes('id="downloadMockups"') && html.includes('renderMockupGallery')],
   ['Complete mockup set is mandatory in ZIP export', html.includes("mockupAssets.length!==21") && html.includes("05-presentation-mockups/" )],
   ['No unused admin password claim', !server.includes('adminConfigured') && !server.includes('ADMIN_PASSWORD')]

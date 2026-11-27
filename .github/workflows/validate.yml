@@ -40,7 +40,7 @@ jobs:
         run: npm run critic
 
   mockup-browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source
         uses: actions/checkout@v4

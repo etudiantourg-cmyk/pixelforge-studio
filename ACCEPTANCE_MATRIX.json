@@ -198,7 +198,7 @@
       "implementation": "mockup-engine.js",
       "test": "scripts/mockup-browser-smoke.mjs",
       "evidence": "QUALITY_GATE.md",
-      "status": "NOT_TESTED",
+      "status": "PARTIAL",
       "criticVerdict": "REJECT",
       "ownerDecision": "NOT_APPROVED"
     }

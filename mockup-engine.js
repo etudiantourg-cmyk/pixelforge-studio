@@ -31,6 +31,20 @@
   }
   function mat(color,kind='paper',rough=.82,metal=0){const tex=noiseTexture(color,kind);return new T.MeshStandardMaterial({color:0xffffff,map:tex,bumpMap:tex,bumpScale:kind==='fabric'?.018:.009,roughness:rough,metalness:metal});}
   function planeLogo(parent,texture,w,h,x,y,z,rotation=0){const ratio=texture.image?.width&&texture.image?.height?texture.image.width/texture.image.height:1;if(ratio>w/h)h=w/ratio;else w=h*ratio;const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:T.DoubleSide}));m.position.set(x,y,z);m.rotation.z=rotation;m.renderOrder=5;parent.add(m);return m;}
+  function curvedLogo(parent,texture,radius,width,height,centerY=0,centerZ=0){
+    const segments=48,rows=8,positions=[],uvs=[],indices=[];
+    for(let y=0;y<=rows;y++)for(let x=0;x<=segments;x++){
+      const u=x/segments,v=y/rows,theta=(u-.5)*width/radius;
+      positions.push(radius*Math.sin(theta),centerY+(v-.5)*height,centerZ+radius*Math.cos(theta));
+      uvs.push(u,v);
+    }
+    for(let y=0;y<rows;y++)for(let x=0;x<segments;x++){
+      const a=y*(segments+1)+x,b=a+segments+1;
+      indices.push(a,b,a+1,b,b+1,a+1);
+    }
+    const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(positions,3));g.setAttribute('uv',new T.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();
+    const m=new T.Mesh(g,new T.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:T.DoubleSide}));m.renderOrder=5;parent.add(m);return m;
+  }
   function box(parent,w,h,d,material,x=0,y=0,z=0){const m=new T.Mesh(new T.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m;}
   function tube(parent,points,r,material){const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p)));const m=new T.Mesh(new T.TubeGeometry(curve,48,r,10,false),material);parent.add(m);return m;}
   function shirt(parent,logo){
@@ -65,13 +79,13 @@
     const ceramic=new T.MeshStandardMaterial({color:'#e8e5df',roughness:.22,metalness:.04});const body=new T.Mesh(new T.CylinderGeometry(.72,.68,1.35,64,1,true),ceramic);body.position.y=-.02;parent.add(body);
     const rim=new T.Mesh(new T.TorusGeometry(.70,.035,12,64),mat('#f5f2ec','paper',.18));rim.rotation.x=Math.PI/2;rim.position.y=.66;parent.add(rim);
     const handle=new T.Mesh(new T.TorusGeometry(.42,.09,18,48,Math.PI*1.8),ceramic);handle.position.set(.72,.02,0);handle.rotation.z=-Math.PI/2;parent.add(handle);
-    planeLogo(parent,logo,.62,.62,0,-.02,.704);
+    curvedLogo(parent,logo,.724,.82,.68,-.02,0);
   }
   function bottle(parent,logo){
     const pts=[[0,-1.3],[.42,-1.3],[.48,-1.15],[.5,-.6],[.48,.48],[.4,.72],[.23,.9],[.2,1.16],[.25,1.2],[.25,1.3],[0,1.3]].map(p=>new T.Vector2(p[0],p[1]));
     const g=new T.LatheGeometry(pts,64);const glass=new T.MeshPhysicalMaterial({color:'#c5d5c8',roughness:.16,metalness:.05,transmission:.18,transparent:true,opacity:.9,clearcoat:.8});const m=new T.Mesh(g,glass);parent.add(m);
     const cap=new T.Mesh(new T.CylinderGeometry(.26,.26,.18,48),mat('#263b35','paper',.35));cap.position.y=1.35;parent.add(cap);
-    planeLogo(parent,logo,.55,.55,0,-.1,.49);
+    curvedLogo(parent,logo,.505,.68,.62,-.1,0);
   }
   function cap(parent,logo){
     const dome=new T.Mesh(new T.SphereGeometry(.9,48,32,0,Math.PI*2,0,Math.PI/2),mat('#283b53','fabric',.96));dome.scale.set(1.12,.92,1);dome.position.y=-.05;parent.add(dome);
@@ -125,13 +139,21 @@
       try{
         for(const item of items){
           const scene=new T.Scene();scene.background=new T.Color('#e9e6e0');
-          const camera=new T.PerspectiveCamera(34,4/3,.1,100);camera.position.set(3.6,2.6,6.7);camera.lookAt(0,0,0);
+          const camera=new T.PerspectiveCamera(34,4/3,.1,100);
           scene.add(new T.HemisphereLight(0xffffff,0x8d877e,2.0));
           const key=new T.DirectionalLight(0xfff4e5,3.2);key.position.set(-3.5,6,5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=5;key.shadow.camera.bottom=-5;key.shadow.bias=-.0002;scene.add(key);
           const fill=new T.DirectionalLight(0xd5e2ff,1.1);fill.position.set(4,2,3);scene.add(fill);
           const rim=new T.DirectionalLight(0xffffff,1.7);rim.position.set(0,4,-4);scene.add(rim);
-          const floor=new T.Mesh(new T.PlaneGeometry(200,200),new T.MeshStandardMaterial({color:'#c9c5bd',roughness:.92}));floor.rotation.x=-Math.PI/2;floor.position.y=-1.65;floor.receiveShadow=true;scene.add(floor);
+          const floorY=-1.65;
+          const floor=new T.Mesh(new T.PlaneGeometry(200,200),new T.MeshStandardMaterial({color:'#c9c5bd',roughness:.92}));floor.rotation.x=-Math.PI/2;floor.position.y=floorY-.012;floor.receiveShadow=true;scene.add(floor);
           const group=new T.Group();scene.add(group);builders[item.id](group,logoTexture);
+          group.updateMatrixWorld(true);
+          const bounds=new T.Box3().setFromObject(group),dimensions=bounds.getSize(new T.Vector3());
+          const lift=floorY-bounds.min.y;group.position.y+=lift;bounds.min.y+=lift;bounds.max.y+=lift;
+          const center=bounds.getCenter(new T.Vector3()),vFov=T.MathUtils.degToRad(camera.fov),hFov=2*Math.atan(Math.tan(vFov/2)*camera.aspect);
+          const fit=Math.max(dimensions.y/(2*Math.tan(vFov/2)),dimensions.x/(2*Math.tan(hFov/2)),dimensions.z/(2*Math.tan(hFov/2)));
+          const distance=Math.max(5.2,fit*1.32),direction=new T.Vector3(3.6,2.6,6.7).normalize();
+          camera.position.copy(center).addScaledVector(direction,distance);camera.near=Math.max(.05,distance/100);camera.far=distance*12;camera.updateProjectionMatrix();camera.lookAt(center);
           group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
           renderer.render(scene,camera);
           await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));

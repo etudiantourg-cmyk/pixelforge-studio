@@ -68,7 +68,7 @@ try {
     delete item.base64;
   }
   fs.writeFileSync(path.join(artifactDir, 'manifest.json'), JSON.stringify(results, null, 2));
-  for (const item of results) {
+  for (const item of renderedItems) {
     assert.equal(item.type, 'image/png', item.id + ' must export PNG');
     assert.equal(item.width, 1200, item.id + ' width');
     assert.equal(item.height, 900, item.id + ' height');
@@ -77,7 +77,7 @@ try {
     assert.ok(item.foregroundRatio > 0.025, item.id + ' must contain visible product geometry');
   }
   assert.equal(new Set(renderedItems.map(x => x.id)).size, 21, 'mockup scene IDs must be unique');
-  for (const item of results) {
+  for (const item of renderedItems) {
     const png = fs.readFileSync(path.join(artifactDir, item.id + '.png'));
     assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', item.id + ' PNG signature');
   }

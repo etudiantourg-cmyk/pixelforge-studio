@@ -5,20 +5,40 @@ const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const server = fs.readFileSync(new URL('../server.js', import.meta.url), 'utf8');
 const errors = [];
 const checks = [];
-const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/gi)].map(m => m[1]).filter(s => s.includes('(()=>{'));
-if (!scripts.length) errors.push('Main application script was not found.');
-for (const [i, script] of scripts.entries()) {
-  try { new vm.Script(script, { filename: 'index-inline-' + i + '.js' }); checks.push('Inline JavaScript syntax'); }
-  catch (error) { errors.push('JavaScript syntax: ' + error.message); }
+
+const inlineScripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/gi)]
+  .map(match => match[1])
+  .filter(script => script.includes('(()=>{'));
+if (!inlineScripts.length) errors.push('Main application script was not found.');
+for (const [index, script] of inlineScripts.entries()) {
+  try {
+    new vm.Script(script, { filename: 'index-inline-' + index + '.js' });
+    checks.push('Frontend JavaScript syntax');
+  } catch (error) {
+    errors.push('Frontend syntax: ' + error.message);
+  }
 }
-try { new vm.Script(server.replace(/^import .*;\\s*$/gm, '').replaceAll('import.meta.url', "'file:///project/server.js'"), { filename: 'server.js' }); checks.push('Backend JavaScript syntax'); } catch (error) { errors.push('Backend syntax: ' + error.message); }
-const ids = new Set([...html.matchAll(/\bid=["']([^"']+)["']/g)].map(m => m[1]));
-const refs = [...html.matchAll(/\$\('([^']+)'\)/g)].map(m => m[1]);
-for (const id of [...new Set(refs)]) if (!ids.has(id)) errors.push('Missing DOM element #' + id);
+
+try {
+  const serverForParse = server
+    .replace(/^import .*;\s*$/gm, '')
+    .replaceAll('import.meta.url', "'file:///project/server.js'");
+  new vm.Script(serverForParse, { filename: 'server.js' });
+  checks.push('Backend JavaScript syntax');
+} catch (error) {
+  errors.push('Backend syntax: ' + error.message);
+}
+
+const ids = new Set([...html.matchAll(/\bid=["']([^"']+)["']/g)].map(match => match[1]));
+const refs = [...html.matchAll(/\$\('([^']+)'\)/g)].map(match => match[1]);
+for (const id of [...new Set(refs)]) {
+  if (!ids.has(id)) errors.push('Missing DOM element #' + id);
+}
 for (const id of ['sourceFile','sourceInfo','sourceThumb','sourceImage','convert','mainPreview','diagnostics','downloadSvg','downloadPng','downloadPdf','downloadPack']) {
   if (!ids.has(id)) errors.push('Required UI element missing: #' + id);
 }
-for (const [name, condition] of [
+
+const features = [
   ['Raster-to-vector engine', html.includes('ImageTracer.imagedataToSVG')],
   ['ZIP packaging', html.includes('zip.generateAsync')],
   ['Transparent background preprocessing', html.includes('pixels.data[p+3]=0')],
@@ -35,9 +55,14 @@ for (const [name, condition] of [
   ['Backend prompt length cap', server.includes('prompt.length>4000')],
   ['Backend image payload cap', server.includes('18*1024*1024')],
   ['Backend concurrent request cap', server.includes('MAX_CONCURRENT_AI=2')]
-]) if (!condition) errors.push('Feature marker missing: ' + name); else checks.push(name);
+];
+for (const [name, condition] of features) {
+  if (condition) checks.push(name);
+  else errors.push('Feature marker missing: ' + name);
+}
+
 if (errors.length) {
-  console.error('PIXELFORGE validation FAILED\n' + errors.map(e => '- ' + e).join('\n'));
+  console.error('PIXELFORGE validation FAILED\n' + errors.map(error => '- ' + error).join('\n'));
   process.exitCode = 1;
 } else {
   console.log('PIXELFORGE static validation PASS (' + checks.length + ' checks)');

@@ -73,7 +73,7 @@ const features = [
   ['40 MP image limit', html.includes('w*h>40000000')],
   ['Stale outputs cleared on new upload', html.includes("svgMarkup='';variants={}")],
   ['Backend API rate limiting', server.includes('function consumeRateLimit')],
-  ['Backend origin validation', server.includes("const ALLOWED_ORIGIN=process.env.ALLOWED_ORIGIN||'https://pixelforge-studio-app.onrender.com'") && server.includes('origin!==ALLOWED_ORIGIN')],
+  ['Backend origin validation', server.includes("const ALLOWED_ORIGIN=process.env.ALLOWED_ORIGIN||'https://pixelforge-studio-app.onrender.com'") && server.includes('function originAllowed(req)') && server.includes('new URL(referer).origin===ALLOWED_ORIGIN') && server.includes('if(!originAllowed(req))')],
   ['Backend image payload cap', server.includes('18*1024*1024')],
   ['No paid AI provider or API credentials are required', !server.includes('CLOUDFLARE') && !server.includes('FLUX') && !server.includes('runAI') && !envExample.includes('API_TOKEN') && !envExample.includes('API_KEY')],
   ['Health endpoint identifies local CPU vector engine', server.includes("engine:'VTracer 1.0 WASM'") && server.includes('requiresApiKey:false')],

@@ -46,6 +46,7 @@ Required capability groups to be individually specified and verified:
 - Browser-side conversion foundation: image upload, raster-to-SVG tracing via ImageTracerJS, pixel-level white/black transparency preprocessing, monochrome variants, PNG exports at 9 sizes, SVG-based browser print flow, and ZIP delivery with palette manifest and preliminary brand notes.
 - Added source-image preview and structural vector diagnostics (path count, path-command estimate, viewBox, extracted fill palette).
 - Fixed a data-flow defect discovered during review: edge-connected transparent pixels are now written back to the canvas before creating the PNG uploaded to VTracer; previously the API received the original unmodified canvas while only the local fallback used the modified pixel buffer. Added a regression guard for this exact ordering.
+- Removed the unused Cloudflare Workers AI FLUX.2 image-editing API, its API-token/account requirements, and its `/api/edit` and `/api/generate` routes. The product scope is logo conversion only; no paid AI provider or API credential is required. The backend health endpoint now reports the local CPU vector engine. The remaining Render web service is verified on the Free plan.
 - Added a VTracer 1.0 WASM vectorization endpoint to the Node backend using the pinned `@visioncortex/vtracer@1.0.0-alpha.4` package. The frontend sends its downscaled PNG to this endpoint, and retains ImageTracerJS as a clearly identified local fallback. The endpoint enforces the static-site Origin, existing per-IP rate limit, one concurrent vector job, PNG signature/IHDR validation, and an 1800×1800 / 3.24 MP dimension ceiling.
 - Added a GitHub Actions dependency-install step and a VTracer WASM smoke-test script using synthetic RGBA pixels and a real local HTTP integration test that starts the Node server, posts a generated PNG through `/api/vectorize`, verifies SVG output, and confirms rejection of a foreign Origin. The workflow is configured to run both project validation and the actual package smoke test on pushes.
 - Replaced global near-white/near-black deletion with edge-connected flood-fill background removal. Only matching pixels connected to the image border become transparent; enclosed details are preserved. Processing occurs after scaling the working image to at most 1,800 px on its longest side and reports the removed-pixel count.
@@ -76,3 +77,11 @@ Required capability groups to be individually specified and verified:
 ## Release decision
 Current status: **REJECTED — FOUNDATION BUILD ONLY**.
 Reason: the complete logo-conversion workflow and mandatory deliverables are not yet implemented or verified. No independent critic agent exists yet; this file is an acceptance charter and review record, not proof of an autonomous critic. Do not represent this build as finished or production-ready.
+
+
+## Cost and owner-intervention constraint — 2026-11-27
+- User requirement: the complete solution must remain free to use and the owner must not be asked to perform technical or operational steps; the owner only uses the finished application.
+- Render backend service was inspected and its compute plan is `free`; the frontend is a Render static site, which Render documents as free to deploy. The free backend may sleep after 15 minutes idle, has an ephemeral filesystem, and is not production-SLA infrastructure.
+- GitHub repository is public; GitHub states Actions minutes are free for public repositories.
+- Removed Cloudflare Workers AI and all its secret requirements to prevent hidden API usage, paid inference dependencies, or requests for owner-provided credentials. Logo vectorization runs on the existing free CPU web service; ImageTracerJS remains the browser fallback.
+- No paid plan, paid API, GPU rental, credit card, or owner setup step is introduced by this change. Free-host quotas and provider availability still apply; do not imply unlimited capacity or guaranteed uptime.

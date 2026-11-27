@@ -60,13 +60,13 @@ try{
   await page.route('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:three}));
   await page.route('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js',r=>r.fulfill({status:200,contentType:'text/javascript',body:rgbeLoader}));
   backend=spawn(process.execPath,['server.js'],{cwd:root,env:{...process.env,PORT:String(port),ALLOWED_ORIGIN:origin},stdio:['ignore','pipe','pipe']});
-  let backendError='';
+  let backendError='',backendStdout='';
   backend.stderr.on('data',chunk=>{backendError+=chunk.toString();});
   await new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>reject(new Error('Local VTracer API startup timed out. '+backendError)),15000);
     backend.once('error',error=>{clearTimeout(timer);reject(error);});
     backend.once('exit',code=>{clearTimeout(timer);reject(new Error('Local VTracer API exited early ('+code+'). '+backendError));});
-    backend.stdout.on('data',chunk=>{if(chunk.toString().includes('listening on '+port)){clearTimeout(timer);resolve();}});
+    backend.stdout.on('data',chunk=>{backendStdout+=chunk.toString();if(backendStdout.includes('listening on '+port)){clearTimeout(timer);resolve();}});
   });
   await page.route(origin+'/',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:localHtml}));
   await page.route(origin+'/index.html',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:localHtml}));
@@ -76,7 +76,12 @@ try{
   await page.locator('#sourceFile').setInputFiles({name:'brand-test.png',mimeType:'image/png',buffer:inputPng});
   await page.waitForFunction(()=>document.querySelector('#convert')?.disabled===false);
   await page.locator('#convert').click();
-  await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM'));
+  try{
+    await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('اكتمل التتبع بمحرك VTracer 1.0 WASM'),null,{timeout:60000});
+  }catch(error){
+    const status=await page.locator('#status').textContent().catch(()=>'<missing status>');
+    throw new Error('Real VTracer browser conversion did not complete. UI status='+status+'; backend stdout='+backendStdout+'; backend stderr='+backendError+'; browser errors='+failures.join(' | ')+'; '+error.message);
+  }
   assert.ok((await page.locator('#diagnostics').textContent()).includes('عدد المسارات:'),'real VTracer output must populate vector diagnostics');
   await page.waitForFunction(()=>document.querySelectorAll('.mockupCard').length===21);
   assert.equal(await page.evaluate(()=>window.PIXELFORGE_MOCKUPS?.environmentStatus),'loaded','real mockup engine must load the Poly Haven HDRI');

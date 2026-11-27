@@ -50,7 +50,7 @@ const features = [
   ['VTracer backend validates PNG dimensions', server.includes("input.buffer.toString('ascii',12,16)!=='IHDR'") && server.includes('width>1800||height>1800||width*height>3240000')],
   ['VTracer smoke test covers actual WASM conversion', vtracerSmoke.includes('vtracer.convertPixels') && vtracerSmoke.includes('mode: \'spline\'')],
   ['VTracer HTTP endpoint integration and Origin rejection tests', vtracerSmoke.includes('/api/vectorize') && vtracerSmoke.includes('Vector API Origin rejection failed') && vtracerSmoke.includes('spawn(process.execPath')],
-  ['Pinned free vector-PDF libraries are loaded before app code', html.includes('jspdf/2.5.2/jspdf.umd.min.js') && html.includes('svg2pdf.js@2.7.0/dist/svg2pdf.umd.min.js')],
+  ['Pinned free vector-PDF libraries are loaded before app code', html.includes('jspdf/2.5.2/jspdf.umd.min.js') && html.includes('svg2pdf.js@2.9.0/dist/svg2pdf.umd.min.js')],
   ['PDF export is generated from SVG paths, not a print dialog or raster image', html.includes('async function svgToPdf(svg)') && html.includes('await pdf.svg(root,{x:0,y:0,width,height})') && html.includes("return pdf.output('blob')")],
   ['ZIP includes vector PDFs for all three logo variants', html.includes("baseName+'.pdf'") && html.includes("baseName+'-black.pdf'") && html.includes("baseName+'-white.pdf'")],
   ['ZIP packaging', html.includes('zip.generateAsync')],

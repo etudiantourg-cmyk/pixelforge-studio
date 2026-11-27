@@ -114,7 +114,7 @@
     box(parent,.55,.018,.34,mat('#8c949e','paper',.42,.6),0,-.485,.79);
   }
   const builders={tshirt:shirt,tote,shopping,giftbox,shipping,mug,bottle,cap,sign,cards,letterhead,envelope,laptop};
-  async function render(svg){
+  async function render(svg,onProgress){
     if(!window.WebGLRenderingContext)throw Error('المتصفح لا يدعم WebGL اللازم لعرض النماذج ثلاثية الأبعاد.');
     const logoUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
     try{
@@ -136,7 +136,7 @@
           renderer.render(scene,camera);
           await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
           const blob=await new Promise((resolve,reject)=>renderer.domElement.toBlob(b=>b?resolve(b):reject(Error('تعذر حفظ صورة العرض.')),'image/png'));
-          out.push({id:item.id,name:item.name,group:item.group,blob});
+          out.push({id:item.id,name:item.name,group:item.group,blob});if(typeof onProgress==='function')onProgress(item,out.length,items.length);
           scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m.map&&m.map!==logoTexture)m.map.dispose();if(m.bumpMap&&m.bumpMap!==m.map)m.bumpMap.dispose();m.dispose();});}});
           scene.clear();
         }

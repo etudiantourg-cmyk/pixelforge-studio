@@ -42,7 +42,7 @@ const refs = [...html.matchAll(/\$\('([^']+)'\)/g)].map(match => match[1]);
 for (const id of [...new Set(refs)]) {
   if (!ids.has(id)) errors.push('Missing DOM element #' + id);
 }
-for (const id of ['sourceFile','sourceInfo','sourceThumb','sourceImage','convert','mainPreview','diagnostics','downloadSvg','downloadPng','downloadPdf','downloadPack']) {
+for (const id of ['sourceFile','sourceInfo','sourceThumb','sourceImage','convert','mainPreview','diagnostics','downloadSvg','downloadPng','downloadPdf','downloadEps','downloadPack']) {
   if (!ids.has(id)) errors.push('Required UI element missing: #' + id);
 }
 
@@ -56,6 +56,7 @@ const features = [
   ['VTracer smoke test covers actual WASM conversion', vtracerSmoke.includes('vtracer.convertPixels') && vtracerSmoke.includes('mode: \'spline\'') && vtracerSmoke.includes('assertVectorSvg') && vtracerSmoke.includes('viewBox')],
   ['VTracer HTTP endpoint integration and Origin rejection tests', vtracerSmoke.includes('/api/vectorize') && vtracerSmoke.includes('Vector API Origin rejection failed') && vtracerSmoke.includes('spawn(process.execPath')],
   ['Pinned free vector-PDF libraries are loaded before app code', html.includes('jspdf/2.5.2/jspdf.umd.min.js') && html.includes('svg2pdf.js@2.9.0/dist/svg2pdf.umd.min.js')],
+  ['EPS export is enabled after successful conversion', html.includes("'downloadEps','downloadPack'].forEach(id=>$(id).disabled=false)")],
   ['PDF export is generated from SVG paths, not a print dialog or raster image', html.includes('async function svgToPdf(svg)') && html.includes('await pdf.svg(root,{x:0,y:0,width,height})') && html.includes("return pdf.output('blob')") && html.includes('function svgToEps(svg)') && html.includes('setcmykcolor') && html.includes('id=\"downloadEps\"')],
   ['ZIP includes vector PDFs for all three logo variants', html.includes("baseName+'.pdf'") && html.includes("baseName+'-black.pdf'") && html.includes("baseName+'-white.pdf'")],
   ['ZIP packaging', html.includes('zip.generateAsync')],

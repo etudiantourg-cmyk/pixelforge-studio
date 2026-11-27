@@ -140,3 +140,12 @@ Reason: the complete logo-conversion workflow and mandatory deliverables are not
 - Added per-scene progress feedback while rendering. The source harness was rerun after the expansion; all 49 static/source assertions pass. This remains source-level evidence only, not a successful real-browser render.
 - Latest main-branch implementation commit at this review point: `ce41020d23bf478a9e564dd37fc5654658210019`. The temporary CI-trigger pull request was closed because no workflow-run evidence was returned by the available GitHub Actions query. No CI pass is claimed.
 - Render deployment must be checked for this exact commit before the feature is described as live. Final release decision remains **REJECTED**.
+
+
+## Mockup scene quality and CI hardening — 2026-11-27
+- Corrected a real browser-test defect: the uniqueness assertion expected 10 IDs although the renderer now exposes 13 scenes. It now requires 13 unique IDs.
+- Reworked scene composition: each product's 3D bounds are measured, its lowest point is placed on the studio floor, and the camera distance/target are computed from its actual dimensions. This removes the fixed-camera crop and floating-product defects for differently sized objects.
+- Mug and bottle logos are now mapped onto curved mesh surfaces rather than flat floating planes.
+- Browser tests now load the exact pinned Three.js 0.128.0 package locally (no CDN dependency in CI), with Playwright 1.56.1. They validate PNG signatures, 1200×900 dimensions, file size, color/material variation, visible product geometry, and browser errors.
+- The test writes each rendered PNG and a manifest into `artifacts/mockup-browser/`; GitHub Actions uploads them for seven days for human visual inspection.
+- These are substantive implementation improvements, not yet accepted quality claims. The real Chromium job must run successfully and the resulting images must be visually inspected before MOCK-01 or MOCK-02 can be accepted.

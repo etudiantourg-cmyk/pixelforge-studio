@@ -4,6 +4,8 @@ import vm from 'node:vm';
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const server = fs.readFileSync(new URL('../server.js', import.meta.url), 'utf8');
 const envExample = fs.readFileSync(new URL('../.env.example', import.meta.url), 'utf8');
+const packageJson = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const vtracerSmoke = fs.readFileSync(new URL('./vtracer-smoke.mjs', import.meta.url), 'utf8');
 const errors = [];
 const checks = [];
 
@@ -40,7 +42,12 @@ for (const id of ['sourceFile','sourceInfo','sourceThumb','sourceImage','convert
 }
 
 const features = [
-  ['Raster-to-vector engine', html.includes('ImageTracer.imagedataToSVG')],
+  ['Raster-to-vector engine fallback', html.includes('ImageTracer.imagedataToSVG')],
+  ['VTracer WASM backend route', server.includes("url.pathname==='/api/vectorize'") && server.includes("getVTracer().convertBuffer(input.buffer,options)")],
+  ['Pinned VTracer WASM dependency', packageJson.dependencies?.['@visioncortex/vtracer'] === '1.0.0-alpha.4'],
+  ['Frontend calls VTracer and retains explicit local fallback', html.includes('/api/vectorize') && html.includes("conversionEngine='ImageTracer fallback'")],
+  ['VTracer backend validates PNG dimensions', server.includes("input.buffer.toString('ascii',12,16)!=='IHDR'") && server.includes('width>1800||height>1800||width*height>3240000')],
+  ['VTracer smoke test covers actual WASM conversion', vtracerSmoke.includes('vtracer.convertPixels') && vtracerSmoke.includes('mode: \'spline\'')],
   ['ZIP packaging', html.includes('zip.generateAsync')],
   ['Edge-connected transparent background preprocessing', html.includes('function removeEdgeConnectedBackground(imageData,mode)') && html.includes('data[i*4+3]=0') && html.includes('queue=new Int32Array(total)')],
   ['Source image preview', html.includes("sourceImage').src=sourcePreviewUrl")],

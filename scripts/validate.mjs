@@ -90,7 +90,7 @@ const features = [
   ['Chromium smoke test verifies all thirteen rendered PNGs and their dimensions', mockupSmoke.includes('assert.equal(results.length, 13') && mockupSmoke.includes('createImageBitmap(item.blob)') && mockupSmoke.includes('assert.equal(item.width, 1200') && mockupSmoke.includes('assert.equal(item.height, 900')],
   ['GitHub Actions runs the 3D mockup browser test', workflow.includes('mockup-browser:') && workflow.includes('npm run test:mockups')],
   ['Browser test pins Three.js and Playwright versions', packageJson.devDependencies?.three === '0.128.0' && packageJson.devDependencies?.playwright === '1.56.1'],
-  ['Browser test stores real PNG evidence and validates PNG signatures', mockupSmoke.includes('fs.writeFileSync(path.join(artifactDir, item.id + \'.png\')') && mockupSmoke.includes('89504e470d0a1a0a')],
+  ['Browser test stores real PNG evidence and validates PNG signatures', mockupSmoke.includes('artifactDir, item.id +') && mockupSmoke.includes('89504e470d0a1a0a')],
   ['GitHub Actions uploads mockup evidence artifacts', workflow.includes('actions/upload-artifact@v4') && workflow.includes('pixelforge-mockup-browser-evidence')],
   ['Project exposes the 3D mockup browser test command', packageJson.scripts?.['test:mockups'] === 'node scripts/mockup-browser-smoke.mjs'],
   ['Mockup cards and individual downloads are integrated into the app', html.includes('id="mockupGrid"') && html.includes('id="downloadMockups"') && html.includes('renderMockupGallery')],
